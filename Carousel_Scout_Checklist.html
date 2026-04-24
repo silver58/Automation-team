@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel – Scout Check Sheet</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root{
+  --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
+  --yel:#e3b341;--blu:#388bfd;--txt:#e6edf3;--mut:#8b949e;--mut2:#6e7681;
+  --pur:#a371f7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;}
+input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus */
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200;}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+.hdr-right{display:flex;gap:14px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);}
+.prog-pill{background:#21262d;border:1px solid var(--bdr2);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--amb);font-weight:600;}
+
+.layout{display:grid;grid-template-columns:252px 1fr;min-height:calc(100vh - 56px);}
+
+/* SIDEBAR */
+.sidebar{background:var(--sur);border-right:1px solid var(--bdr);position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;padding:12px 0;}
+.sb-section{margin-bottom:2px;}
+.sb-group{padding:8px 14px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:var(--mut2);text-transform:uppercase;letter-spacing:.12em;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:5px 14px;cursor:pointer;border-left:2px solid transparent;transition:all .12s;font-size:11.5px;color:var(--mut);}
+.nav-item:hover{background:rgba(255,255,255,.03);color:var(--txt);}
+.nav-item.active{background:rgba(240,165,0,.08);border-left-color:var(--amb);color:var(--amb2);}
+.nav-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);min-width:16px;}
+.nav-lbl{flex:1;line-height:1.25;}
+.nav-icon{font-size:11px;width:14px;text-align:center;}
+.nav-bar{height:2px;background:var(--bdr);margin:1px 14px 3px 32px;border-radius:1px;}
+.nav-bar-fill{height:100%;border-radius:1px;transition:width .35s;}
+
+/* MAIN */
+.main{padding:26px 34px;max-width:920px;}
+
+/* FORM HEADER */
+.fhdr{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:20px 22px;margin-bottom:18px;}
+.fhdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;}
+.ftitle{font-size:20px;font-weight:600;margin-bottom:3px;}
+.fsub{font-size:12.5px;color:var(--mut);}
+.scout-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.28);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--yel);white-space:nowrap;}
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.mf label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);margin-bottom:3px;font-family:'IBM Plex Mono',monospace;}
+.mf input,.mf select{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;color:var(--txt);font-size:13px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s;}
+.mf input:focus,.mf select:focus{border-color:var(--amb);}
+
+/* MASTER PROGRESS */
+.mast-prog{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:14px 20px;margin-bottom:16px;}
+.mp-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.mp-hdr h3{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-family:'IBM Plex Mono',monospace;color:var(--mut);}
+.mp-hdr span{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;color:var(--amb);}
+.prog-track{height:5px;background:var(--bdr);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--amb),var(--amb2));border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1);}
+
+/* ATTN SUMMARY */
+.attn-box{background:rgba(248,81,73,.06);border:1px solid rgba(248,81,73,.22);border-radius:8px;padding:14px 18px;margin-bottom:16px;display:none;}
+.attn-box.show{display:block;}
+.attn-box h3{font-size:11px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;}
+.attn-list{list-style:none;}
+.attn-list li{font-size:12.5px;color:var(--txt);padding:5px 0;border-bottom:1px solid rgba(248,81,73,.1);display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:baseline;}
+.attn-list li:last-child{border-bottom:none;}
+.attn-list li::before{content:'⚠';color:var(--red);font-size:10px;}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.leg-key{font-size:10px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;}
+.ftab{padding:4px 13px;border-radius:20px;border:1px solid var(--bdr2);background:transparent;color:var(--mut);font-size:11.5px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .13s;}
+.ftab:hover,.ftab.active{border-color:var(--amb);color:var(--amb);background:rgba(240,165,0,.07);}
+#attnTab{display:none;border-color:rgba(248,81,73,.4);color:var(--red);}
+#attnTab.visible{display:inline-block;}
+#attnTab.active{background:rgba(248,81,73,.1);}
+
+/* SECTION CARD */
+.sec-card{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;margin-bottom:14px;overflow:hidden;}
+.sec-card.hidden{display:none;}
+.sec-head{padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .12s;}
+.sec-head:hover{background:rgba(255,255,255,.018);}
+.sec-hl{display:flex;align-items:center;gap:10px;}
+.sec-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);background:var(--bg);border:1px solid var(--bdr2);border-radius:4px;padding:2px 6px;}
+.sec-title{font-size:13.5px;font-weight:600;}
+.sec-hr{display:flex;align-items:center;gap:8px;}
+.sec-pct{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);}
+.sec-pct.done{color:var(--grn);}
+.sec-attn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--red);background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);border-radius:3px;padding:1px 6px;display:none;}
+.sec-attn.show{display:inline-block;}
+.chev{color:var(--mut2);font-size:11px;transition:transform .18s;}
+.sec-card.collapsed .chev{transform:rotate(-90deg);}
+.sec-body{display:block;}
+.sec-card.collapsed .sec-body{display:none;}
+
+/* CHECK ITEM */
+.chk-item{border-bottom:1px solid var(--bdr);padding:10px 18px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;transition:background .1s;}
+.chk-item:last-of-type{border-bottom:none;}
+.chk-item:hover{background:rgba(255,255,255,.018);}
+.chk-item.status-ok   {background:rgba(63,185,80,.04);}
+.chk-item.status-attn {background:rgba(248,81,73,.05);}
+.chk-item.status-na   {background:rgba(110,118,129,.04);}
+.chk-left{display:flex;align-items:center;gap:10px;}
+.chk-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);min-width:16px;text-align:right;}
+.chk-desc{font-size:12.5px;color:var(--txt);line-height:1.4;}
+.chk-item.status-na .chk-desc{color:var(--mut2);text-decoration:line-through;}
+.status-btns{display:flex;gap:4px;flex-shrink:0;}
+.sbtn{border:1px solid var(--bdr2);background:transparent;color:var(--mut);font-size:9.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:4px 8px;border-radius:4px;cursor:pointer;transition:all .13s;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.sbtn:hover{opacity:.8;}
+.sbtn.s-ok  {background:rgba(63,185,80,.18);border-color:var(--grn);color:var(--grn);}
+.sbtn.s-attn{background:rgba(248,81,73,.18);border-color:var(--red);color:var(--red);}
+.sbtn.s-na  {background:rgba(110,118,129,.18);border-color:var(--mut2);color:var(--mut);}
+
+/* NOTE FIELD — appears when needs attention */
+.note-row{padding:6px 18px 10px 44px;display:none;background:rgba(248,81,73,.03);}
+.note-row.show{display:block;}
+.note-row input{width:100%;background:var(--bg);border:1px solid rgba(248,81,73,.3);border-radius:5px;padding:6px 10px;color:var(--txt);font-size:12px;font-family:'IBM Plex Sans',sans-serif;outline:none;}
+.note-row input:focus{border-color:var(--red);}
+.note-row input::placeholder{color:rgba(248,81,73,.45);}
+
+/* SECTION NOTES */
+.sec-notes{padding:12px 18px;border-top:1px solid var(--bdr);background:rgba(0,0,0,.12);}
+.sec-notes label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);margin-bottom:5px;font-family:'IBM Plex Mono',monospace;}
+.sec-notes textarea{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:8px 10px;color:var(--txt);font-size:12.5px;font-family:'IBM Plex Sans',sans-serif;resize:vertical;min-height:50px;outline:none;transition:border-color .15s;}
+.sec-notes textarea:focus{border-color:var(--amb);}
+
+/* SIGN-OFF */
+.signoff{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px;padding:16px 18px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;}
+.sf label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;}
+.sf input{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:7px 10px;color:var(--txt);font-size:13px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s;}
+.sf input:focus{border-color:var(--amb);}
+
+/* ACTIONS */
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--bdr);gap:10px;}
+.btn{padding:8px 18px;border-radius:6px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .13s;display:inline-flex;align-items:center;gap:6px;}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--mut);}
+.btn-ghost:hover{border-color:var(--amb);color:var(--amb);}
+.btn-primary{background:var(--amb);color:#000;font-weight:600;}
+.btn-primary:hover{background:var(--amb2);}
+.btn-ok{background:var(--grn);color:#000;font-weight:600;}
+.btn-warn{background:var(--red);color:#fff;font-weight:600;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.t-ok{background:var(--grn);color:#000;}
+.t-warn{background:var(--red);color:#fff;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+
+
+/* ── MOBILE BOTTOM NAV ──────────────────────────────────────────────────────── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bdr);z-index:300;padding:0;safe-area-inset-bottom:env(safe-area-inset-bottom);}
+.mobile-nav-inner{display:flex;align-items:stretch;}
+.mobile-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 12px;gap:3px;background:transparent;border:none;color:var(--mut);font-size:10px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .15s;letter-spacing:.04em;border-top:2px solid transparent;}
+.mobile-nav-btn.active{color:var(--amb);border-top-color:var(--amb);}
+.mobile-nav-icon{font-size:18px;line-height:1;}
+.mobile-nav-badge{background:var(--amb);color:#000;border-radius:10px;padding:1px 5px;font-size:9px;font-weight:700;min-width:16px;text-align:center;}
+
+/* ── MOBILE STATION DRAWER ──────────────────────────────────────────────────── */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;}
+.drawer-overlay.show{display:block;}
+.drawer{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-radius:16px 16px 0 0;border-top:1px solid var(--bdr2);z-index:401;max-height:70vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.drawer.show{transform:translateY(0);}
+.drawer-handle{width:36px;height:4px;background:var(--bdr2);border-radius:2px;margin:10px auto 0;}
+.drawer-title{padding:12px 18px 8px;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--mut2);text-transform:uppercase;letter-spacing:.1em;}
+.drawer-list{overflow-y:auto;padding:0 0 16px;}
+
+@media(max-width:860px){
+  /* Layout */
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:12px 14px 90px;} /* bottom pad for nav bar */
+  .reports-main{padding:16px 14px 90px;}
+
+  /* Header */
+  .site-header{padding:0 14px;height:52px;}
+  .logo{font-size:11px;}
+  .hdr-tabs{display:none;} /* replaced by mobile bottom nav */
+  .hdr-right{gap:8px;}
+  .prog-pill{font-size:10px;padding:3px 10px;}
+  .hdrDate{display:none;}
+
+  /* Form header */
+  .fhdr{padding:14px;}
+  .fhdr-top{flex-direction:column;gap:10px;}
+  .ftitle{font-size:17px;}
+  .scout-tag{font-size:11px;padding:5px 10px;}
+  .meta-grid{grid-template-columns:1fr 1fr;}
+
+  /* Master progress */
+  .mast-prog{padding:12px 14px;}
+
+  /* Filter tabs — horizontal scroll on mobile */
+  .ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .ftabs::-webkit-scrollbar{display:none;}
+  .ftab{white-space:nowrap;flex-shrink:0;}
+
+  /* Check items — stack description above buttons */
+  .chk-item{grid-template-columns:1fr;gap:8px;padding:12px 14px;}
+  .status-btns{justify-content:flex-start;}
+  .sbtn{padding:6px 12px;font-size:10px;}
+
+  /* Section head */
+  .sec-head{padding:12px 14px;}
+  .sec-title{font-size:13px;}
+  .sec-hr{gap:6px;}
+
+  /* Section notes */
+  .sec-notes{padding:10px 14px;}
+
+  /* Sign-off */
+  .signoff{grid-template-columns:1fr;gap:10px;padding:14px;}
+
+  /* Actions */
+  .actions{flex-direction:column;gap:8px;}
+  .actions .btn{width:100%;justify-content:center;}
+
+  /* Attention box */
+  .attn-box{padding:12px 14px;}
+
+  /* Reports page */
+  .rep-toolbar{flex-direction:column;}
+  .rep-search,.rep-filter{width:100%;}
+  .rdm-grid{grid-template-columns:1fr 1fr;}
+  .rep-secs{grid-template-columns:1fr;}
+  .rep-card-head{padding:12px 14px;}
+  .rep-card-title{font-size:12.5px;}
+  .rep-detail{padding:12px 14px;}
+  .rep-actions{flex-wrap:wrap;gap:6px;}
+  .rep-actions button{flex:1;min-width:120px;font-size:10.5px;}
+
+  /* Modal */
+  .modal{width:calc(100vw - 32px);margin:16px;}
+
+  /* Password unlock */
+  .unlock-row{flex-direction:column;align-items:stretch;}
+  .unlock-input{width:100%;}
+  .unlock-btn{width:100%;padding:10px;}
+
+  /* Show mobile nav */
+  .mobile-nav{display:block;}
+
+  /* Adjust section card for touch */
+  .sec-card{margin-bottom:10px;}
+  .chk-num{min-width:20px;}
+  
+  /* Bigger touch targets for status buttons */
+  .sbtn{min-height:36px;min-width:50px;}
+}
+
+@media(max-width:400px){
+  .meta-grid{grid-template-columns:1fr;}
+  .rdm-grid{grid-template-columns:1fr;}
+  .rep-badge{font-size:9px;padding:2px 6px;}
+}
+
+
+.hdr-tabs{display:flex;gap:2px;}
+.hdr-tab{padding:6px 16px;border-radius:6px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.hdr-tab:hover{color:var(--txt);background:rgba(255,255,255,.06);}
+.hdr-tab.active{background:rgba(240,165,0,.12);color:var(--amb);font-weight:600;}
+.hdr-tab .tab-count{background:var(--bdr2);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:5px;}
+.hdr-tab.active .tab-count{background:rgba(240,165,0,.25);color:var(--amb2);}
+.page{display:none;}.page.active{display:block;}
+.reports-main{padding:26px 34px;max-width:960px;}
+.rep-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+.rep-search{flex:1;min-width:200px;background:var(--sur);border:1px solid var(--bdr2);border-radius:6px;padding:8px 12px;color:var(--txt);font-size:13px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s;}
+.rep-search:focus{border-color:var(--amb);}
+.rep-filter{background:var(--sur);border:1px solid var(--bdr2);border-radius:6px;padding:7px 10px;color:var(--txt);font-size:12px;font-family:'IBM Plex Sans',sans-serif;outline:none;cursor:pointer;}
+.rep-empty{text-align:center;padding:60px 20px;color:var(--mut);font-size:14px;}
+.rep-empty-icon{font-size:40px;margin-bottom:12px;}
+.rep-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut2);padding:0 0 10px;}
+.rep-card{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;margin-bottom:10px;overflow:hidden;transition:border-color .15s;}
+.rep-card:hover{border-color:var(--bdr2);}
+.rep-card-head{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:12px;user-select:none;}
+.rep-card-head:hover{background:rgba(255,255,255,.02);}
+.rep-card-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
+.rep-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.rep-dot.clean{background:var(--grn);}.rep-dot.attn{background:var(--red);}.rep-dot.partial{background:var(--yel);}
+.rep-card-title{font-size:13px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rep-card-meta{font-size:11px;color:var(--mut);font-family:'IBM Plex Mono',monospace;}
+.rep-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.rep-badge{font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.rep-badge.clean{background:rgba(63,185,80,.15);color:var(--grn);border:1px solid rgba(63,185,80,.25);}
+.rep-badge.attn{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.25);}
+.rep-badge.partial{background:rgba(227,179,65,.15);color:var(--yel);border:1px solid rgba(227,179,65,.25);}
+.rep-chev{color:var(--mut2);font-size:11px;transition:transform .18s;}
+.rep-card.open .rep-chev{transform:rotate(180deg);}
+.rep-detail{display:none;border-top:1px solid var(--bdr);padding:16px 18px;background:rgba(0,0,0,.1);}
+.rep-card.open .rep-detail{display:block;}
+.rdm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bdr);}
+.rdm-item label{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);display:block;margin-bottom:2px;font-family:'IBM Plex Mono',monospace;}
+.rdm-item span{font-size:13px;color:var(--txt);}
+.rep-secs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px;}
+.rep-sec{background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:9px 12px;}
+.rep-sec.has-attn{border-color:rgba(248,81,73,.3);background:rgba(248,81,73,.04);}
+.rep-sec-n{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--mut2);}
+.rep-sec-t{font-size:11.5px;color:var(--txt);margin:2px 0 5px;line-height:1.3;}
+.rep-sec-stats{display:flex;gap:8px;font-size:10px;font-family:'IBM Plex Mono',monospace;}
+.s-ok{color:var(--grn);}.s-attn{color:var(--red);}.s-na{color:var(--mut2);}
+.rep-flags{margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr);}
+.rep-flags h4{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--red);font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
+.rep-flag{font-size:12px;color:var(--txt);padding:6px 0;border-bottom:1px solid rgba(248,81,73,.1);display:grid;grid-template-columns:auto 1fr;gap:8px;}
+.rep-flag:last-child{border-bottom:none;}
+.rep-flag::before{content:"⚠";color:var(--red);font-size:10px;}
+.rep-flag-note{font-size:11px;color:var(--mut);font-style:italic;margin-top:2px;}
+.rep-sec-notes{margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr);}
+.rep-sec-notes h4{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);font-family:'IBM Plex Mono',monospace;margin-bottom:8px;}
+.rep-note-item{font-size:12px;color:var(--mut);padding:4px 0;border-bottom:1px solid var(--bdr);}
+.rep-note-item:last-child{border-bottom:none;}
+.rep-note-item strong{color:var(--txt);}
+.rep-actions{margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;}
+.rep-del{background:transparent;border:1px solid rgba(248,81,73,.3);color:var(--red);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 12px;border-radius:5px;cursor:pointer;transition:all .15s;}
+.rep-del:hover{background:rgba(248,81,73,.1);}
+
+
+/* PASSWORD MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--sur);border:1px solid var(--bdr2);border-radius:12px;padding:28px 28px 22px;width:340px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:6px;color:var(--txt);}
+.modal p{font-size:12.5px;color:var(--mut);margin-bottom:18px;line-height:1.5;}
+.modal label{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut2);margin-bottom:5px;font-family:'IBM Plex Mono',monospace;}
+.modal input[type=password]{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:9px 12px;color:var(--txt);font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;transition:border-color .15s;letter-spacing:.1em;margin-bottom:6px;}
+.modal input[type=password]:focus{border-color:var(--amb);}
+.modal-err{font-size:11.5px;color:var(--red);min-height:16px;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.modal-cancel{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:12px;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .15s;}
+.modal-cancel:hover{border-color:var(--bdr2);color:var(--txt);}
+.modal-confirm{background:var(--amb);color:#000;font-size:12px;font-weight:600;padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .15s;}
+.modal-confirm:hover{background:var(--amb2);}
+/* LOCK ICON on report card */
+.rep-lock{font-size:12px;color:var(--mut2);margin-left:4px;}
+.rep-lock.locked{color:var(--amb);}
+/* LOCKED OVERLAY inside detail */
+.rep-locked-wall{padding:28px 18px;text-align:center;background:rgba(0,0,0,.2);}
+.rep-locked-wall .lock-icon{font-size:32px;margin-bottom:10px;}
+.rep-locked-wall p{font-size:13px;color:var(--mut);margin-bottom:14px;}
+.unlock-row{display:flex;gap:8px;justify-content:center;align-items:center;}
+.unlock-input{background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:7px 12px;color:var(--txt);font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;transition:border-color .15s;width:180px;letter-spacing:.08em;}
+.unlock-input:focus{border-color:var(--amb);}
+.unlock-btn{background:var(--amb);color:#000;font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.unlock-btn:hover{background:var(--amb2);}
+.unlock-err{font-size:11px;color:var(--red);margin-top:6px;font-family:'IBM Plex Mono',monospace;min-height:14px;}
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--amb)';this.style.color='var(--amb)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.color='var(--mut)'">← Back</a>
+  <div class="logo">👁 Carousel — Scout Check Sheet</div>
+  <div class="hdr-tabs">
+    <button class="hdr-tab active" id="tabChecklist" onclick="switchTab('checklist')">Checklist</button>
+    <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')">Reports <span class="tab-count" id="repCount">0</span></button>
+  </div>
+  <div class="hdr-right">
+    <span id="hdrDate"></span>
+    <span class="prog-pill" id="hdrProg">0 / 259 items</span>
+  </div>
+</header>
+
+<div id="pageChecklist" class="page active">
+<div class="layout">
+<nav class="sidebar" id="sideNav"></nav>
+
+<main class="main">
+
+  <!-- FORM HEADER -->
+  <div class="fhdr">
+    <div class="fhdr-top">
+      <div>
+        <div class="ftitle">Carousel — Preventive Maintenance Check Sheet</div>
+        <div class="fsub">26 stations · 259 check points · Visual inspection &amp; functional checks · Complete before any hands-on PM work</div>
+      </div>
+      <div class="scout-tag">⚡ Scout Shift — visual checks &amp; functional tests only</div>
+    </div>
+    <div class="meta-grid">
+      <div class="mf"><label>Machine</label><input type="text" value="Carousel" readonly></div>
+      <div class="mf"><label>Line / Area</label><input type="text" id="fLine" placeholder="e.g. Line 1"></div>
+      <div class="mf"><label>Date</label><input type="date" id="fDate"></div>
+      <div class="mf"><label>Scout Technician</label><input type="text" id="fTech" placeholder="Name"></div>
+      <div class="mf"><label>Shift</label>
+        <select id="fShift">
+          <option value="">Select shift</option>
+          <option>A Shift — 6:00 AM – 2:30 PM</option>
+          <option>B Shift — 2:00 PM – 10:30 PM</option>
+          <option>C Shift — 10:00 PM – 6:30 AM</option>
+        </select>
+      </div>
+      <div class="mf"><label>Work Order #</label><input type="text" id="fWO" placeholder="Optional"></div>
+    </div>
+  </div>
+
+  <!-- MASTER PROGRESS -->
+  <div class="mast-prog">
+    <div class="mp-hdr"><h3>Overall Progress</h3><span id="mastPct">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="mastFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- NEEDS ATTENTION SUMMARY -->
+  <div class="attn-box" id="attnBox">
+    <h3>⚠ Items Flagged — Needs Attention</h3>
+    <ul class="attn-list" id="attnList"></ul>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span class="leg-key">Status:</span>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--grn)"></div>OK</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Needs Attention</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--mut2)"></div>N/A</div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="ftabs">
+    <button class="ftab active" onclick="doFilter('all',this)">All Stations</button>
+    <button class="ftab" onclick="doFilter('c1',this)">Carousel 1</button>
+    <button class="ftab" onclick="doFilter('pcb',this)">PCB Station</button>
+    <button class="ftab" onclick="doFilter('c2',this)">Carousel 2</button>
+    <button class="ftab" onclick="doFilter('lid',this)">Lid Feeding</button>
+    <button class="ftab" onclick="doFilter('c3',this)">Carousel 3</button>
+    <button class="ftab" id="attnTab" onclick="doFilter('attn',this)">⚠ Attention Only</button>
+  </div>
+
+  <div id="wrap"></div>
+
+  <!-- SIGN-OFF -->
+  <div class="signoff">
+    <div class="sf"><label>Scout Technician (Print)</label><input type="text" placeholder="Full name"></div>
+    <div class="sf"><label>Technician Signature</label><input type="text" placeholder="Signature"></div>
+    <div class="sf"><label>Reviewed By (Lead / Engineer)</label><input type="text" placeholder="Full name"></div>
+    <div class="sf"><label>Reviewer Signature</label><input type="text" placeholder="Signature"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Reset All</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-primary" id="subBtn" onclick="submitForm()">Submit Scout Report →</button>
+    </div>
+  </div>
+
+</main>
+</div>
+</div>
+
+<!-- REPORTS PAGE -->
+<div id="pageReports" class="page">
+  <div class="reports-main">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;gap:12px;">
+      <div>
+        <div style="font-size:20px;font-weight:600;margin-bottom:3px;">Completed Scout Reports</div>
+        <div style="font-size:12.5px;color:var(--mut);">All submitted check sheets — stored in your browser</div>
+      </div>
+    </div>
+    <div class="rep-toolbar">
+      <input class="rep-search" id="repSearch" placeholder="Search by technician, line, date, shift…" oninput="renderReports()">
+      <select class="rep-filter" id="repFilter" onchange="renderReports()">
+        <option value="all">All reports</option>
+        <option value="clean">Clean only</option>
+        <option value="attn">Has attention items</option>
+        <option value="partial">Partial submissions</option>
+      </select>
+      <button onclick="_reportCache=null;renderReports()" style="background:transparent;border:1px solid var(--bdr2);color:var(--mut);padding:7px 14px;border-radius:6px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:nowrap;transition:all .15s;" onmouseover="this.style.borderColor='var(--amb)';this.style.color='var(--amb)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.color='var(--mut)'">&#8635; Refresh</button>
+    </div>
+    <div class="rep-count" id="repCountLabel"></div>
+    <div id="repList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = [
+  {id:'s01',num:'01',grp:'c1',group:'Carousel 1',title:'Base Placement Station',items:[
+    'Conveyor / index belt – inspect tension, wear, and tracking',
+    'Drive / idler bearings – listen for noise; grease as required',
+    'Axis screws (X/Y/Z pick & place) – check backlash; lubricate',
+    'Airlines and pneumatic fittings – leak check all connections',
+    'Air cylinders (clamp/lift) – stroke test; inspect seals',
+    'Suction cups / gripper pads – inspect for cracks; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level',
+    'Base presence / part-seated sensors – clean lenses; functional test',
+    'Base feeder / magazine guides – inspect for wear; clear jams',
+    'Pallet / nest locating pins – inspect for wear and silicone build-up; clean',
+    'Guide rails and hardstops – inspect for wear; check mounting hardware',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s02',num:'02',grp:'c1',group:'Carousel 1',title:'Heat Spreader Placement / Feeding Station',items:[
+    'Heat spreader magazine / feeder – inspect for jams, damage, and proper seating; verify magazine fully loaded',
+    'Linear bearings / pick axis – inspect and lubricate',
+    'Axis screws (X/Y/Z) – check backlash; lubricate',
+    'Pick-and-place airlines and vacuum lines – leak check',
+    'Suction cups / gripper – inspect for wear; replace if cracked',
+    'Vacuum confirmation sensor – verify vacuum level at pick',
+    'Part-present sensor at place position – clean; functional test',
+    'Mounting hardware – check all bolts for torque',
+  ]},
+  {id:'s03',num:'03',grp:'c1',group:'Carousel 1',title:'Heat Staking Station',items:[
+    'Staking tip / horn – inspect for wear, cracks, or residue; clean',
+    'Press actuator bearings / linear guides – inspect and lubricate',
+    'Axis screw (press Z-axis) – check backlash; lubricate',
+    'Temperature controller – verify setpoint and actual tip temperature',
+    'Thermocouple / RTD – verify reading accuracy; check connector',
+    'Stake quality sample – inspect stake height/width; record result',
+    'Force / press load verification – confirm within spec; record value',
+  ]},
+  {id:'s04',num:'04',grp:'c1',group:'Carousel 1',title:'TIM Gluing Station',items:[
+    'TIM material reservoir / cartridge – check level; inspect for contamination',
+    'Dispensing pump – verify output pressure and flow rate',
+    'Dispensing nozzle / tip – clean; inspect orifice for blockage or drool',
+    'Airlines / air-purge lines – leak check',
+    'Linear axis screws (X/Y/Z dispensing head) – check backlash; lubricate',
+    'Bearings / linear rails – clean and lubricate',
+    'Dispense weight / volume verification – test shot; compare to target',
+    'Drip tray / waste catch – clean; dispose per SOP',
+  ]},
+  {id:'s05',num:'05',grp:'c1',group:'Carousel 1',title:'C1 – PV804 Sealant 1st Half',items:[
+    'PV804 silicone reservoir – check material level; inspect for skinning',
+    'Dispensing pump (Part A / Part B) – verify output pressure and ratio',
+    'Dispensing tip – clean; inspect orifice; check for drool or stringing',
+    'Airlines / air-purge lines – leak check all fittings',
+    'Linear axis screws (X/Y dispensing path) – check backlash; lubricate',
+    'Bearings / linear rails on dispense head – clean and lubricate',
+    'Dispense path coverage – run test; verify 1st-half perimeter bead start/end',
+  ]},
+  {id:'s06',num:'06',grp:'c1',group:'Carousel 1',title:'C1 – PV804 Sealant 2nd Half',items:[
+    'PV804 silicone reservoir – check material level; inspect for skinning',
+    'Static mixer / mixing nozzle – inspect for blockage; replace per schedule',
+    'Dispensing tip – clean; inspect orifice; check for drool or stringing',
+    'Heated lines (if applicable) – verify temperature; inspect insulation',
+    'Bead presence / height sensor – clean; calibrate',
+    'Seam / overlap zone – inspect bead continuity at handoff from 1st half',
+    'Bead width / weight verification – measure test bead; record vs. spec',
+    'Drip tray – clean; dispose of waste material per SOP',
+  ]},
+  {id:'s07',num:'07',grp:'c1',group:'Carousel 1',title:'C1 – 3D Inspection Station',items:[
+    '3D camera / sensor head – clean lens with lint-free cloth; inspect mounting',
+    'Camera calibration target – inspect for damage; run calibration routine',
+    'Lighting system – inspect LEDs / structured-light projector; verify intensity',
+    'Camera cable and connectors – inspect for damage or loose connections',
+    'Linear axis (camera Z or XY scan) – check bearings and axis screws; lube',
+    'Software – verify inspection program version; check alarm thresholds',
+    'False-reject rate review – review log; investigate elevated counts',
+    'Communication to line controller – verify pass/fail signal output',
+  ]},
+  {id:'s08',num:'08',grp:'c1',group:'Carousel 1',title:'C1 – Pickup Location',items:[
+    'Pickup conveyor / index belt – inspect tension, wear, and tracking',
+    'Drive / idler bearings – listen for noise; grease as required',
+    'Axis screws (pick robot interface) – check backlash; lubricate',
+    'Airlines and pneumatic fittings – leak check',
+    'Part-present sensor at pickup position – clean lens; functional test',
+    'Pickup robot interface / handshake signal – functional test',
+    'Guide rails and hardstops – inspect for wear; check mounting hardware',
+  ]},
+  {id:'s09',num:'09',grp:'pcb',group:'PCB Station',title:'PCB Loading Trolley',items:[
+    'Trolley frame and wheels – inspect for damage, flat spots, or worn bearings; clean rails',
+    'Trolley drive belt / chain (if motorized) – inspect tension, wear, and tracking',
+    'Trolley linear bearings / guide rails – clean; lubricate',
+    'Axis screws / rack & pinion (if servo-driven) – check backlash; lubricate',
+    'Cable carrier / drag chain – inspect links; remove debris',
+    'Trolley home and end-of-travel sensors – clean; functional test',
+    'PCB magazine / tray locating pins – inspect for wear; verify alignment',
+    'PCB magazine clamp / retention mechanism – functional test; inspect airlines',
+    'PCB stack level sensor – clean lens; verify detection accuracy',
+    'Trolley docking / locking mechanism – functional test; inspect seals',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s10',num:'10',grp:'pcb',group:'PCB Station',title:'PCB Pickup / Placement',items:[
+    'Pick-and-place axis belts / timing belts – inspect tension, wear, and alignment',
+    'Linear bearings / rails (X/Y/Z axes) – clean; lubricate',
+    'Axis screws (X/Y/Z) – check backlash; lubricate on all axes',
+    'Airlines and vacuum lines – leak check all fittings and quick-connects',
+    'Suction cups / gripper pads – inspect for cracks or deformation; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level and hold time',
+    'PCB pick presence sensor – clean lens; functional test',
+    'PCB orientation / fiducial detection – run test cycle; confirm alignment within spec',
+    'Motor couplings – inspect for wear or slippage on all axes',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s11',num:'11',grp:'pcb',group:'PCB Station',title:'PCB Unloading Trolley',items:[
+    'Trolley frame and wheels – inspect for damage, flat spots, or worn bearings; clean rails',
+    'Trolley drive belt / chain (if motorized) – inspect tension, wear, and tracking',
+    'Trolley linear bearings / guide rails – clean; lubricate',
+    'Axis screws / rack & pinion (if servo-driven) – check backlash; lubricate',
+    'Cable carrier / drag chain – inspect links; remove debris',
+    'Trolley home and end-of-travel sensors – clean; functional test',
+    'PCB receiving tray / nest – inspect for wear; verify alignment with placement head',
+    'Tray full / PCB present sensor – clean lens; functional test',
+    'Trolley docking / locking mechanism – functional test; inspect seals',
+    'Finished PCB buffer / queue – inspect for jams or misaligned boards',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s12',num:'12',grp:'c2',group:'Carousel 2',title:'C2 – Base Placement',items:[
+    'Conveyor / index belt – inspect tension, wear, and tracking',
+    'Drive / idler bearings – listen for noise; grease as required',
+    'Axis screws (X/Y/Z pick & place) – check backlash; lubricate',
+    'Airlines and pneumatic fittings – leak check all connections',
+    'Air cylinders (clamp/lift) – stroke test; inspect seals',
+    'Suction cups / gripper pads – inspect for cracks; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level',
+    'Base presence / part-seated sensors – clean lenses; functional test',
+    'Base feeder / magazine guides – inspect for wear; clear jams',
+    'Pallet / nest locating pins – inspect for wear; clean',
+    'Guide rails and hardstops – inspect for wear; check mounting hardware',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s13',num:'13',grp:'c2',group:'Carousel 2',title:'C2 – PCB Placement',items:[
+    'Pick-and-place axis belts / timing belts – inspect tension, wear, and alignment',
+    'Linear bearings / rails (X/Y/Z axes) – clean; lubricate',
+    'Axis screws (X/Y/Z) – check backlash; lubricate on all axes',
+    'Airlines and vacuum lines – leak check all fittings and quick-connects',
+    'Suction cups / gripper pads – inspect for cracks or deformation; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level and hold time',
+    'PCB pick presence sensor – clean lens; functional test',
+    'Vision / alignment camera – clean lens; verify calibration',
+    'PCB orientation / fiducial detection – run test cycle; confirm alignment within spec',
+    'Motor couplings – inspect for wear or slippage on all axes',
+  ]},
+  {id:'s14',num:'14',grp:'c2',group:'Carousel 2',title:'C2 – Heat Staking Station',items:[
+    'Staking tip / horn – inspect for wear, cracks, or residue; clean',
+    'Press actuator bearings / linear guides – inspect and lubricate',
+    'Axis screw (press Z-axis) – check backlash; lubricate',
+    'Temperature controller – verify setpoint and actual tip temperature',
+    'Heater cartridge / band – inspect wiring connections; verify wattage output',
+    'Thermocouple / RTD – verify reading accuracy; check connector',
+    'Stake quality sample – inspect stake height/width; record result',
+  ]},
+  {id:'s15',num:'15',grp:'c2',group:'Carousel 2',title:'C2 – Laser Etch (Engraving) Station',items:[
+    'Laser head / lens – inspect for contamination or residue; clean per manufacturer SOP',
+    'Laser beam path – verify alignment and focus; run focus test pattern',
+    'Fume extraction system – inspect filter; verify adequate suction at nozzle',
+    'Fume extraction ductwork – inspect for blockage or leaks',
+    'Mark quality verification – run test engrave; inspect depth, contrast, and readability',
+  ]},
+  {id:'s16',num:'16',grp:'c2',group:'Carousel 2',title:'C2 – PV804 Bulkhead Gluing Station',items:[
+    'PV804 silicone reservoir – check material level; inspect for skinning or contamination',
+    'Dispensing pump (Part A / Part B) – verify output pressure and mix ratio',
+    'Static mixer / mixing nozzle – inspect for blockage; replace per schedule',
+    'Dispensing tip – clean; inspect orifice for blockage or drool',
+    'Airlines / air-purge lines – leak check all fittings',
+    'Linear axis screws (X/Y/Z dispensing head) – check backlash; lubricate',
+    'Bearings / linear rails on dispense head – clean and lubricate',
+    'Bead presence / height sensor – clean; calibrate',
+    'Dispense path coverage – run test; verify full bulkhead perimeter coverage',
+    'Drip tray – clean; dispose of waste material per SOP',
+  ]},
+  {id:'s17',num:'17',grp:'c2',group:'Carousel 2',title:'C2 – 3D Inspection Station',items:[
+    '3D camera / sensor head – clean lens with lint-free cloth; inspect mounting',
+    'Lighting system – inspect LEDs / structured-light projector; verify intensity',
+    'Camera cable and connectors – inspect for damage or loose connections',
+    'Software – verify inspection program version; check alarm thresholds',
+    'Communication to line controller – verify pass/fail signal output',
+  ]},
+  {id:'s18',num:'18',grp:'c2',group:'Carousel 2',title:'C2 – Unit Unloading',items:[
+    'Unload conveyor / index belt – inspect tension, wear, and tracking',
+    'Drive / idler bearings – listen for noise; grease as required',
+    'Axis screws (unload pick & place) – check backlash; lubricate',
+    'Airlines and pneumatic fittings – leak check',
+    'Air cylinders (lift/clamp) – stroke test; inspect seals',
+    'Suction cups / gripper pads – inspect for cracks; replace if worn',
+    'Unit present sensor at unload position – clean lens; functional test',
+    'Unload tray / pallet locating pins – inspect for wear; clean',
+    'Guide rails and hardstops – inspect for wear; check mounting hardware',
+    'Downstream handoff / conveyor interface – verify transfer alignment',
+  ]},
+  {id:'s19',num:'19',grp:'lid',group:'Lid Feeding',title:'Lid Feeding – Magazine Placement',items:[
+    'Magazine frame / body – inspect for cracks, warping, or damage; clean',
+    'Magazine locating pins / datum blocks – inspect for wear; verify seating alignment',
+    'Magazine clamp / retention mechanism – functional test; inspect airlines and seals',
+    'Magazine load sensors (full / empty detection) – clean lens; functional test',
+    'Magazine guide rails – inspect for wear; verify smooth insertion and removal',
+    'Airlines to magazine clamp – leak check all fittings and quick-connects',
+    'Lid stack level sensor / low-lid alert – clean; verify detection accuracy',
+    'Magazine lift / indexing mechanism – stroke test; inspect bearings and axis screw',
+    'Mounting hardware – check all bolts for torque; inspect for vibration loosening',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s20',num:'20',grp:'lid',group:'Lid Feeding',title:'Lid Feeding – Pick and Placement',items:[
+    'Pick-and-place axis belts / timing belts – inspect tension, wear, and alignment',
+    'Linear bearings / rails (X/Y/Z axes) – clean; lubricate',
+    'Axis screws (X/Y/Z) – check backlash; lubricate on all axes',
+    'Airlines and vacuum lines – leak check all fittings and quick-connects',
+    'Suction cups / gripper pads – inspect for cracks or deformation; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level and hold time',
+    'Lid pick presence sensor – clean lens; functional test',
+    'Lid placement / seated sensor – clean lens; functional test',
+    'Lid orientation / vision sensor – clean lens; verify calibration',
+    'Placement force / seating verification – confirm lid fully seated; run test cycle',
+    'Retry / reject counter – review log; investigate elevated counts',
+    'Motor couplings – inspect for wear or slippage on all axes',
+    'Cable carrier / drag chain – inspect links; remove debris',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s21',num:'21',grp:'c3',group:'Carousel 3',title:'C3 – PCB Placement',items:[
+    'Pick-and-place axis belts / timing belts – inspect tension, wear, and alignment',
+    'Linear bearings / rails (X/Y/Z axes) – clean; lubricate',
+    'Axis screws (X/Y/Z) – check backlash; lubricate on all axes',
+    'Airlines and vacuum lines – leak check all fittings and quick-connects',
+    'Suction cups / gripper pads – inspect for cracks or deformation; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level and hold time',
+    'PCB pick presence sensor – clean lens; functional test',
+    'PCB placement / seated sensor – clean lens; functional test',
+    'Vision / alignment camera – clean lens; verify calibration',
+    'PCB orientation / fiducial detection – run test cycle; confirm alignment within spec',
+    'Placement force / seating verification – confirm PCB fully seated; no flex or tilt',
+    'Motor couplings – inspect for wear or slippage on all axes',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s22',num:'22',grp:'c3',group:'Carousel 3',title:'C3 – Perimeter USW (Ultrasonic Welding)',items:[
+    'Sonotrode (horn) – inspect full perimeter contact face for wear, cracks, or residue; clean',
+    'Booster – inspect coupling, mounting, and locking ring torque',
+    'Transducer – check electrical connections, cooling, and mounting hardware',
+    'Weld actuator bearings / linear guides – inspect and lubricate',
+    'Axis screw (press Z-axis) – check backlash; lubricate',
+    'Airlines – leak check; verify regulated supply pressure',
+    'Perimeter weld nest / anvil – inspect full seating surface for wear or residue; clean',
+    'Part clamp / hold-down mechanism – functional test; inspect airlines and seals',
+    'Cooling air nozzle – inspect; verify post-weld cooling airflow',
+    'Generator power output – verify amplitude and frequency settings',
+    'Weld quality / pull-test sample – inspect seam continuity; record result',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s23',num:'23',grp:'c3',group:'Carousel 3',title:'C3 – Bulkhead USW (Ultrasonic Welding)',items:[
+    'Sonotrode (horn) – inspect bulkhead contact profile for wear, cracks, or residue; clean',
+    'Booster – inspect coupling, mounting, and locking ring torque',
+    'Transducer – check electrical connections, cooling, and mounting hardware',
+    'Weld actuator bearings / linear guides – inspect and lubricate',
+    'Axis screw (press Z-axis) – check backlash; lubricate',
+    'Airlines – leak check; verify regulated supply pressure',
+    'Bulkhead weld nest / anvil – inspect seating surface for wear or residue; clean',
+    'Part clamp / hold-down mechanism – functional test; inspect airlines and seals',
+    'Cooling air nozzle – inspect; verify post-weld cooling airflow',
+    'Generator power output – verify amplitude and frequency settings',
+    'Weld quality / pull-test sample – inspect bulkhead joint; record result',
+    'E-stop and safety interlocks – functional test',
+  ]},
+  {id:'s24',num:'24',grp:'c3',group:'Carousel 3',title:'C3 – 1D Label Station',items:[
+    'Label web / ribbon path – inspect routing; clear any jams or misfeeds',
+    'Print head – clean with IPA wipe; check print head pressure and alignment',
+    'Platen / drive roller bearings – inspect and lubricate',
+    'Peel bar / applicator pad – inspect for wear or adhesive build-up; clean',
+    'Axis screws (applicator travel) – check backlash; lubricate',
+    'Airlines – leak check; verify blow-on or tamp pressure',
+    'Label presence / registration sensor – clean lens; calibrate',
+    'Print quality check – verify 1D barcode contrast and readability',
+    'Barcode scan verification – scan applied label; confirm read rate ≥ spec',
+    'Label media remaining – note roll level; flag if replacement needed',
+    'Ribbon / ink supply – check remaining ribbon; replace per schedule',
+    'Label applicator position – verify placement alignment on unit',
+  ]},
+  {id:'s25',num:'25',grp:'c3',group:'Carousel 3',title:'C3 – Bond Station',items:[
+    'Adhesive / bonding material reservoir – check level; inspect for contamination or skinning',
+    'Dispensing pump – verify output pressure and flow rate',
+    'Dispensing nozzle / tip – clean; inspect orifice for blockage, drool, or stringing',
+    'Heated lines / hoses (if applicable) – inspect insulation; verify temperature setpoint',
+    'Temperature controller – verify setpoints and actual temps',
+    'Airlines / air-purge lines – leak check all fittings',
+    'Linear axis screws (X/Y/Z dispensing head) – check backlash; lubricate',
+    'Bearings / linear rails on dispense head – clean and lubricate',
+    'Bond press / clamp mechanism – stroke test; inspect airlines and seals',
+    'Bond clamp force / pressure – verify within spec; record value',
+    'Cure fixture / nest – inspect for wear or adhesive build-up; clean',
+    'Bond presence sensor – clean; functional test',
+    'Bond quality sample – inspect joint; record pull/shear test result',
+    'Drip tray – clean; dispose of waste material per SOP',
+  ]},
+  {id:'s26',num:'26',grp:'c3',group:'Carousel 3',title:'C3 – Unloading / Labeling Station',items:[
+    'Unload conveyor / index belt – inspect tension, wear, and tracking',
+    'Drive / idler bearings – listen for noise; grease as required',
+    'Axis screws (unload pick & place) – check backlash; lubricate',
+    'Airlines and pneumatic fittings – leak check',
+    'Air cylinders (lift/clamp) – stroke test; inspect seals',
+    'Suction cups / gripper pads – inspect for cracks; replace if worn',
+    'Vacuum generator / ejector – verify pull-down vacuum level',
+    'Label applicator (unload label) – clean print head; inspect peel bar and applicator pad',
+    'Label web / ribbon path – inspect routing; clear jams',
+    'Label presence / registration sensor – clean lens; calibrate',
+    'Print quality check – verify label contrast, content, and barcode readability',
+    'Barcode scan verification – scan applied label; confirm read rate ≥ spec',
+    'Unit present sensor at unload position – clean lens; functional test',
+    'Unload tray / pallet locating pins – inspect for wear; clean',
+    'Downstream handoff / conveyor interface – verify transfer alignment',
+    'E-stop and safety interlocks – functional test',
+  ]},
+];
+
+const TOTAL = DATA.reduce((a,s)=>a+s.items.length,0);
+const status = {};  // itemId -> 'ok'|'attn'|'na'|null
+const notes  = {};  // itemId -> string
+const secNotes = {}; // secId -> string
+
+function itemId(sid,i){ return `${sid}_${i}`; }
+
+// ── BUILD SIDEBAR ──────────────────────────────────────────────────────────────
+function buildSidebar(){
+  const nav = document.getElementById('sideNav');
+  let lastGrp='';
+  DATA.forEach(sec=>{
+    if(sec.group!==lastGrp){
+      const g=document.createElement('div');
+      g.className='sb-group'; g.textContent=sec.group;
+      nav.appendChild(g); lastGrp=sec.group;
+    }
+    const wrap=document.createElement('div');
+    wrap.className='sb-section';
+    wrap.innerHTML=`
+      <div class="nav-item" id="nav-${sec.id}" onclick="jumpToSection('${sec.id}')">
+        <span class="nav-num">${sec.num}</span>
+        <span class="nav-lbl">${sec.title}</span>
+        <span class="nav-icon" id="nicon-${sec.id}"></span>
+      </div>
+      <div class="nav-bar"><div class="nav-bar-fill" id="nbar-${sec.id}" style="width:0%;background:var(--grn)"></div></div>`;
+    nav.appendChild(wrap);
+  });
+}
+
+// ── BUILD SECTIONS ─────────────────────────────────────────────────────────────
+function buildSections(){
+  const wrap=document.getElementById('wrap');
+  DATA.forEach(sec=>{
+    const card=document.createElement('div');
+    card.className='sec-card'; card.id=`card-${sec.id}`; card.dataset.grp=sec.grp;
+    const rows=sec.items.map((item,i)=>{
+      const tid=itemId(sec.id,i);
+      return `
+        <div class="chk-item" id="row-${tid}" data-sid="${sec.id}">
+          <div class="chk-left">
+            <span class="chk-num">${i+1}</span>
+            <span class="chk-desc">${item}</span>
+          </div>
+          <div class="status-btns">
+            <button class="sbtn" id="ok-${tid}"   onclick="setStatus('${tid}','ok')"  >OK</button>
+            <button class="sbtn" id="attn-${tid}" onclick="setStatus('${tid}','attn')">Attn</button>
+            <button class="sbtn" id="na-${tid}"   onclick="setStatus('${tid}','na')"  >N/A</button>
+          </div>
+        </div>
+        <div class="note-row" id="note-${tid}">
+          <input type="text" placeholder="Describe issue / corrective action required…"
+                 onchange="notes['${tid}']=this.value; refreshAttn()">
+        </div>`;
+    }).join('');
+    card.innerHTML=`
+      <div class="sec-head" onclick="toggleSec('${sec.id}')">
+        <div class="sec-hl">
+          <span class="sec-num">§${sec.num}</span>
+          <span class="sec-title">${sec.title}</span>
+        </div>
+        <div class="sec-hr">
+          <span class="sec-attn" id="sattn-${sec.id}"></span>
+          <span class="sec-pct" id="spct-${sec.id}">0 / ${sec.items.length}</span>
+          <span class="chev">▾</span>
+        </div>
+      </div>
+      <div class="sec-body">
+        ${rows}
+        <div class="sec-notes">
+          <label>Section Notes / Additional Observations</label>
+          <textarea placeholder="Any observations, corrective actions, or follow-up items for this station…"
+                    onchange="secNotes['${sec.id}']=this.value"></textarea>
+        </div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+// ── SET STATUS ─────────────────────────────────────────────────────────────────
+function setStatus(tid,val){
+  const prev=status[tid];
+  status[tid]= (prev===val) ? null : val;
+  const cur=status[tid];
+  const row=document.getElementById(`row-${tid}`);
+  row.className='chk-item'+(cur?` status-${cur}`:'');
+  ['ok','attn','na'].forEach(v=>{
+    const b=document.getElementById(`${v}-${tid}`);
+    b.className='sbtn'+(cur===v?` s-${v}`:'');
+  });
+  const noteRow=document.getElementById(`note-${tid}`);
+  noteRow.className='note-row'+(cur==='attn'?' show':'');
+  updateProgress();
+  refreshAttn();
+}
+
+// ── TOGGLE COLLAPSE ────────────────────────────────────────────────────────────
+function toggleSec(sid){
+  document.getElementById(`card-${sid}`).classList.toggle('collapsed');
+}
+
+// ── SCROLL TO ──────────────────────────────────────────────────────────────────
+function jumpToSection(sid){
+  // highlight sidebar
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+sid);
+  if(navEl) navEl.classList.add('active');
+
+  const card = document.getElementById('card-'+sid);
+  if(!card) return;
+  // expand if collapsed
+  if(card.classList.contains('collapsed')) card.classList.remove('collapsed');
+
+  // Calculate offset: header height + a little breathing room
+  // On mobile the header is 52px, desktop 56px, plus 8px gap
+  const headerH = window.innerWidth <= 860 ? 60 : 64;
+  const cardTop = card.getBoundingClientRect().top + window.pageYOffset - headerH;
+
+  window.scrollTo({ top: cardTop, behavior: 'smooth' });
+}
+
+// ── FILTER ─────────────────────────────────────────────────────────────────────
+function doFilter(grp,btn){
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  DATA.forEach(sec=>{
+    const card=document.getElementById(`card-${sec.id}`);
+    let show=false;
+    if(grp==='all') show=true;
+    else if(grp==='attn'){
+      show=sec.items.some((_,i)=>status[itemId(sec.id,i)]==='attn');
+    } else show=sec.grp===grp;
+    card.classList.toggle('hidden',!show);
+  });
+}
+
+// ── PROGRESS ───────────────────────────────────────────────────────────────────
+function updateProgress(){
+  let total=0, attnCount=0;
+  DATA.forEach(sec=>{
+    let done=0, secAttn=0;
+    sec.items.forEach((_,i)=>{
+      const v=status[itemId(sec.id,i)];
+      if(v) done++;
+      if(v==='attn') secAttn++;
+    });
+    total+=done; attnCount+=secAttn;
+    const pct=sec.items.length?done/sec.items.length*100:0;
+    const pctEl=document.getElementById(`spct-${sec.id}`);
+    pctEl.textContent=`${done} / ${sec.items.length}`;
+    pctEl.className='sec-pct'+(done===sec.items.length?' done':'');
+    const bar=document.getElementById(`nbar-${sec.id}`);
+    bar.style.width=pct+'%';
+    bar.style.background=secAttn>0?'var(--red)':done===sec.items.length?'var(--grn)':'var(--amb)';
+    const nicon=document.getElementById(`nicon-${sec.id}`);
+    nicon.textContent=done===sec.items.length?(secAttn>0?'⚠':'✓'):'';
+    nicon.style.color=done===sec.items.length?(secAttn>0?'var(--red)':'var(--grn)'):'';
+    const sattn=document.getElementById(`sattn-${sec.id}`);
+    sattn.textContent=secAttn>0?`${secAttn} ⚠`:'';
+    sattn.className='sec-attn'+(secAttn>0?' show':'');
+  });
+  const pct=Math.round(total/TOTAL*100);
+  document.getElementById('mastFill').style.width=pct+'%';
+  document.getElementById('mastPct').textContent=pct+'%';
+  document.getElementById('hdrProg').textContent=
+    attnCount>0?`${total}/${TOTAL} · ${attnCount} ⚠`:`${total} / ${TOTAL} items`;
+  // show attention tab
+  const tab=document.getElementById('attnTab');
+  tab.className='ftab'+(attnCount>0?' visible':'');
+
+  // Sync drawer icons if open
+  DATA.forEach(sec=>{
+    const el=document.getElementById('dicon-'+sec.id);
+    if(!el) return;
+    const ni=document.getElementById('nicon-'+sec.id);
+    if(ni){ el.textContent=ni.textContent; el.style.color=ni.style.color; }
+  });
+}
+
+// ── REFRESH ATTENTION SUMMARY ──────────────────────────────────────────────────
+function refreshAttn(){
+  const box=document.getElementById('attnBox');
+  const list=document.getElementById('attnList');
+  const items=[];
+  DATA.forEach(sec=>{
+    sec.items.forEach((item,i)=>{
+      const tid=itemId(sec.id,i);
+      if(status[tid]==='attn'){
+        const noteVal=notes[tid]||'';
+        items.push(`<strong>[${sec.num}] ${sec.title}:</strong> ${item}${noteVal?' — <em>'+noteVal+'</em>':''}`);
+      }
+    });
+  });
+  list.innerHTML=items.map(t=>`<li>${t}</li>`).join('');
+  box.className='attn-box'+(items.length>0?' show':'');
+}
+
+// ── RESET ──────────────────────────────────────────────────────────────────────
+function resetAll(){
+  if(!confirm('Reset all statuses? This cannot be undone.')) return;
+  Object.keys(status).forEach(k=>{ status[k]=null; });
+  DATA.forEach(sec=>{
+    sec.items.forEach((_,i)=>{
+      const tid=itemId(sec.id,i);
+      const row=document.getElementById(`row-${tid}`);
+      row.className='chk-item';
+      ['ok','attn','na'].forEach(v=>document.getElementById(`${v}-${tid}`).className='sbtn');
+      document.getElementById(`note-${tid}`).className='note-row';
+    });
+  });
+  updateProgress();
+  refreshAttn();
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+
+// ── MOBILE STATION DRAWER ─────────────────────────────────────────────────────
+function buildDrawer(){
+  const list = document.getElementById('drawerList');
+  if(!list) return;
+  let lastGrp='';
+  list.innerHTML = DATA.map(sec => {
+    let grpHdr = '';
+    if(sec.group !== lastGrp){
+      grpHdr = `<div style="padding:8px 18px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:var(--mut2);text-transform:uppercase;letter-spacing:.12em;">${sec.group}</div>`;
+      lastGrp = sec.group;
+    }
+    return grpHdr + `<div onclick="drawerGo('${sec.id}')" style="display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;color:var(--mut);border-bottom:1px solid var(--bdr);transition:background .12s;" onmouseenter="this.style.background='rgba(255,255,255,.04)'" onmouseleave="this.style.background=''">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);min-width:18px;">${sec.num}</span>
+      <span style="flex:1">${sec.title}</span>
+      <span id="dicon-${sec.id}" style="font-size:11px;width:14px;text-align:center;"></span>
+    </div>`;
+  }).join('');
+}
+
+function openDrawer(){
+  document.getElementById('drawerOverlay').classList.add('show');
+  document.getElementById('stationDrawer').classList.add('show');
+  // update drawer icons
+  DATA.forEach(sec=>{
+    const el=document.getElementById(`dicon-${sec.id}`);
+    if(!el) return;
+    const ni=document.getElementById(`nicon-${sec.id}`);
+    el.textContent=ni?ni.textContent:'';
+    el.style.color=ni?ni.style.color:'';
+  });
+}
+
+function closeDrawer(){
+  const overlay = document.getElementById('drawerOverlay');
+  const drawer  = document.getElementById('stationDrawer');
+  overlay.classList.remove('show');
+  drawer.classList.remove('show');
+}
+
+function drawerGo(sid){
+  closeDrawer();
+  // Switch to checklist tab if not already there
+  const checklistPage = document.getElementById('pageChecklist');
+  if(!checklistPage.classList.contains('active')){
+    switchTab('checklist');
+  }
+  // Wait for drawer close animation + any tab switch before scrolling
+  setTimeout(()=>jumpToSection(sid), 380);
+}
+
+function switchTab(tab){
+  ['checklist','reports'].forEach(t=>{
+    document.getElementById('page'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+    const deskBtn = document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(deskBtn) deskBtn.classList.toggle('active',t===tab);
+  });
+  // mobile nav
+  const mnC=document.getElementById('mnChecklist');
+  const mnR=document.getElementById('mnReports');
+  if(mnC) mnC.classList.toggle('active',tab==='checklist');
+  if(mnR) mnR.classList.toggle('active',tab==='reports');
+  if(tab==='reports') renderReports();
+  window.scrollTo(0,0);
+}
+
+// ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+
+function sbHeaders() {
+  return {
+    'apikey': SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+}
+
+let _reportCache = null;
+
+async function loadReports() {
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/reports?order=submitted_at.desc', { headers: sbHeaders() });
+    if (!res.ok) throw new Error(await res.text());
+    const rows = await res.json();
+    _reportCache = rows.map(r => ({
+      id:          r.id,
+      submittedAt: r.submitted_at,
+      tech:        r.tech,
+      line:        r.line,
+      date:        r.date,
+      shift:       r.shift,
+      wo:          r.wo,
+      totalItems:  r.total_items,
+      doneCount:   r.done_count,
+      attnCount:   r.attn_count,
+      statusType:  r.status_type,
+      pwHash:      r.pw_hash,
+      sections:    r.sections,
+    }));
+    return _reportCache;
+  } catch(e) {
+    console.error('loadReports:', e);
+    return _reportCache || [];
+  }
+}
+
+async function saveReport(report) {
+  const row = {
+    submitted_at: report.submittedAt,
+    tech:         report.tech,
+    line:         report.line,
+    date:         report.date,
+    shift:        report.shift,
+    wo:           report.wo,
+    total_items:  report.totalItems,
+    done_count:   report.doneCount,
+    attn_count:   report.attnCount,
+    status_type:  report.statusType,
+    pw_hash:      report.pwHash || null,
+    sections:     report.sections,
+  };
+  const res = await fetch(SB_URL + '/rest/v1/reports', {
+    method: 'POST', headers: sbHeaders(), body: JSON.stringify(row)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const saved = await res.json();
+  return Array.isArray(saved) ? saved[0] : saved;
+}
+
+async function updateReportPw(id, pwHash) {
+  await fetch(SB_URL + '/rest/v1/reports?id=eq.' + id, {
+    method: 'PATCH', headers: sbHeaders(), body: JSON.stringify({ pw_hash: pwHash })
+  });
+}
+
+async function deleteReportDb(id) {
+  await fetch(SB_URL + '/rest/v1/reports?id=eq.' + id, {
+    method: 'DELETE', headers: sbHeaders()
+  });
+}
+
+async function updateRepCount() {
+  const reports = await loadReports();
+  const n = reports.length;
+  const el = document.getElementById('repCount');
+  if (el) el.textContent = n;
+  const mb = document.getElementById('mRepCount');
+  if (mb) { mb.textContent = n; mb.style.display = n > 0 ? 'inline-block' : 'none'; }
+}
+
+// ── SUBMIT ─────────────────────────────────────────────────────────────────────
+async function submitForm(){
+  const done=Object.values(status).filter(Boolean).length;
+  const attn=Object.values(status).filter(v=>v==='attn').length;
+  const pct=Math.round(done/TOTAL*100);
+  if(pct<100){
+    if(!confirm(`${pct}% complete (${done}/${TOTAL} items). Submit anyway?`)) return;
+  }
+
+  // Build report object
+  const report = {
+    id: Date.now(),
+    submittedAt: new Date().toISOString(),
+    tech:     document.getElementById('fTech').value||'Unknown',
+    line:     document.getElementById('fLine').value||'—',
+    date:     document.getElementById('fDate').value||new Date().toISOString().split('T')[0],
+    shift:    document.getElementById('fShift').value||'—',
+    wo:       document.getElementById('fWO').value||'—',
+    totalItems: TOTAL,
+    doneCount: done,
+    attnCount: attn,
+    statusType: attn>0 ? 'attn' : (pct<100 ? 'partial' : 'clean'),
+    sections: DATA.map(sec=>{
+      let okC=0,attnC=0,naC=0;
+      const flaggedItems=[];
+      sec.items.forEach((item,i)=>{
+        const tid=itemId(sec.id,i);
+        const v=status[tid];
+        if(v==='ok') okC++;
+        else if(v==='attn'){ attnC++; flaggedItems.push({item, note:notes[tid]||''}); }
+        else if(v==='na') naC++;
+      });
+      return {id:sec.id,num:sec.num,title:sec.title,ok:okC,attn:attnC,na:naC,total:sec.items.length,flaggedItems,notes:secNotes[sec.id]||''};
+    })
+  };
+
+  const btn=document.getElementById('subBtn');
+  btn.textContent='Saving…'; btn.disabled=true;
+  try {
+    // Auto-lock with master password 7012
+    if(!MASTER_PW_HASH) MASTER_PW_HASH = await sha256('7012');
+    report.pwHash = MASTER_PW_HASH;
+
+    const saved = await saveReport(report);
+    report.id = saved.id;
+    if(_reportCache) _reportCache.unshift(report);
+    await updateRepCount();
+    if(attn>0){
+      btn.className='btn btn-warn'; btn.textContent=`⚠ Submitted — ${attn} items need attention`;
+      showToast(`⚠ Saved & locked — ${attn} items flagged`,'t-warn');
+    } else {
+      btn.className='btn btn-ok'; btn.textContent='✓ Scout Report Submitted';
+      showToast('✓ Report saved & locked — password: 7012','t-ok');
+    }
+    btn.disabled=false;
+  } catch(e) {
+    btn.className='btn btn-ghost'; btn.textContent='Submit Scout Report →'; btn.disabled=false;
+    showToast('⚠ Could not save — check your connection','t-warn');
+    console.error(e);
+  }
+}
+
+
+// ── PASSWORD SYSTEM ────────────────────────────────────────────────────────────
+const unlockedIds = new Set();
+let _pwModalId = null;
+let _pwModalMode = null;
+let MASTER_PW_HASH = null;
+sha256('7012').then(h => { MASTER_PW_HASH = h; });
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// openPwModal removed — reports auto-lock with master password
+
+// ── RENDER REPORTS ─────────────────────────────────────────────────────────────
+async function renderReports(){
+  const list=document.getElementById('repList');
+  if(list && !_reportCache) list.innerHTML='<div class="rep-empty"><div class="rep-empty-icon">⏳</div><div>Loading reports…</div></div>';
+  const all=await loadReports();
+  // (list already declared above)
+  const q=(document.getElementById('repSearch').value||'').toLowerCase();
+  const f=document.getElementById('repFilter').value;
+  const filtered=all.filter(r=>{
+    const matchQ = !q ||
+      (r.tech||'').toLowerCase().includes(q) ||
+      (r.line||'').toLowerCase().includes(q) ||
+      (r.date||'').includes(q) ||
+      (r.shift||'').toLowerCase().includes(q) ||
+      (r.wo||'').toLowerCase().includes(q);
+    const matchF = f==='all' || r.statusType===f;
+    return matchQ && matchF;
+  });
+
+  const lbl=document.getElementById('repCountLabel');
+  lbl.textContent=filtered.length===all.length
+    ? `${all.length} report${all.length!==1?'s':''}`
+    : `${filtered.length} of ${all.length} reports`;
+
+  if(filtered.length===0){
+    list.innerHTML=`<div class="rep-empty">
+      <div class="rep-empty-icon">${all.length===0?'📋':'🔍'}</div>
+      <div>${all.length===0?'No reports yet — submit your first scout check sheet to see it here.':'No reports match your search.'}</div>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(r=>{
+    try {
+    const dt=new Date(r.submittedAt);
+    const dtStr=dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    const pct=Math.round(r.doneCount/r.totalItems*100);
+    const badgeTxt = r.statusType==='clean'?'All Clear' : r.statusType==='attn'?`${r.attnCount} Needs Attention`:`${pct}% Complete`;
+    const sections=r.sections||[];
+    const allFlagged=sections.flatMap(s=>(s.flaggedItems||[]).map(fi=>({sec:s,fi})));
+    const secNotesList=sections.filter(s=>s.notes);
+
+    const secsHtml=sections.map(s=>`
+      <div class="rep-sec ${s.attn>0?'has-attn':''}">
+        <div class="rep-sec-n">§${s.num}</div>
+        <div class="rep-sec-t">${s.title}</div>
+        <div class="rep-sec-stats">
+          <span class="s-ok">✓ ${s.ok} OK</span>
+          ${s.attn>0?`<span class="s-attn">⚠ ${s.attn} Attn</span>`:''}
+          ${s.na>0?`<span class="s-na">— ${s.na} N/A</span>`:''}
+          <span style="color:var(--mut2)">${s.ok+s.attn+s.na}/${s.total}</span>
+        </div>
+      </div>`).join('');
+
+    const flagsHtml = allFlagged.length>0 ? `
+      <div class="rep-flags">
+        <h4>⚠ ${allFlagged.length} Item${allFlagged.length!==1?'s':''} Flagged</h4>
+        ${allFlagged.map(({sec,fi})=>`
+          <div class="rep-flag">
+            <div>
+              <div><strong>[§${sec.num}] ${sec.title}</strong></div>
+              <div>${fi.item}</div>
+              ${fi.note?`<div class="rep-flag-note">${fi.note}</div>`:''}
+            </div>
+          </div>`).join('')}
+      </div>` : '';
+
+    const secNotesHtml = secNotesList.length>0 ? `
+      <div class="rep-sec-notes">
+        <h4>Section Notes</h4>
+        ${secNotesList.map(s=>`<div class="rep-note-item"><strong>[§${s.num}] ${s.title}:</strong> ${s.notes}</div>`).join('')}
+      </div>` : '';
+
+    return `
+      <div class="rep-card" id="rcard-${r.id}">
+        <div class="rep-card-head" onclick="toggleRep(${r.id})">
+          <div class="rep-card-left">
+            <div class="rep-dot ${r.statusType}"></div>
+            <div>
+              <div class="rep-card-title">${r.tech} — Line ${r.line} &nbsp;·&nbsp; ${r.shift.split('—')[0].trim()}</div>
+              <div class="rep-card-meta">Submitted ${dtStr} &nbsp;·&nbsp; Date: ${r.date}${r.wo&&r.wo!=='—'?' &nbsp;·&nbsp; WO: '+r.wo:''}</div>
+            </div>
+          </div>
+          <div class="rep-card-right">
+            <span class="rep-badge ${r.statusType}">${badgeTxt}</span>
+            ${r.pwHash?`<span class="rep-lock ${unlockedIds.has(r.id)?'':'locked'}" title="${unlockedIds.has(r.id)?'Unlocked this session':'Password protected'}">🔒</span>`:''}
+            <span class="rep-chev">▾</span>
+          </div>
+        </div>
+        <div class="rep-detail">
+          ${r.pwHash && !unlockedIds.has(r.id) ? `
+            <div class="rep-locked-wall">
+              <div class="lock-icon">🔒</div>
+              <p>This report is password protected.</p>
+              <div class="unlock-row">
+                <input class="unlock-input" type="password" id="uinp-${r.id}" placeholder="Enter password" onkeydown="if(event.key==='Enter')tryUnlock(${r.id})">
+                <button class="unlock-btn" onclick="tryUnlock(${r.id})">Unlock</button>
+              </div>
+              <div class="unlock-err" id="uerr-${r.id}"></div>
+            </div>
+          ` : `
+          <div class="rdm-grid">
+            <div class="rdm-item"><label>Technician</label><span>${r.tech}</span></div>
+            <div class="rdm-item"><label>Line / Area</label><span>${r.line}</span></div>
+            <div class="rdm-item"><label>Date</label><span>${r.date}</span></div>
+            <div class="rdm-item"><label>Work Order</label><span>${r.wo}</span></div>
+          </div>
+          <div class="rdm-grid" style="margin-bottom:16px">
+            <div class="rdm-item"><label>Shift</label><span>${r.shift.split('—')[0].trim()}</span></div>
+            <div class="rdm-item"><label>Items Reviewed</label><span>${r.doneCount} / ${r.totalItems} (${pct}%)</span></div>
+            <div class="rdm-item"><label>Flagged</label><span style="color:${r.attnCount>0?'var(--red)':'var(--grn)'}">${r.attnCount} item${r.attnCount!==1?'s':''}</span></div>
+            <div class="rdm-item"><label>Status</label><span class="rep-badge ${r.statusType}" style="display:inline-block">${badgeTxt}</span></div>
+          </div>
+          <div class="rep-secs">${secsHtml}</div>
+          ${flagsHtml}
+          ${secNotesHtml}
+          <div class="rep-actions">
+            <button class="rep-del" onclick="deleteReport(${r.id})">🗑 Delete Report</button>
+          </div>
+          `}
+        </div>
+      </div>`;
+    } catch(e) {
+      console.error('Error rendering report', r.id, e);
+      return `<div class="rep-card"><div class="rep-card-head" style="color:var(--red)">⚠ Report ${r.id} could not be displayed — data may be incomplete.</div></div>`;
+    }
+  }).join('');
+}
+
+
+function tryUnlock(id){
+  const inp = document.getElementById(`uinp-${id}`);
+  const err = document.getElementById(`uerr-${id}`);
+  const val = (inp&&inp.value)||'';
+  if(!val){ if(err) err.textContent='Enter the password'; return; }
+  sha256(val).then(hash=>{
+    const reports=_reportCache||[];
+    const r=reports.find(x=>x.id===id);
+    if(!r||!r.pwHash){ return; }
+    if(r.pwHash!==hash){ if(err) err.textContent='Incorrect password'; return; }
+    unlockedIds.add(id);
+    renderReports();
+    showToast('Report unlocked','t-ok');
+  });
+}
+
+function toggleRep(id){
+  const card = document.getElementById(`rcard-${id}`);
+  const isOpen = card.classList.contains('open');
+  if(isOpen){ card.classList.remove('open'); return; }
+
+  // Use cache — already loaded when reports tab was rendered
+  const reports = _reportCache || [];
+  const r = reports.find(x=>x.id===id);
+
+  // If no cache yet just open it anyway
+  if(!r){ card.classList.add('open'); return; }
+
+  if(r.pwHash && !unlockedIds.has(id)){
+    card.classList.add('open');
+    return;
+  }
+  card.classList.add('open');
+}
+
+async function deleteReport(id){
+  const reports=_reportCache||[];
+  const r=reports.find(x=>x.id===id);
+  if(r && r.pwHash && !unlockedIds.has(id)){
+    showToast('Unlock the report before deleting it','t-warn');
+    return;
+  }
+  if(!confirm('Delete this report? This cannot be undone.')) return;
+  try {
+    await deleteReportDb(id);
+    if(_reportCache) _reportCache=_reportCache.filter(x=>x.id!==id);
+    unlockedIds.delete(id);
+    await updateRepCount();
+    await renderReports();
+    showToast('Report deleted','t-warn');
+  } catch(e) {
+    showToast('Could not delete — check connection','t-warn');
+  }
+}
+
+function showToast(msg,cls){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${cls} show`;
+  setTimeout(()=>t.className='toast',4000);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+buildSidebar();
+buildSections();
+updateProgress();
+buildDrawer();
+document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
+document.getElementById('hdrDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+updateRepCount();
+</script>
+
+<!-- password modal removed — auto-lock enabled -->
+
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-btn active" id="mnChecklist" onclick="switchTab('checklist')">
+      <span class="mobile-nav-icon">📋</span>
+      <span>Checklist</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnStations" onclick="openDrawer()">
+      <span class="mobile-nav-icon">☰</span>
+      <span>Stations</span>
+    </button>
+    <button class="mobile-nav-btn" id="mnReports" onclick="switchTab('reports')">
+      <span class="mobile-nav-icon">📁</span>
+      <span>Reports <span class="mobile-nav-badge" id="mRepCount" style="display:none"></span></span>
+    </button>
+  </div>
+</div>
+
+<!-- STATION DRAWER (mobile only) -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="stationDrawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Jump to Station</div>
+  <div class="drawer-list" id="drawerList"></div>
+</div>
+
+</body>
+</html>

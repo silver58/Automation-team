@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wave-3 TECH Shift Report</title>
+<title>Carousel TECH Shift Report</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
@@ -199,7 +199,7 @@ input,select,textarea{font-size:16px !important;}
 
 <header class="site-header">
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--amb)';this.style.color='var(--amb)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.color='var(--mut)'">← Back</a>
-  <div class="logo">⚙ Wave-3 — Tech Shift Report</div>
+  <div class="logo">⚙ Carousel — Tech Shift Report</div>
   <div class="hdr-tabs">
     <button class="hdr-tab active" id="tabForm" onclick="switchTab('form')">Shift Report</button>
     <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')">Reports <span class="tab-count" id="repCount">0</span></button>
@@ -226,10 +226,10 @@ input,select,textarea{font-size:16px !important;}
           </select>
         </div>
         <div class="field"><label>Line</label><input type="text" id="fLine" placeholder="e.g. 1"></div>
-        <div class="field"><label>Machine</label><input type="text" id="fMachine" placeholder="e.g. Wave 3"></div>
+        <div class="field"><label>Machine</label><input type="text" id="fMachine" placeholder="e.g. Carousel"></div>
       </div>
       <div class="fg fg-3">
-        <div class="field"><label>Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ8HC"></div>
+        <div class="field"><label>Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ8HC-DOM"></div>
         <div class="field"><label>Model #</label><input type="text" id="fModelNum" placeholder="Model #"></div>
         <div class="field"><label>Change Over?</label>
           <div class="yn-group">
@@ -243,7 +243,7 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- HR BY HR PRODUCTION -->
   <div class="card">
-    <div class="card-head"><h2>Hr by Hr Production (Qty) — GT Production</h2></div>
+    <div class="card-head"><h2>Hr by Hr Production (Qty) — FT Production</h2></div>
     <div class="card-body">
       <table class="hr-table">
         <thead>
@@ -308,7 +308,7 @@ input,select,textarea{font-size:16px !important;}
     <div class="card-head"><h2>WIP / Scrap</h2></div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <div class="sdiv"><span>WIP Remaining (24hr · Cart ct)</span></div>
+        <div class="sdiv"><span>WIP Remaining (24hr · Trolley ct)</span></div>
         <div class="wip-grid">
           <div class="wip-row-label">AM · 00–11</div>
           <div class="wip-cell"><label>00</label><input type="text" id="wip-00" inputmode="numeric" placeholder="—"></div>
@@ -340,37 +340,77 @@ input,select,textarea{font-size:16px !important;}
       </div>
       <div>
         <div class="sdiv"><span>Scrap Qty</span></div>
-        <div class="fg fg-2">
-          <div class="field"><label>Qty</label><input type="number" id="scrapQty" placeholder="0"></div>
-          <div class="field"><label>Units</label><input type="text" id="scrapUnits" placeholder="e.g. pcs"></div>
+        <div class="fg fg-4">
+          <div class="field"><label>Base</label><input type="text" id="scrapBase" placeholder="0 or —"></div>
+          <div class="field"><label>Lid</label><input type="text" id="scrapLid" placeholder="0 or —"></div>
+          <div class="field"><label>Ac/Dc Spreader</label><input type="text" id="scrapSpreader" placeholder="0 or —"></div>
+          <div class="field"><label>Unit</label><input type="text" id="scrapUnit" placeholder="0 or —"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MATERIAL CHANGE OVER -->
+  <!-- IS ANY CHANGE OVER -->
   <div class="card">
-    <div class="card-head"><h2>Material Change Over (Yes / No)</h2></div>
+    <div class="card-head"><h2>Is any Change Over (Yes / No)</h2></div>
     <div class="card-body">
       <div class="fivs-row">
-        <div><div class="fivs-label">Main label</div></div>
+        <div><div class="fivs-label">TIM A</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-main-yes" onclick="setYN('mco-main','yes')">Yes</button>
-          <button class="yn-btn" id="mco-main-no" onclick="setYN('mco-main','no')">No</button>
+          <button class="yn-btn" id="co-tima-yes" onclick="setYN('co-tima','yes')">Yes</button>
+          <button class="yn-btn" id="co-tima-no" onclick="setYN('co-tima','no')">No</button>
+        </div>
+      </div>
+      <div class="fivs-row">
+        <div><div class="fivs-label">TIM B</div></div>
+        <div class="yn-group" style="width:140px">
+          <button class="yn-btn" id="co-timb-yes" onclick="setYN('co-timb','yes')">Yes</button>
+          <button class="yn-btn" id="co-timb-no" onclick="setYN('co-timb','no')">No</button>
+        </div>
+      </div>
+      <div class="fivs-row">
+        <div>
+          <div class="fivs-label">Pv 804</div>
+          <div class="fivs-sub">Main / Standby</div>
+        </div>
+        <div class="yn-group" style="width:140px">
+          <button class="yn-btn" id="co-pv-yes" onclick="setYN('co-pv','yes')">Yes</button>
+          <button class="yn-btn" id="co-pv-no" onclick="setYN('co-pv','no')">No</button>
+        </div>
+      </div>
+      <div class="fivs-row">
+        <div><div class="fivs-label">BH <span style="color:var(--mut2);font-size:10px">(1)</span></div></div>
+        <div class="yn-group" style="width:140px">
+          <button class="yn-btn" id="co-bh1-yes" onclick="setYN('co-bh1','yes')">Yes</button>
+          <button class="yn-btn" id="co-bh1-no" onclick="setYN('co-bh1','no')">No</button>
+        </div>
+      </div>
+      <div class="fivs-row">
+        <div><div class="fivs-label">MainL</div></div>
+        <div class="yn-group" style="width:140px">
+          <button class="yn-btn" id="co-mainl-yes" onclick="setYN('co-mainl','yes')">Yes</button>
+          <button class="yn-btn" id="co-mainl-no" onclick="setYN('co-mainl','no')">No</button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label">1D label</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-1d-yes" onclick="setYN('mco-1d','yes')">Yes</button>
-          <button class="yn-btn" id="mco-1d-no" onclick="setYN('mco-1d','no')">No</button>
+          <button class="yn-btn" id="co-1dlbl-yes" onclick="setYN('co-1dlbl','yes')">Yes</button>
+          <button class="yn-btn" id="co-1dlbl-no" onclick="setYN('co-1dlbl','no')">No</button>
         </div>
       </div>
       <div class="fivs-row">
-        <div><div class="fivs-label">Sealant</div></div>
+        <div><div class="fivs-label">1D ribbon</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-seal-yes" onclick="setYN('mco-seal','yes')">Yes</button>
-          <button class="yn-btn" id="mco-seal-no" onclick="setYN('mco-seal','no')">No</button>
+          <button class="yn-btn" id="co-1drib-yes" onclick="setYN('co-1drib','yes')">Yes</button>
+          <button class="yn-btn" id="co-1drib-no" onclick="setYN('co-1drib','no')">No</button>
+        </div>
+      </div>
+      <div class="fivs-row">
+        <div><div class="fivs-label">BH <span style="color:var(--mut2);font-size:10px">(2)</span></div></div>
+        <div class="yn-group" style="width:140px">
+          <button class="yn-btn" id="co-bh2-yes" onclick="setYN('co-bh2','yes')">Yes</button>
+          <button class="yn-btn" id="co-bh2-no" onclick="setYN('co-bh2','no')">No</button>
         </div>
       </div>
     </div>
@@ -388,10 +428,10 @@ input,select,textarea{font-size:16px !important;}
         </div>
       </div>
       <div class="fivs-row">
-        <div><div class="fivs-label">Trash on line</div></div>
+        <div><div class="fivs-label">Main label trash</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="trash-yes" onclick="setYN('trash','yes')">Yes</button>
-          <button class="yn-btn" id="trash-no" onclick="setYN('trash','no')">No</button>
+          <button class="yn-btn" id="mltrash-yes" onclick="setYN('mltrash','yes')">Yes</button>
+          <button class="yn-btn" id="mltrash-no" onclick="setYN('mltrash','no')">No</button>
         </div>
       </div>
       <div class="fivs-row">
@@ -417,7 +457,7 @@ input,select,textarea{font-size:16px !important;}
     <div class="card-body">
       <div class="ng-grid">
         <div class="field"><label>MainL</label><input type="text" id="prev-mainl" placeholder="0 or N/A"></div>
-        <div class="field"><label>B/S</label><input type="text" id="prev-bs" placeholder="0 or N/A"></div>
+        <div class="field"><label>1D Label</label><input type="text" id="prev-1dlbl" placeholder="0 or N/A"></div>
         <div class="field"><label>MES</label><input type="text" id="prev-mes" placeholder="0 or N/A"></div>
         <div class="field"><label>Other</label><input type="text" id="prev-other" placeholder="0 or N/A"></div>
       </div>
@@ -430,7 +470,7 @@ input,select,textarea{font-size:16px !important;}
     <div class="card-body">
       <div class="ng-grid">
         <div class="field"><label>MainL</label><input type="text" id="this-mainl" placeholder="0 or N/A"></div>
-        <div class="field"><label>B/S</label><input type="text" id="this-bs" placeholder="0 or N/A"></div>
+        <div class="field"><label>1D Label</label><input type="text" id="this-1dlbl" placeholder="0 or N/A"></div>
         <div class="field"><label>MES</label><input type="text" id="this-mes" placeholder="0 or N/A"></div>
         <div class="field"><label>Other</label><input type="text" id="this-other" placeholder="0 or N/A"></div>
       </div>
@@ -602,19 +642,19 @@ function collectData(){
     if(from||to||mins||prob||action) dtEvents.push({from,to,mins,prob,action});
   }
   return {
-    submitted_at:       new Date().toISOString(),
-    date:               document.getElementById('fDate').value,
-    shift:              document.getElementById('fShift').value,
-    line:               document.getElementById('fLine').value,
-    machine:            document.getElementById('fMachine').value,
-    running_model:      document.getElementById('fModel').value,
-    model_num:          document.getElementById('fModelNum').value,
-    change_over:        ynState['co']||null,
-    production_hrs:     prod,
-    production_total:   document.getElementById('prod-total').value,
-    downtime_hrs:       dt,
-    downtime_total:     document.getElementById('dt-total').value,
-    hours_over_target:  document.getElementById('fHoursOverTarget').value,
+    submitted_at:         new Date().toISOString(),
+    date:                 document.getElementById('fDate').value,
+    shift:                document.getElementById('fShift').value,
+    line:                 document.getElementById('fLine').value,
+    machine:              document.getElementById('fMachine').value,
+    running_model:        document.getElementById('fModel').value,
+    model_num:            document.getElementById('fModelNum').value,
+    change_over:          ynState['co']||null,
+    production_hrs:       prod,
+    production_total:     document.getElementById('prod-total').value,
+    downtime_hrs:         dt,
+    downtime_total:       document.getElementById('dt-total').value,
+    hours_over_target:    document.getElementById('fHoursOverTarget').value,
     wip_hourly:         (() => {
       const arr = [];
       for(let h=0; h<24; h++){
@@ -623,26 +663,33 @@ function collectData(){
       }
       return arr;
     })(),
-    scrap_qty:          document.getElementById('scrapQty').value,
-    scrap_units:        document.getElementById('scrapUnits').value,
-    mco_main_label:     ynState['mco-main']||null,
-    mco_1d_label:       ynState['mco-1d']||null,
-    mco_sealant:        ynState['mco-seal']||null,
-    ng_found_on_line:   ynState['ng-found']||null,
-    trash_on_line:      ynState['trash']||null,
-    spillage_of_glue:   ynState['spill']||null,
+    scrap_base:           document.getElementById('scrapBase').value,
+    scrap_lid:            document.getElementById('scrapLid').value,
+    scrap_spreader:       document.getElementById('scrapSpreader').value,
+    scrap_unit:           document.getElementById('scrapUnit').value,
+    co_tim_a:             ynState['co-tima']||null,
+    co_tim_b:             ynState['co-timb']||null,
+    co_pv804:             ynState['co-pv']||null,
+    co_bh1:               ynState['co-bh1']||null,
+    co_mainl:             ynState['co-mainl']||null,
+    co_1d_label:          ynState['co-1dlbl']||null,
+    co_1d_ribbon:         ynState['co-1drib']||null,
+    co_bh2:               ynState['co-bh2']||null,
+    ng_found_on_line:     ynState['ng-found']||null,
+    main_label_trash:     ynState['mltrash']||null,
+    spillage_of_glue:     ynState['spill']||null,
     parts_inside_machine: ynState['parts']||null,
-    prev_mainl:         document.getElementById('prev-mainl').value,
-    prev_bs:            document.getElementById('prev-bs').value,
-    prev_mes:           document.getElementById('prev-mes').value,
-    prev_other:         document.getElementById('prev-other').value,
-    this_mainl:         document.getElementById('this-mainl').value,
-    this_bs:            document.getElementById('this-bs').value,
-    this_mes:           document.getElementById('this-mes').value,
-    this_other:         document.getElementById('this-other').value,
-    downtime_events:    dtEvents,
-    tech_name:          document.getElementById('techName').value,
-    tech_sig:           document.getElementById('techSig').value,
+    prev_mainl:           document.getElementById('prev-mainl').value,
+    prev_1d_label:        document.getElementById('prev-1dlbl').value,
+    prev_mes:             document.getElementById('prev-mes').value,
+    prev_other:           document.getElementById('prev-other').value,
+    this_mainl:           document.getElementById('this-mainl').value,
+    this_1d_label:        document.getElementById('this-1dlbl').value,
+    this_mes:             document.getElementById('this-mes').value,
+    this_other:           document.getElementById('this-other').value,
+    downtime_events:      dtEvents,
+    tech_name:            document.getElementById('techName').value,
+    tech_sig:             document.getElementById('techSig').value,
   };
 }
 
@@ -673,7 +720,7 @@ async function submitReport(){
   try {
     if(!REPORT_PW_HASH) REPORT_PW_HASH = await sha256('7012');
     data.pw_hash = REPORT_PW_HASH;
-    const res = await fetch(SB_URL+'/rest/v1/wave3_reports', {
+    const res = await fetch(SB_URL+'/rest/v1/carousel_reports', {
       method:'POST', headers: sbHeaders(), body: JSON.stringify(data)
     });
     if(!res.ok) throw new Error(await res.text());
@@ -757,7 +804,7 @@ let _repCache = null;
 async function loadReports(){
   if(_repCache) return _repCache;
   try {
-    const res = await fetch(SB_URL+'/rest/v1/wave3_reports?order=submitted_at.desc&limit=500', {
+    const res = await fetch(SB_URL+'/rest/v1/carousel_reports?order=submitted_at.desc&limit=500', {
       headers: sbHeaders()
     });
     if(!res.ok) throw new Error(await res.text());
@@ -952,7 +999,7 @@ function renderRepDetails(r){
 async function deleteReport(id){
   if(!confirm('Delete this report permanently? This cannot be undone.')) return;
   try {
-    const res = await fetch(SB_URL+'/rest/v1/wave3_reports?id=eq.'+id, {
+    const res = await fetch(SB_URL+'/rest/v1/carousel_reports?id=eq.'+id, {
       method:'DELETE', headers: sbHeaders()
     });
     if(!res.ok) throw new Error(await res.text());
