@@ -1215,7 +1215,7 @@ async function sha256(str){
 // ── LANGUAGE-AWARE DATA ACCESSORS ───────────────────────────────────
 function dataFor() {
   const lang = window.SALCOMP_LANG || 'en';
-  return dataFor().map(s => ({
+  return DATA.map(s => ({
     ...s,
     group: lang === 'es' ? (s.group_es || s.group) : s.group,
     title: lang === 'es' ? (s.title_es || s.title) : s.title,
