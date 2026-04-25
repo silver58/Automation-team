@@ -821,7 +821,7 @@ async function pwSubmit(){
   if(!pw){ document.getElementById('pwErr').textContent = 'Enter password'; return; }
   const hash = await sha256(pw);
   const reports = await loadReports();
-  const report = reports.find(r => r.id === _pendingReportId);
+  const report = reports.find(r => Number(r.id) === Number(_pendingReportId));
   if(!report){ document.getElementById('pwErr').textContent = 'Report not found'; return; }
   // Accept the master password (7012) OR a matching stored hash on the report.
   // If the report has no stored hash (legacy submissions), 7012 is sufficient.
@@ -831,12 +831,17 @@ async function pwSubmit(){
     document.getElementById('pwErr').textContent = 'Wrong password';
     return;
   }
-  // Success
+  // Success — capture the row reference BEFORE pwCancel() nulls it out
+  const targetRow = _pendingReportRow;
   pwCancel();  // closes modal
+  if(!targetRow || !targetRow.parentNode){
+    console.error('Row reference lost; cannot expand');
+    return;
+  }
   const det = document.createElement('div');
   det.className = 'rep-row-expanded';
   det.innerHTML = renderRepDetails(report);
-  _pendingReportRow.parentNode.insertBefore(det, _pendingReportRow.nextSibling);
+  targetRow.parentNode.insertBefore(det, targetRow.nextSibling);
 }
 
 function pwCancel(){
