@@ -353,6 +353,18 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 .unlock-btn:hover{background:var(--amb2);}
 .unlock-err{font-size:11px;color:var(--red);margin-top:6px;font-family:'IBM Plex Mono',monospace;min-height:14px;}
 
+
+/* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
+.lang-toggle{
+  display:inline-flex;align-items:center;
+  background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);
+  border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;user-select:none;flex-shrink:0;
+}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);transition:all .15s;}
+.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+
 </style>
 </head>
 <body>
@@ -361,13 +373,17 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--amb)';this.style.color='var(--amb)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.color='var(--mut)'">← Back</a>
   <div class="logo">👁 Potting — Scout Check Sheet</div>
   <div class="hdr-tabs">
-    <button class="hdr-tab active" id="tabChecklist" onclick="switchTab('checklist')">Checklist</button>
-    <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')">Reports <span class="tab-count" id="repCount">0</span></button>
+    <button class="hdr-tab active" id="tabChecklist" onclick="switchTab('checklist')" data-i18n="scout.tab.checklist">Checklist</button>
+    <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')" data-i18n="scout.tab.reports">Reports<span class="tab-count" style="margin-left:6px" id="repCount">0</span></button>
   </div>
   <div class="hdr-right">
     <span id="hdrDate"></span>
     <span class="prog-pill" id="hdrProg">0 / 94 items</span>
   </div>
+
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma">
+    <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+  </button>
 </header>
 
 <div id="pageChecklist" class="page active">
@@ -424,10 +440,10 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 
   <!-- FILTER TABS -->
   <div class="ftabs">
-    <button class="ftab active" onclick="doFilter('all',this)">All Subsections</button>
-    <button class="ftab" onclick="doFilter('auto',this)">Automation</button>
-    <button class="ftab" onclick="doFilter('plumb',this)">Plumbing</button>
-    <button class="ftab" id="attnTab" onclick="doFilter('attn',this)">⚠ Attention Only</button>
+    <button class="ftab active" onclick="doFilter('all',this)" data-i18n="scout.filter.all.subs">All Subsections</button>
+    <button class="ftab" onclick="doFilter('auto',this)" data-i18n="scout.filter.auto">Automation</button>
+    <button class="ftab" onclick="doFilter('plumb',this)" data-i18n="scout.filter.plumb">Plumbing</button>
+    <button class="ftab" id="attnTab" onclick="doFilter('attn',this)" data-i18n="scout.filter.attn">⚠ Attention Only</button>
   </div>
 
   <div id="wrap"></div>
@@ -478,18 +494,34 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 
 <div class="toast" id="toast"></div>
 
+<script src="translations.js"></script>
 <script>
 const DATA = [
-  {id:'s01',num:'01',grp:'auto',group:'Automation',title:'Gripper',items:[
+  {id:'s01',num:'01',grp:'auto',
+   group:'Automation',group_es:'Automatización',
+   title:'Gripper',title_es:'Sujetador',
+   items:[
     'Gripper fingers / jaws – inspect for wear, cracks, or silicone build-up; clean',
     'Gripper actuator (pneumatic/electric) – stroke test; check for hesitation',
     'Airlines to gripper – leak check; inspect fittings and quick-connects',
     'Gripper open/close sensors – clean; verify correct detection at both positions',
     'Mounting bolts and tooling plate – check torque; inspect for looseness',
     'Gripper force / grip verification – confirm adequate clamping on test part',
-    'Wrist / rotation joint bearings – inspect for play; lubricate per spec',
-  ]},
-  {id:'s02',num:'02',grp:'auto',group:'Automation',title:'Trolley Magnet / Detection',items:[
+    'Wrist / rotation joint bearings – inspect for play; lubricate per spec'
+   ],
+   items_es:[
+    'Dedos / mordazas del sujetador – inspeccionar desgaste, grietas o acumulación de silicón; limpiar',
+    'Actuador del sujetador (neumático/eléctrico) – prueba de carrera; verificar titubeo',
+    'Mangueras al sujetador – verificar fugas; inspeccionar conexiones y conexiones rápidas',
+    'Sensores de abrir/cerrar del sujetador – limpiar; verificar detección correcta en ambas posiciones',
+    'Pernos de montaje y placa de herramienta – verificar torque; inspeccionar aflojamiento',
+    'Fuerza de sujeción / verificación – confirmar sujeción adecuada en pieza de prueba',
+    'Rodamientos de muñeca / articulación de rotación – inspeccionar juego; lubricar según especificación'
+   ]},
+  {id:'s02',num:'02',grp:'auto',
+   group:'Automation',group_es:'Automatización',
+   title:'Trolley Magnet / Detection',title_es:'Imán / Detección del Trolley',
+   items:[
     'Trolley pneumatic linear actuator – inspect wear and tracking',
     'Trolley linear bearings / rails – clean silicone residue; lubricate',
     'Axis screws / rack & pinion – check backlash; lubricate',
@@ -497,27 +529,64 @@ const DATA = [
     'Magnet engage/release solenoid – functional test; check airlines',
     'Trolley position sensors (home, end-of-travel) – clean and test',
     'Trolley detection proximity switches – verify gap and detection reliability',
-    'Cable carrier / drag chain – inspect links; remove debris',
-  ]},
-  {id:'s03',num:'03',grp:'auto',group:'Automation',title:'Rack Placement / Detection',items:[
+    'Cable carrier / drag chain – inspect links; remove debris'
+   ],
+   items_es:[
+    'Actuador lineal neumático del trolley – inspeccionar desgaste y alineación',
+    'Rodamientos lineales del trolley / rieles – limpiar residuo de silicón; lubricar',
+    'Tornillos de eje / cremallera y piñón – verificar juego; lubricar',
+    'Conjunto del imán – inspeccionar cara del imán por residuos; verificar fuerza de retención',
+    'Solenoide de enganche/liberación del imán – prueba funcional; verificar mangueras',
+    'Sensores de posición del trolley (inicio, fin de carrera) – limpiar y probar',
+    'Sensores de proximidad de detección del trolley – verificar gap y confiabilidad de detección',
+    'Portacables / cadena portacables – inspeccionar eslabones; remover residuos'
+   ]},
+  {id:'s03',num:'03',grp:'auto',
+   group:'Automation',group_es:'Automatización',
+   title:'Rack Placement / Detection',title_es:'Colocación / Detección del Rack',
+   items:[
     'Rack locating nest – inspect for wear and silicone build-up; clean',
     'Rack stopper / retention mechanism – functional test; inspect airlines',
     'Rack presence sensor – clean lens; test detection at loaded and empty positions',
     'Rack alignment guides – inspect for wear; verify clearance',
     'Rack elevator / lift axis (if applicable) – check bearings and axis screw',
     'Airlines to lifter – leak check',
-    'Rack seating verification – confirm flush / correct orientation on test load',
-  ]},
-  {id:'s04',num:'04',grp:'auto',group:'Automation',title:'Pickup / Placement Verification',items:[
+    'Rack seating verification – confirm flush / correct orientation on test load'
+   ],
+   items_es:[
+    'Nido de localización del rack – inspeccionar desgaste y acumulación de silicón; limpiar',
+    'Tope / mecanismo de retención del rack – prueba funcional; inspeccionar mangueras',
+    'Sensor de presencia del rack – limpiar lente; probar detección en posiciones cargada y vacía',
+    'Guías de alineación del rack – inspeccionar desgaste; verificar holgura',
+    'Elevador / eje de elevación del rack (si aplica) – verificar rodamientos y tornillo de eje',
+    'Mangueras al elevador – verificar fugas',
+    'Verificación de asentamiento del rack – confirmar a ras / orientación correcta en carga de prueba'
+   ]},
+  {id:'s04',num:'04',grp:'auto',
+   group:'Automation',group_es:'Automatización',
+   title:'Pickup / Placement Verification',title_es:'Verificación de Recogida / Colocación',
+   items:[
     'Part-present sensors (pick position) – clean; functional test',
     'Part-present sensors (place position) – clean; functional test',
     'Vision system camera lens – clean; check mounting and cable',
     'Vision system lighting – verify intensity; inspect LED fixture',
     'Vacuum pick confirmation sensor – verify vacuum level at pick',
     'Placement accuracy – run test cycle; verify part seating within tolerance',
-    'Retry / reject counter – review log; investigate elevated counts',
-  ]},
-  {id:'s05',num:'05',grp:'auto',group:'Automation',title:'Shuttle Detection / Movement',items:[
+    'Retry / reject counter – review log; investigate elevated counts'
+   ],
+   items_es:[
+    'Sensores de presencia de pieza (posición de toma) – limpiar; prueba funcional',
+    'Sensores de presencia de pieza (posición de colocación) – limpiar; prueba funcional',
+    'Lente de la cámara del sistema de visión – limpiar; verificar montaje y cable',
+    'Iluminación del sistema de visión – verificar intensidad; inspeccionar luminaria LED',
+    'Sensor de confirmación de vacío al tomar – verificar nivel de vacío al tomar',
+    'Precisión de colocación – correr ciclo de prueba; verificar asentamiento dentro de tolerancia',
+    'Contador de reintentos / rechazos – revisar bitácora; investigar conteos elevados'
+   ]},
+  {id:'s05',num:'05',grp:'auto',
+   group:'Automation',group_es:'Automatización',
+   title:'Shuttle Detection / Movement',title_es:'Detección / Movimiento del Shuttle',
+   items:[
     'Shuttle drive belt / timing belt – inspect tension, wear, and alignment',
     'Shuttle linear bearings / guide rails – clean; lubricate',
     'Home and end-of-travel limit sensors – clean; functional test',
@@ -526,9 +595,23 @@ const DATA = [
     'Cable carrier / drag chain – inspect links; remove debris',
     'Motor coupling – inspect for wear or slippage',
     'Shuttle docking / locking mechanism – functional test',
-    'E-stop and safety interlocks – functional test',
-  ]},
-  {id:'s06',num:'06',grp:'plumb',group:'Plumbing',title:'Tanks (Air Filters, Agitators, Motors, Intake Valves)',items:[
+    'E-stop and safety interlocks – functional test'
+   ],
+   items_es:[
+    'Banda de tracción del shuttle / banda dentada – inspeccionar tensión, desgaste y alineación',
+    'Rodamientos lineales del shuttle / rieles guía – limpiar; lubricar',
+    'Sensores de límite de inicio y fin de carrera – limpiar; prueba funcional',
+    'Sensores de posición – limpiar; verificar detección',
+    'Mangueras a lo largo del shuttle – inspeccionar dobleces, rozaduras o fugas',
+    'Portacables / cadena portacables – inspeccionar eslabones; remover residuos',
+    'Acoplamiento del motor – inspeccionar desgaste o resbalamiento',
+    'Mecanismo de acoplamiento / bloqueo del shuttle – prueba funcional',
+    'Paro de emergencia y enclavamientos de seguridad – prueba funcional'
+   ]},
+  {id:'s06',num:'06',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Tanks (Air Filters, Agitators, Motors, Intake Valves)',title_es:'Tanques (Filtros de Aire, Agitadores, Motores, Válvulas de Entrada)',
+   items:[
     'Air filter / regulator on tank – inspect element; replace if dirty or expired',
     'Tank pressure gauge – verify reading matches setpoint; check for drift',
     'Agitator motor – listen for unusual noise; check motor temp after run',
@@ -538,9 +621,24 @@ const DATA = [
     'Tank intake valve (solenoid) – functional test; inspect coil and wiring',
     'Tank level sensor – verify accurate level reading',
     'Tank lid / cover seals – inspect gaskets; check fasteners',
-    'Tank exterior – inspect for cracks, leaks, or silicone seepage; clean',
-  ]},
-  {id:'s07',num:'07',grp:'plumb',group:'Plumbing',title:'Supply System (Vacuum Pump, Booster Pump, Tank Selector)',items:[
+    'Tank exterior – inspect for cracks, leaks, or silicone seepage; clean'
+   ],
+   items_es:[
+    'Filtro de aire / regulador del tanque – inspeccionar elemento; reemplazar si está sucio o vencido',
+    'Manómetro del tanque – verificar lectura vs. setpoint; verificar deriva',
+    'Motor del agitador – escuchar ruido inusual; verificar temperatura del motor después de operar',
+    'Sello del eje del agitador – inspeccionar fugas de silicón alrededor del eje',
+    'Aspa / paleta del agitador – inspeccionar acumulación de silicón o daño',
+    'Válvula de entrada del tanque (manual) – operar en rango completo; inspeccionar fugas',
+    'Válvula de entrada del tanque (solenoide) – prueba funcional; inspeccionar bobina y cableado',
+    'Sensor de nivel del tanque – verificar lectura de nivel precisa',
+    'Sellos de tapa del tanque – inspeccionar empaques; verificar sujetadores',
+    'Exterior del tanque – inspeccionar grietas, fugas o filtración de silicón; limpiar'
+   ]},
+  {id:'s07',num:'07',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Supply System (Vacuum Pump, Booster Pump, Tank Selector)',title_es:'Sistema de Suministro (Bomba de Vacío, Bomba Booster, Selector de Tanque)',
+   items:[
     'Vacuum pump oil level – check and top up if required',
     'Vacuum pump oil drain cup – inspect and clean',
     'Vacuum pump – run test; verify pull-down vacuum level and time',
@@ -551,9 +649,25 @@ const DATA = [
     'Tank selector valve – cycle through all positions; verify no cross-flow',
     'Tank selector solenoids – functional test; inspect wiring and connectors',
     'Supply pressure regulator – verify setpoint; check gauge accuracy',
-    'System airlines / hard lines – leak check entire supply circuit',
-  ]},
-  {id:'s08',num:'08',grp:'plumb',group:'Plumbing',title:'Intake Lines (Barrel Straws, Main Supply Lines)',items:[
+    'System airlines / hard lines – leak check entire supply circuit'
+   ],
+   items_es:[
+    'Nivel de aceite de la bomba de vacío – verificar y rellenar si se requiere',
+    'Vaso de drenaje de aceite de la bomba de vacío – inspeccionar y limpiar',
+    'Bomba de vacío – correr prueba; verificar nivel de vacío y tiempo',
+    'Escape / silenciador de la bomba de vacío – inspeccionar bloqueo',
+    'Entrada de la bomba booster – inspeccionar y limpiar',
+    'Bomba booster – correr prueba; verificar presión de salida a caudal nominal',
+    'Sellos de la bomba booster – inspeccionar fugas de silicón o fluido',
+    'Válvula selectora de tanque – ciclar todas las posiciones; verificar que no haya flujo cruzado',
+    'Solenoides selectores de tanque – prueba funcional; inspeccionar cableado y conectores',
+    'Regulador de presión de suministro – verificar setpoint; verificar precisión del manómetro',
+    'Mangueras del sistema / líneas rígidas – verificar fugas en todo el circuito de suministro'
+   ]},
+  {id:'s08',num:'08',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Intake Lines (Barrel Straws, Main Supply Lines)',title_es:'Líneas de Entrada (Pajillas de Barril, Líneas de Suministro)',
+   items:[
     'Barrel straws / dip tubes – remove and inspect for blockage or silicone hardening',
     'Barrel straw seals – inspect; replace if cracked or deformed',
     'Barrel straw length / positioning – verify straw reaches bottom of barrel',
@@ -561,9 +675,22 @@ const DATA = [
     'Main supply lines (Part B) – inspect full run for kinks, crimps, or chafing',
     'Line fittings and unions – leak check; tighten or replace as needed',
     'Line purge procedure – purge and inspect for air bubbles or contamination',
-    'Line support clamps / brackets – inspect; ensure lines are not under stress',
-  ]},
-  {id:'s09',num:'09',grp:'plumb',group:'Plumbing',title:'Cylinder (Pressure Systems, Inlet/Outlet Valves, Seals & Hardware)',items:[
+    'Line support clamps / brackets – inspect; ensure lines are not under stress'
+   ],
+   items_es:[
+    'Pajillas de barril / tubos de inmersión – remover e inspeccionar bloqueo o endurecimiento de silicón',
+    'Sellos de pajillas de barril – inspeccionar; reemplazar si están agrietados o deformados',
+    'Largo / posición de pajilla de barril – verificar que la pajilla llegue al fondo del barril',
+    'Líneas principales de suministro (Parte A) – inspeccionar trayecto completo por dobleces, aplastamientos o rozaduras',
+    'Líneas principales de suministro (Parte B) – inspeccionar trayecto completo por dobleces, aplastamientos o rozaduras',
+    'Conexiones y uniones de línea – verificar fugas; apretar o reemplazar según se requiera',
+    'Procedimiento de purga de línea – purgar e inspeccionar burbujas de aire o contaminación',
+    'Abrazaderas / soportes de línea – inspeccionar; asegurar que las líneas no estén bajo estrés'
+   ]},
+  {id:'s09',num:'09',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Cylinder (Pressure Systems, Inlet/Outlet Valves, Seals & Hardware)',title_es:'Cilindro (Sistemas de Presión, Válvulas de Entrada/Salida, Sellos y Tornillería)',
+   items:[
     'Cylinder inlet valve – inspect for leaks; functional test open/close',
     'Cylinder outlet valve – inspect for leaks; functional test open/close',
     'Cylinder pressure gauge – verify reading; compare to system setpoint',
@@ -573,9 +700,24 @@ const DATA = [
     'Cylinder mounting hardware – check all bolts and tie-rods for torque',
     'Cylinder stroke / travel – verify full extension and retraction',
     'Cylinder airlines – leak check; inspect fittings',
-    'Cylinder fluid displacement check – verify metered output per stroke',
-  ]},
-  {id:'s10',num:'10',grp:'plumb',group:'Plumbing',title:'Glue Injector',items:[
+    'Cylinder fluid displacement check – verify metered output per stroke'
+   ],
+   items_es:[
+    'Válvula de entrada del cilindro – inspeccionar fugas; prueba funcional abrir/cerrar',
+    'Válvula de salida del cilindro – inspeccionar fugas; prueba funcional abrir/cerrar',
+    'Manómetro del cilindro – verificar lectura; comparar con setpoint del sistema',
+    'Válvula de alivio de presión del cilindro – inspeccionar; verificar que la presión esté correcta',
+    'Sellos del vástago del cilindro – inspeccionar fugas de silicón alrededor del vástago',
+    'Sellos del cuerpo del cilindro / O-rings – inspeccionar fugas externas',
+    'Tornillería de montaje del cilindro – verificar torque de todos los pernos y tirantes',
+    'Carrera del cilindro – verificar extensión y retracción completas',
+    'Mangueras del cilindro – verificar fugas; inspeccionar conexiones',
+    'Verificación de desplazamiento de fluido del cilindro – verificar salida medida por carrera'
+   ]},
+  {id:'s10',num:'10',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Glue Injector',title_es:'Inyector de Pegamento',
+   items:[
     'Injector tip / nozzle – remove, clean silicone residue; inspect orifice',
     'Injector needle / valve seat – inspect for wear or hardened silicone',
     'Injector body seals – inspect for leakage; replace O-rings as needed',
@@ -583,9 +725,22 @@ const DATA = [
     'Injector airline / fluid line connections – leak check',
     'Shot volume / weight check – dispense test shot; verify against target weight',
     'Injector purge – purge to verify clean, bubble-free bead',
-    'Mix ratio verification (Part A / Part B) – confirm ratio within spec',
-  ]},
-  {id:'s11',num:'11',grp:'plumb',group:'Plumbing',title:'Electronic Fittings & System Readouts',items:[
+    'Mix ratio verification (Part A / Part B) – confirm ratio within spec'
+   ],
+   items_es:[
+    'Punta / boquilla del inyector – remover, limpiar residuo de silicón; inspeccionar orificio',
+    'Aguja del inyector / asiento de válvula – inspeccionar desgaste o silicón endurecido',
+    'Sellos del cuerpo del inyector – inspeccionar fugas; reemplazar O-rings según se requiera',
+    'Montaje del inyector – verificar fijación al cabezal dispensador; verificar alineación',
+    'Conexiones de manguera de aire / línea de fluido del inyector – verificar fugas',
+    'Verificación de volumen / peso de disparo – dispensar disparo de prueba; verificar contra peso objetivo',
+    'Purga del inyector – purgar para verificar cordón limpio sin burbujas',
+    'Verificación de proporción de mezcla (Parte A / Parte B) – confirmar proporción dentro de especificación'
+   ]},
+  {id:'s11',num:'11',grp:'plumb',
+   group:'Plumbing',group_es:'Plomería',
+   title:'Electronic Fittings & System Readouts',title_es:'Conexiones Electrónicas y Lecturas del Sistema',
+   items:[
     'Pressure transducers (all zones) – verify reading against gauge; check wiring',
     'Flow meters – verify display reading; inspect for blockage or air',
     'Level sensors (tanks) – verify accurate reading at current level',
@@ -594,10 +749,21 @@ const DATA = [
     'Electronic fittings / Swagelok instrumentation ports – leak check',
     'Sensor and solenoid wiring – inspect for chafing, pinching, or silicone ingress',
     'Ground connections – verify all grounds secure; inspect for corrosion',
-    'Communication cables (Ethernet, DeviceNet, etc.) – inspect connectors and routing',
-  ]},
+    'Communication cables (Ethernet, DeviceNet, etc.) – inspect connectors and routing'
+   ],
+   items_es:[
+    'Transductores de presión (todas las zonas) – verificar lectura contra manómetro; verificar cableado',
+    'Medidores de flujo – verificar lectura; inspeccionar bloqueo o aire',
+    'Sensores de nivel (tanques) – verificar lectura precisa al nivel actual',
+    'Panel de control / HMI – inspeccionar pantalla; verificar que todas las lecturas estén activas',
+    'Bitácora de alarmas / fallas – revisar y limpiar fallas resueltas; anotar fallas abiertas',
+    'Conexiones electrónicas / puertos de instrumentación Swagelok – verificar fugas',
+    'Cableado de sensores y solenoides – inspeccionar rozaduras, pellizcos o ingreso de silicón',
+    'Conexiones a tierra – verificar que todas estén seguras; inspeccionar corrosión',
+    'Cables de comunicación (Ethernet, DeviceNet, etc.) – inspeccionar conectores y ruta'
+   ]},
 ];
-const TOTAL = DATA.reduce((a,s)=>a+s.items.length,0);
+const TOTAL = dataFor().reduce((a,s)=>a+s.items.length,0);
 const status = {};  // itemId -> 'ok'|'attn'|'na'|null
 const notes  = {};  // itemId -> string
 const secNotes = {}; // secId -> string
@@ -608,7 +774,7 @@ function itemId(sid,i){ return `${sid}_${i}`; }
 function buildSidebar(){
   const nav = document.getElementById('sideNav');
   let lastGrp='';
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     if(sec.group!==lastGrp){
       const g=document.createElement('div');
       g.className='sb-group'; g.textContent=sec.group;
@@ -630,7 +796,7 @@ function buildSidebar(){
 // ── BUILD SECTIONS ─────────────────────────────────────────────────────────────
 function buildSections(){
   const wrap=document.getElementById('wrap');
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     const card=document.createElement('div');
     card.className='sec-card'; card.id=`card-${sec.id}`; card.dataset.grp=sec.grp;
     const rows=sec.items.map((item,i)=>{
@@ -722,7 +888,7 @@ function jumpToSection(sid){
 function doFilter(grp,btn){
   document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     const card=document.getElementById(`card-${sec.id}`);
     let show=false;
     if(grp==='all') show=true;
@@ -736,7 +902,7 @@ function doFilter(grp,btn){
 // ── PROGRESS ───────────────────────────────────────────────────────────────────
 function updateProgress(){
   let total=0, attnCount=0;
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     let done=0, secAttn=0;
     sec.items.forEach((_,i)=>{
       const v=status[itemId(sec.id,i)];
@@ -768,7 +934,7 @@ function updateProgress(){
   tab.className='ftab'+(attnCount>0?' visible':'');
 
   // Sync drawer icons if open
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     const el=document.getElementById('dicon-'+sec.id);
     if(!el) return;
     const ni=document.getElementById('nicon-'+sec.id);
@@ -781,7 +947,7 @@ function refreshAttn(){
   const box=document.getElementById('attnBox');
   const list=document.getElementById('attnList');
   const items=[];
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     sec.items.forEach((item,i)=>{
       const tid=itemId(sec.id,i);
       if(status[tid]==='attn'){
@@ -798,7 +964,7 @@ function refreshAttn(){
 function resetAll(){
   if(!confirm('Reset all statuses? This cannot be undone.')) return;
   Object.keys(status).forEach(k=>{ status[k]=null; });
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     sec.items.forEach((_,i)=>{
       const tid=itemId(sec.id,i);
       const row=document.getElementById(`row-${tid}`);
@@ -818,7 +984,7 @@ function buildDrawer(){
   const list = document.getElementById('drawerList');
   if(!list) return;
   let lastGrp='';
-  list.innerHTML = DATA.map(sec => {
+  list.innerHTML = dataFor().map(sec => {
     let grpHdr = '';
     if(sec.group !== lastGrp){
       grpHdr = `<div style="padding:8px 18px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:var(--mut2);text-transform:uppercase;letter-spacing:.12em;">${sec.group}</div>`;
@@ -836,7 +1002,7 @@ function openDrawer(){
   document.getElementById('drawerOverlay').classList.add('show');
   document.getElementById('stationDrawer').classList.add('show');
   // update drawer icons
-  DATA.forEach(sec=>{
+  dataFor().forEach(sec=>{
     const el=document.getElementById(`dicon-${sec.id}`);
     if(!el) return;
     const ni=document.getElementById(`nicon-${sec.id}`);
@@ -986,7 +1152,7 @@ async function submitForm(){
     doneCount: done,
     attnCount: attn,
     statusType: attn>0 ? 'attn' : (pct<100 ? 'partial' : 'clean'),
-    sections: DATA.map(sec=>{
+    sections: dataFor().map(sec=>{
       let okC=0,attnC=0,naC=0;
       const flaggedItems=[];
       sec.items.forEach((item,i)=>{
@@ -1016,7 +1182,7 @@ async function submitForm(){
       showToast(`⚠ Saved & locked — ${attn} items flagged`,'t-warn');
     } else {
       btn.className='btn btn-ok'; btn.textContent='✓ Scout Report Submitted';
-      showToast('✓ Report saved & locked — password: 7012','t-ok');
+      showToast('✓ Report saved & locked','t-ok');
     }
     btn.disabled=false;
   } catch(e) {
@@ -1040,6 +1206,26 @@ async function sha256(str){
 }
 
 // openPwModal removed — reports auto-lock with master password
+
+
+// ── LANGUAGE-AWARE DATA ACCESSORS ───────────────────────────────────
+function dataFor() {
+  const lang = window.SALCOMP_LANG || 'en';
+  return dataFor().map(s => ({
+    ...s,
+    group: lang === 'es' ? (s.group_es || s.group) : s.group,
+    title: lang === 'es' ? (s.title_es || s.title) : s.title,
+    items: lang === 'es' ? (s.items_es || s.items) : s.items,
+  }));
+}
+
+window.onLangChange = function() {
+  if (typeof renderStations === 'function') renderStations();
+  if (typeof updateProgress === 'function') updateProgress();
+  if (typeof renderReports === 'function' && document.getElementById('pageReports')?.classList.contains('active')) {
+    renderReports();
+  }
+};
 
 // ── RENDER REPORTS ─────────────────────────────────────────────────────────────
 async function renderReports(){

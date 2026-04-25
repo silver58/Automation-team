@@ -256,6 +256,18 @@ input,select,textarea{font-size:16px !important;}
 @media(max-width:480px){
   .scout-grid{grid-template-columns:1fr;}
 }
+
+/* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
+.lang-toggle{
+  display:inline-flex;align-items:center;
+  background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);
+  border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;user-select:none;flex-shrink:0;
+}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);transition:all .15s;}
+.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+
 </style>
 </head>
 <body>
@@ -266,20 +278,24 @@ input,select,textarea{font-size:16px !important;}
   <div class="hdr-right">
     <span class="live-dot"><span id="hdrDate"></span></span>
   </div>
+
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma">
+    <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+  </button>
 </header>
 
 <main class="main">
 
-  <div class="page-title">Operations Overview</div>
-  <div class="page-sub">Live data from all check sheets and shift reports — auto-pulls from Supabase on load.</div>
+  <div class="page-title" data-i18n="analytics.title">Operations Overview</div>
+  <div class="page-sub" data-i18n="analytics.subtitle">Live data from all check sheets and shift reports — auto-pulls from Supabase on load.</div>
 
   <!-- DATE RANGE -->
   <div class="range-row">
     <div class="range-pills" id="rangePills">
-      <button class="rpill active" data-days="7">7 day</button>
-      <button class="rpill" data-days="30">30 day</button>
-      <button class="rpill" data-days="90">90 day</button>
-      <button class="rpill" data-days="0">All time</button>
+      <button class="rpill active" data-days="7" data-i18n="analytics.range.7">7 day</button>
+      <button class="rpill" data-days="30" data-i18n="analytics.range.30">30 day</button>
+      <button class="rpill" data-days="90" data-i18n="analytics.range.90">90 day</button>
+      <button class="rpill" data-days="0" data-i18n="analytics.range.all">All time</button>
     </div>
     <div class="range-meta" id="rangeMeta"></div>
     <button class="refresh-btn" onclick="loadAll(true)">↻ Refresh</button>
@@ -293,6 +309,7 @@ input,select,textarea{font-size:16px !important;}
 
 <div class="toast" id="toast"></div>
 
+<script src="translations.js"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -637,22 +654,22 @@ function renderKPIs(k){
   return `
     <div class="kpis">
       <div class="kpi k-blu">
-        <div class="kpi-label">Reports Submitted</div>
+        <div class="kpi-label">${t('analytics.kpi.reports')}</div>
         <div class="kpi-val">${k.reportCt.toLocaleString()}</div>
         <div class="kpi-sub">scout + shift, all lines</div>
       </div>
       <div class="kpi k-grn">
-        <div class="kpi-label">Production (units)</div>
+        <div class="kpi-label">${t('analytics.kpi.production')}</div>
         <div class="kpi-val">${k.prodTotal.toLocaleString()}</div>
         <div class="kpi-sub">sum of shift totals</div>
       </div>
       <div class="kpi k-amb">
-        <div class="kpi-label">Downtime (mins)</div>
+        <div class="kpi-label">${t('analytics.kpi.downtime')}</div>
         <div class="kpi-val">${k.dtTotal.toLocaleString()}</div>
         <div class="kpi-sub">recorded in shift reports</div>
       </div>
       <div class="kpi k-red">
-        <div class="kpi-label">Scout Flags</div>
+        <div class="kpi-label">${t('analytics.kpi.flags')}</div>
         <div class="kpi-val">${k.scoutAttn.toLocaleString()}</div>
         <div class="kpi-sub">items needing attention</div>
       </div>
@@ -665,7 +682,7 @@ function renderProduction(prod){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>Production Trend — Units per Day</h2>
+        <h2>${t('analytics.panel.production')}</h2>
         <div class="legend-strip">
           <span class="lkey pott"><span class="dot"></span>Potting</span>
           <span class="lkey wav"><span class="dot"></span>Wave-3</span>
@@ -748,7 +765,7 @@ function renderDowntime(dt, causes){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>Downtime — Minutes per Day &amp; Top Causes</h2>
+        <h2>${t('analytics.panel.downtime')}</h2>
         <div class="panel-meta">${causes.length} event${causes.length!==1?'s':''} ≥1 min</div>
       </div>
       <div class="panel-body">
@@ -822,7 +839,7 @@ function renderWipHeatmap(wip){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>WIP Remaining — Hourly Heatmap</h2>
+        <h2>${t('analytics.panel.wip')}</h2>
         <div style="display:flex;gap:6px;align-items:center">
           <span class="panel-meta" style="margin-right:6px">Line:</span>
           <div class="wip-line-pills" id="wipLinePills">
@@ -904,7 +921,7 @@ function renderScout(scout, flags){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>Scout Flags by Sheet</h2>
+        <h2>${t('analytics.panel.scout')}</h2>
         <div class="panel-meta">items needing attention</div>
       </div>
       <div class="panel-body">
@@ -937,7 +954,7 @@ function renderTechs(techs){
   if(techs.length===0){
     return `
       <div class="panel">
-        <div class="panel-head"><h2>Reports by Technician</h2></div>
+        <div class="panel-head"><h2>${t('analytics.panel.techs')}</h2></div>
         <div class="panel-body">
           <div class="empty"><div class="empty-icon">👤</div>No reports yet.</div>
         </div>
@@ -966,7 +983,7 @@ function renderTechs(techs){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>Reports by Technician</h2>
+        <h2>${t('analytics.panel.techs')}</h2>
         <div class="panel-meta">${techs.length} tech${techs.length!==1?'s':''} · ${totalReports} report${totalReports!==1?'s':''} (${scoutTotal} scout, ${shiftTotal} shift)</div>
       </div>
       <div class="panel-body" style="padding:0">
@@ -1009,7 +1026,7 @@ function renderFeed(feed){
   return `
     <div class="panel">
       <div class="panel-head">
-        <h2>Recent Submissions</h2>
+        <h2>${t('analytics.panel.feed')}</h2>
         <div class="panel-meta">last ${feed.length} across all sources</div>
       </div>
       <div class="panel-body" style="padding:0">
@@ -1101,6 +1118,11 @@ document.getElementById('hdrDate').textContent =
   new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 
 loadAll();
+
+window.onLangChange = function() {
+  // Re-render the entire dashboard in the new language
+  if (typeof render === 'function') render();
+};
 </script>
 
 </body>

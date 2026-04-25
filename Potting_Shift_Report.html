@@ -193,6 +193,18 @@ input,select,textarea{font-size:16px !important;}
   .rep-prod-row{grid-template-columns:repeat(5,1fr);}
 }
 
+
+/* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
+.lang-toggle{
+  display:inline-flex;align-items:center;
+  background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);
+  border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;user-select:none;flex-shrink:0;
+}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);transition:all .15s;}
+.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+
 </style>
 </head>
 <body>
@@ -201,10 +213,14 @@ input,select,textarea{font-size:16px !important;}
   <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--amb)';this.style.color='var(--amb)'" onmouseout="this.style.borderColor='var(--bdr2)';this.style.color='var(--mut)'">← Back</a>
   <div class="logo">⚙ Potting — Tech Shift Report</div>
   <div class="hdr-tabs">
-    <button class="hdr-tab active" id="tabForm" onclick="switchTab('form')">Shift Report</button>
-    <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')">Reports <span class="tab-count" id="repCount">0</span></button>
+    <button class="hdr-tab active" id="tabForm" onclick="switchTab('form')" data-i18n="shift.tab.form">Shift Report</button>
+    <button class="hdr-tab" id="tabReports" onclick="switchTab('reports')" data-i18n="shift.tab.reports">Reports<span class="tab-count" style="margin-left:6px" id="repCount">0</span></button>
   </div>
   <div class="hdr-right" id="hdrDate"></div>
+
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma">
+    <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+  </button>
 </header>
 
 <div id="pageForm" class="page active">
@@ -213,11 +229,11 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- META -->
   <div class="card">
-    <div class="card-head"><h2>Shift Information</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.info">Shift Information</h2></div>
     <div class="card-body">
       <div class="fg fg-4" style="margin-bottom:10px">
-        <div class="field"><label>Date</label><input type="date" id="fDate"></div>
-        <div class="field"><label>Shift</label>
+        <div class="field"><label data-i18n="field.date">Date</label><input type="date" id="fDate"></div>
+        <div class="field"><label data-i18n="field.shift">Shift</label>
           <select id="fShift">
             <option value="">Select</option>
             <option value="A">A Shift</option>
@@ -225,15 +241,15 @@ input,select,textarea{font-size:16px !important;}
             <option value="C">C Shift</option>
           </select>
         </div>
-        <div class="field"><label>Line</label><input type="text" id="fLine" placeholder="e.g. 3"></div>
-        <div class="field"><label>Machine</label><input type="text" id="fMachine" placeholder="e.g. Potting"></div>
+        <div class="field"><label data-i18n="field.line">Line</label><input type="text" id="fLine" placeholder="e.g. 3"></div>
+        <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" placeholder="e.g. Potting"></div>
       </div>
       <div class="fg fg-2">
-        <div class="field"><label>Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ80-BAT-DOW"></div>
-        <div class="field"><label>Change Over?</label>
+        <div class="field"><label data-i18n="field.running_model">Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ80-BAT-DOW"></div>
+        <div class="field"><label data-i18n="field.change_over">Change Over?</label>
           <div class="yn-group">
-            <button class="yn-btn" id="co-yes" onclick="setYN('co','yes')">Yes</button>
-            <button class="yn-btn sel-no" id="co-no" onclick="setYN('co','no')">No</button>
+            <button class="yn-btn" id="co-yes" onclick="setYN('co','yes')" data-i18n="common.yes">Yes</button>
+            <button class="yn-btn sel-no" id="co-no" onclick="setYN('co','no')" data-i18n="common.no">No</button>
           </div>
         </div>
       </div>
@@ -242,14 +258,14 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- HR BY HR PRODUCTION -->
   <div class="card">
-    <div class="card-head"><h2>Hr by Hr Production (Qty)</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.production">Hr by Hr Production (Qty)</h2></div>
     <div class="card-body">
       <table class="hr-table">
         <thead>
           <tr>
             <th>1 Hr</th><th>2 Hr</th><th>3 Hr</th><th>4 Hr</th>
             <th>5 Hr</th><th>6 Hr</th><th>7 Hr</th><th>8 Hr</th>
-            <th style="color:var(--amb)">Total</th>
+            <th style="color:var(--amb)" data-i18n="hour.total">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -271,7 +287,7 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- DOWNTIME -->
   <div class="card">
-    <div class="card-head"><h2>Down Time (mins) — If no WIP write NW</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.downtime">Down Time (mins) — If no WIP write NW</h2></div>
     <div class="card-body">
       <table class="hr-table" style="margin-bottom:12px">
         <thead>
@@ -296,7 +312,7 @@ input,select,textarea{font-size:16px !important;}
         </tbody>
       </table>
       <div class="field">
-        <label># Hours Over Target</label>
+        <label data-i18n="shift.hours_over"># Hours Over Target</label>
         <input type="text" id="fHoursOverTarget" placeholder="e.g. 0.5">
       </div>
     </div>
@@ -304,12 +320,12 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- WIP & SCRAP -->
   <div class="card">
-    <div class="card-head"><h2>WIP / Scrap / Valves</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.wip.valves">WIP / Scrap / Valves</h2></div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <div class="sdiv"><span>WIP Remaining (24hr · Cart ct)</span></div>
+        <div class="sdiv"><span data-i18n="wip.timeline.cart">WIP Remaining (24hr · Cart ct)</span></div>
         <div class="wip-grid">
-          <div class="wip-row-label">AM · 00–11</div>
+          <div class="wip-row-label" data-i18n="wip.timeline.am">AM · 00–11</div>
           <div class="wip-cell"><label>00</label><input type="text" id="wip-00" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>01</label><input type="text" id="wip-01" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>02</label><input type="text" id="wip-02" inputmode="numeric" placeholder="—"></div>
@@ -322,7 +338,7 @@ input,select,textarea{font-size:16px !important;}
           <div class="wip-cell"><label>09</label><input type="text" id="wip-09" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>10</label><input type="text" id="wip-10" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>11</label><input type="text" id="wip-11" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-row-label">PM · 12–23</div>
+          <div class="wip-row-label" data-i18n="wip.timeline.pm">PM · 12–23</div>
           <div class="wip-cell"><label>12</label><input type="text" id="wip-12" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>13</label><input type="text" id="wip-13" inputmode="numeric" placeholder="—"></div>
           <div class="wip-cell"><label>14</label><input type="text" id="wip-14" inputmode="numeric" placeholder="—"></div>
@@ -338,10 +354,10 @@ input,select,textarea{font-size:16px !important;}
         </div>
       </div>
       <div>
-        <div class="sdiv"><span>Scrap Qty</span></div>
+        <div class="sdiv"><span data-i18n="scrap.qty">Scrap Qty</span></div>
         <div class="fg fg-2">
-          <div class="field"><label>Units</label><input type="number" id="scrapQty" placeholder="0"></div>
-          <div class="field"><label>Source</label><input type="text" id="scrapSource" placeholder="e.g. from crash, etc."></div>
+          <div class="field"><label data-i18n="scrap.units">Units</label><input type="number" id="scrapQty" placeholder="0"></div>
+          <div class="field"><label data-i18n="scrap.source">Source</label><input type="text" id="scrapSource" placeholder="e.g. from crash, etc."></div>
         </div>
       </div>
       <div>
@@ -357,17 +373,17 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- 5S PREVIOUS SHIFT -->
   <div class="card">
-    <div class="card-head"><h2>5S — Previous Shift</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.5s">5S — Previous Shift</h2></div>
     <div class="card-body">
       <div class="fivs-row">
-        <div><div class="fivs-label">NG parts found on line</div></div>
+        <div><div class="fivs-label" data-i18n="5s.ng_found">NG parts found on line</div></div>
         <div class="yn-group" style="width:140px">
           <button class="yn-btn" id="ng-found-yes" onclick="setYN('ng-found','yes')">Yes</button>
           <button class="yn-btn" id="ng-found-no" onclick="setYN('ng-found','no')">No</button>
         </div>
       </div>
       <div class="fivs-row">
-        <div><div class="fivs-label">Trash on line</div></div>
+        <div><div class="fivs-label" data-i18n="5s.trash">Trash on line</div></div>
         <div class="yn-group" style="width:140px">
           <button class="yn-btn" id="trash-yes" onclick="setYN('trash','yes')">Yes</button>
           <button class="yn-btn" id="trash-no" onclick="setYN('trash','no')">No</button>
@@ -378,20 +394,20 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- NG PARTS LEFT BY PREVIOUS SHIFT -->
   <div class="card">
-    <div class="card-head"><h2>NG Parts Left by Previous Shift (Qty)</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.ng_prev">NG Parts Left by Previous Shift (Qty)</h2></div>
     <div class="card-body">
       <div class="ng-grid">
         <div class="field"><label>Overflow</label><input type="text" id="prev-overflow" placeholder="0 or N/A"></div>
         <div class="field"><label>Crashed</label><input type="text" id="prev-crashed" placeholder="0 or N/A"></div>
-        <div class="field"><label>MES</label><input type="text" id="prev-mes" placeholder="0 or N/A"></div>
-        <div class="field"><label>Other</label><input type="text" id="prev-other" placeholder="0 or N/A"></div>
+        <div class="field"><label data-i18n="ng.mes">MES</label><input type="text" id="prev-mes" placeholder="0 or N/A"></div>
+        <div class="field"><label data-i18n="ng.other">Other</label><input type="text" id="prev-other" placeholder="0 or N/A"></div>
       </div>
     </div>
   </div>
 
   <!-- NG PARTS LEFT THIS SHIFT -->
   <div class="card">
-    <div class="card-head"><h2>NG Parts Left This Shift (Qty)</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.ng_this">NG Parts Left This Shift (Qty)</h2></div>
     <div class="card-body">
       <div class="ng-grid">
         <div class="field"><label>Overflow</label><input type="text" id="this-overflow" placeholder="0 or N/A"></div>
@@ -405,17 +421,17 @@ input,select,textarea{font-size:16px !important;}
   <!-- MAJOR DOWNTIME -->
   <div class="card">
     <div class="card-head">
-      <h2>Major Downtime &gt;20 mins (Machine DT only)</h2>
+      <h2 data-i18n="shift.section.major_dt">Major Downtime &gt;20 mins (Machine DT only)</h2>
       <button onclick="addDTRow()" style="background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:4px 10px;border-radius:5px;cursor:pointer;">+ Add Row</button>
     </div>
     <div class="card-body" style="padding:0">
       <table class="dt-table">
         <thead><tr>
-          <th style="width:15%">From</th>
-          <th style="width:15%">To</th>
-          <th style="width:15%">Downtime</th>
-          <th style="width:30%">Problem</th>
-          <th style="width:25%">Action Taken</th>
+          <th style="width:15%" data-i18n="dt.from">From</th>
+          <th style="width:15%" data-i18n="dt.to">To</th>
+          <th style="width:15%" data-i18n="dt.downtime">Downtime</th>
+          <th style="width:30%" data-i18n="dt.problem">Problem</th>
+          <th style="width:25%" data-i18n="dt.action">Action Taken</th>
         </tr></thead>
         <tbody id="dtBody">
           <tr>
@@ -432,11 +448,11 @@ input,select,textarea{font-size:16px !important;}
 
   <!-- SIGN OFF -->
   <div class="card">
-    <div class="card-head"><h2>Sign Off</h2></div>
+    <div class="card-head"><h2 data-i18n="shift.section.signoff">Sign Off</h2></div>
     <div class="card-body">
       <div class="signoff">
-        <div class="field"><label>Tech Name</label><input type="text" id="techName" placeholder="Full name"></div>
-        <div class="field"><label>Signature</label><input type="text" id="techSig" placeholder="Initials / signature"></div>
+        <div class="field"><label data-i18n="field.tech">Tech Name</label><input type="text" id="techName" placeholder="Full name"></div>
+        <div class="field"><label data-i18n="field.signature">Signature</label><input type="text" id="techSig" placeholder="Initials / signature"></div>
       </div>
     </div>
   </div>
@@ -452,12 +468,12 @@ input,select,textarea{font-size:16px !important;}
   <div class="reports-main">
     <div class="rep-hdr">
       <div>
-        <div class="rep-hdr-title">Submitted Shift Reports</div>
-        <div class="rep-hdr-sub">All saved reports — click any row to view details (password 7012)</div>
+        <div class="rep-hdr-title" data-i18n="reports.title.shift">Submitted Shift Reports</div>
+        <div class="rep-hdr-sub" data-i18n="reports.subtitle">All saved reports — click any row to view details</div>
       </div>
     </div>
     <div class="rep-toolbar">
-      <input class="rep-search" id="repSearch" placeholder="Search by tech, date, line, shift…" oninput="renderReports()">
+      <input class="rep-search" id="repSearch" placeholder="Search by tech, date, line, shift…" data-i18n-placeholder="reports.search.placeholder" oninput="renderReports()">
       <button class="rep-refresh" onclick="_repCache=null;renderReports()">↻ Refresh</button>
     </div>
     <div class="rep-count-lbl" id="repCountLbl"></div>
@@ -482,14 +498,15 @@ input,select,textarea{font-size:16px !important;}
 
 <!-- FIXED ACTIONS -->
 <div class="actions" id="formActions">
-  <button class="btn btn-ghost" onclick="resetForm()">↺ Reset</button>
-  <button class="btn btn-ghost" onclick="window.print()">🖨 Print</button>
-  <button class="btn btn-primary" id="subBtn" onclick="submitReport()">Submit Report →</button>
-  <button class="btn btn-ghost" id="anotherBtn" onclick="submitAnother()" style="display:none">+ Submit Another</button>
+  <button class="btn btn-ghost" onclick="resetForm()" data-i18n="common.reset">↺ Reset</button>
+  <button class="btn btn-ghost" onclick="window.print()" data-i18n="common.print">🖨 Print</button>
+  <button class="btn btn-primary" id="subBtn" onclick="submitReport()" data-i18n="common.submit">Submit Report →</button>
+  <button class="btn btn-ghost" id="anotherBtn" onclick="submitAnother()" style="display:none" data-i18n="common.submit_another">+ Submit Another</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="translations.js"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -931,6 +948,12 @@ setTimeout(() => { loadReports().then(reps => {
   document.getElementById('repCount').textContent = reps.length;
 }); }, 300);
 
+
+window.onLangChange = function() {
+  if (typeof renderReports === 'function' && document.getElementById('pageReports')?.classList.contains('active')) {
+    renderReports();
+  }
+};
 </script>
 </body>
 </html>
