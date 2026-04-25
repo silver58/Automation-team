@@ -195,6 +195,24 @@ input,select,textarea{font-size:16px !important;}
 .wip-legend-cell{width:18px;height:12px;}
 .wip-legend-meta{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);}
 
+/* ── UPH BOARD ───────────────────────────────────────────────────────────── */
+.uph-grid{display:flex;flex-direction:column;gap:1px;overflow-x:auto;padding:14px 16px;}
+.uph-row{display:grid;grid-template-columns:140px 1fr;gap:6px;align-items:center;}
+.uph-row.uph-row-hdr{margin-bottom:2px;}
+.uph-row-label{font-family:'IBM Plex Mono',monospace;text-align:right;padding-right:6px;line-height:1.1;}
+.uph-row-line{font-size:11.5px;color:var(--txt);font-weight:600;}
+.uph-row-meta{font-size:9.5px;color:var(--mut2);margin-top:2px;letter-spacing:.02em;}
+.uph-row-label-hdr{height:14px;}
+.uph-row-cells{display:grid;grid-template-columns:repeat(24,1fr);gap:2px;min-width:560px;}
+.uph-cell{height:24px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--txt);background:#1c2128;cursor:default;transition:transform .12s;}
+.uph-cell:hover{transform:scale(1.15);outline:1px solid var(--amb);z-index:1;position:relative;}
+.uph-cell-hdr{font-size:9px;color:var(--mut2);background:transparent;height:14px;}
+.uph-cell-empty{background:#161b22;border:1px dashed var(--bdr);}
+.uph-area-row{margin-top:14px;margin-bottom:4px;padding:0 0 4px 0;border-bottom:1px solid var(--bdr);}
+.uph-area-row:first-child{margin-top:0;}
+.uph-area-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--amb);}
+.uph-legend{display:flex;align-items:center;gap:10px;padding:12px 16px 14px;border-top:1px solid var(--bdr);margin-top:8px;}
+
 /* ── RECENT FEED ─────────────────────────────────────────────────────────── */
 .feed{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;}
 .feed-row{padding:11px 16px;border-bottom:1px solid var(--bdr);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;transition:background .12s;}
@@ -252,6 +270,12 @@ input,select,textarea{font-size:16px !important;}
   .hcell-hdr{font-size:8px;}
   .wip-line-pills{flex-wrap:wrap;}
   .wpill{padding:5px 10px;font-size:10.5px;}
+  .uph-row{grid-template-columns:90px 1fr;gap:4px;}
+  .uph-row-line{font-size:10.5px;}
+  .uph-row-meta{font-size:9px;}
+  .uph-cell{height:20px;font-size:9px;}
+  .uph-cell-hdr{font-size:8px;}
+  .uph-grid{padding:10px 12px;}
 }
 @media(max-width:480px){
   .scout-grid{grid-template-columns:1fr;}
@@ -522,7 +546,77 @@ function buildWipHeatmap(rows, lineFilter){
   return {days, grid, max, anyData};
 }
 
-// ── SCOUT FLAGS ────────────────────────────────────────────────────────────────
+// ── UPH BOARD (24hr Production by Line) ──────────────────────────────────────
+// Maps each shift's 8 production_hrs slots → real clock hours, then aggregates
+// per (area + line) combination across all reports in range.
+//
+// Standard 3-shift manufacturing schedule:
+//   Shift A: 6 AM – 2 PM   (slot 1 = 6:00, slot 8 = 13:00)
+//   Shift B: 2 PM – 10 PM  (slot 1 = 14:00, slot 8 = 21:00)
+//   Shift C: 10 PM – 6 AM  (slot 1 = 22:00, slot 8 = 5:00)
+function shiftStartHour(shift){
+  const s = String(shift||'').trim().toUpperCase();
+  if(s.startsWith('A')) return 6;
+  if(s.startsWith('B')) return 14;
+  if(s.startsWith('C')) return 22;
+  return null;
+}
+
+function buildUphBoard(rows){
+  // Map: "area|line" → { area, line, hours: [24 cells], total }
+  const groups = {};
+  rows.forEach(r => {
+    if(r.src.kind !== 'shift') return;
+    const prodHrs = r.row.production_hrs;
+    if(!Array.isArray(prodHrs)) return;
+    const startHour = shiftStartHour(r.row.shift);
+    if(startHour === null) return;
+    // Determine area name from source
+    const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
+    const area = areaMap[r.src.key];
+    if(!area) return;
+    // Normalize line — empty/null/undefined becomes "Unknown"
+    let line = String(r.row.line || '').trim();
+    if(!line) line = '—';
+    const key = area + '|' + line;
+    if(!groups[key]){
+      groups[key] = {
+        area, line,
+        hours: Array(24).fill(0),
+        cellCount: Array(24).fill(0),
+        total: 0,
+        reportCount: 0,
+      };
+    }
+    const g = groups[key];
+    g.reportCount++;
+    for(let i = 0; i < 8 && i < prodHrs.length; i++){
+      const v = parseFloat(prodHrs[i]);
+      if(isNaN(v)) continue;
+      const hour = (startHour + i) % 24;
+      g.hours[hour] += v;
+      g.cellCount[hour]++;
+      g.total += v;
+    }
+  });
+  // Convert to sorted array — group by area, then by line
+  const areaOrder = {'Carousel':0, 'Potting':1, 'Wave-3':2};
+  const arr = Object.values(groups).sort((a,b) => {
+    const aOrder = areaOrder[a.area] ?? 99;
+    const bOrder = areaOrder[b.area] ?? 99;
+    if(aOrder !== bOrder) return aOrder - bOrder;
+    // Lines: numeric first, then "—" (Unknown) last
+    if(a.line === '—' && b.line !== '—') return 1;
+    if(b.line === '—' && a.line !== '—') return -1;
+    return a.line.localeCompare(b.line, undefined, {numeric:true});
+  });
+  // Find global max for color scaling
+  let max = 0;
+  arr.forEach(g => g.hours.forEach(v => { if(v > max) max = v; }));
+  return { rows: arr, max };
+}
+
+
 function scoutSummary(rows){
   const summary = {};  // {sourceKey: {reports, attnTotal}}
   ['scout-car','scout-wav','scout-pott'].forEach(k => summary[k] = {reports:0, attnTotal:0});
@@ -617,6 +711,7 @@ function render(){
   const dt = buildDowntimeSeries(rows);
   const causes = topCauses(rows);
   const wip = buildWipHeatmap(rows, wipLineFilter);
+  const uph = buildUphBoard(rows);
   const scout = scoutSummary(rows);
   const flags = recentFlags(rows);
   const techs = techCounts(rows);
@@ -627,6 +722,7 @@ function render(){
     ${renderProduction(prod)}
     ${renderDowntime(dt, causes)}
     ${renderWipHeatmap(wip)}
+    ${renderUphBoard(uph)}
     ${renderScout(scout, flags)}
     ${renderTechs(techs)}
     ${renderFeed(feed)}
@@ -684,9 +780,9 @@ function renderProduction(prod){
       <div class="panel-head">
         <h2>${t('analytics.panel.production')}</h2>
         <div class="legend-strip">
+          <span class="lkey car"><span class="dot"></span>Carousel</span>
           <span class="lkey pott"><span class="dot"></span>Potting</span>
           <span class="lkey wav"><span class="dot"></span>Wave-3</span>
-          <span class="lkey car"><span class="dot"></span>Carousel</span>
         </div>
       </div>
       <div class="panel-body">
@@ -720,7 +816,7 @@ function drawProductionChart(prod){
   const yPos = v => padT + innerH - (v/niceMax)*innerH;
 
   // Build line data per source
-  const sources = ['pott','wav','car'];
+  const sources = ['car','pott','wav'];
   const colors = {pott:'#3fb950', wav:'#388bfd', car:'#a371f7'};
   const xPos = i => prod.days.length>1
     ? padL + (i/(prod.days.length-1))*innerW
@@ -844,9 +940,9 @@ function renderWipHeatmap(wip){
           <span class="panel-meta" style="margin-right:6px">Line:</span>
           <div class="wip-line-pills" id="wipLinePills">
             <button class="wpill ${wipLineFilter==='all'?'active':''}" data-line="all">All</button>
+            <button class="wpill ${wipLineFilter==='car'?'active':''}" data-line="car">Carousel</button>
             <button class="wpill ${wipLineFilter==='pott'?'active':''}" data-line="pott">Potting</button>
             <button class="wpill ${wipLineFilter==='wav'?'active':''}" data-line="wav">Wave-3</button>
-            <button class="wpill ${wipLineFilter==='car'?'active':''}" data-line="car">Carousel</button>
           </div>
         </div>
       </div>
@@ -905,6 +1001,87 @@ function drawWipHeatmap(wip){
     </div>`;
 }
 
+// ── UPH Board ───────────────────────────────────────────────────────────────
+function renderUphBoard(uph){
+  if(uph.rows.length === 0){
+    return `
+      <div class="panel">
+        <div class="panel-head"><h2>${t('analytics.panel.uph')}</h2></div>
+        <div class="panel-body">
+          <div class="empty"><div class="empty-icon">📊</div>${t('analytics.empty.uph')}</div>
+        </div>
+      </div>`;
+  }
+  // Build hour-header row (00-23)
+  const hourHdr = Array.from({length:24}, (_,h) =>
+    `<div class="uph-cell uph-cell-hdr">${String(h).padStart(2,'0')}</div>`
+  ).join('');
+
+  // Group rows by area for visual section breaks
+  const byArea = {};
+  uph.rows.forEach(g => {
+    if(!byArea[g.area]) byArea[g.area] = [];
+    byArea[g.area].push(g);
+  });
+
+  let bodyHtml = '';
+  Object.entries(byArea).forEach(([area, groups]) => {
+    // Area header (spans full width)
+    bodyHtml += `<div class="uph-area-row"><div class="uph-area-label">${escapeHtml(area)}</div></div>`;
+    groups.forEach(g => {
+      const cells = g.hours.map((v, h) => {
+        if(g.cellCount[h] === 0){
+          return `<div class="uph-cell uph-cell-empty" title="Hour ${String(h).padStart(2,'0')}: no data"></div>`;
+        }
+        const color = uphColor(v, uph.max);
+        const tip = `${escapeHtml(g.area)} · Line ${escapeHtml(g.line)} · ${String(h).padStart(2,'0')}:00 — ${Math.round(v)} units`;
+        return `<div class="uph-cell" style="background:${color}" title="${tip}">${Math.round(v)}</div>`;
+      }).join('');
+      const lineLabel = g.line === '—' ? t('analytics.uph.unknown_line') : `${t('analytics.uph.line')} ${escapeHtml(g.line)}`;
+      bodyHtml += `
+        <div class="uph-row">
+          <div class="uph-row-label">
+            <div class="uph-row-line">${lineLabel}</div>
+            <div class="uph-row-meta">${g.total.toLocaleString()} · ${g.reportCount} ${t('analytics.uph.reports_short')}</div>
+          </div>
+          <div class="uph-row-cells">${cells}</div>
+        </div>`;
+    });
+  });
+
+  return `
+    <div class="panel">
+      <div class="panel-head">
+        <h2>${t('analytics.panel.uph')}</h2>
+        <div class="panel-meta">${t('analytics.uph.subtitle')}</div>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div class="uph-grid">
+          <div class="uph-row uph-row-hdr">
+            <div class="uph-row-label uph-row-label-hdr"></div>
+            <div class="uph-row-cells">${hourHdr}</div>
+          </div>
+          ${bodyHtml}
+        </div>
+        <div class="uph-legend">
+          <span class="wip-legend-label">${t('analytics.legend.less')}</span>
+          <div class="wip-legend-scale">
+            ${[0,0.2,0.4,0.6,0.8,1].map(v => `<div class="wip-legend-cell" style="background:${uphColor(v,1)}"></div>`).join('')}
+          </div>
+          <span class="wip-legend-label">${t('analytics.legend.more')}</span>
+          <span class="wip-legend-meta">${t('analytics.legend.peak')} ${Math.round(uph.max)}/hr</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function uphColor(value, max){
+  if(value === null || max === 0) return '#1c2128';
+  const t = Math.max(0, Math.min(1, value / max));
+  const alpha = 0.06 + t * 0.89;
+  return `rgba(240,165,0,${alpha.toFixed(3)})`;
+}
+
 // ── Scout flags ─────────────────────────────────────────────────────────────
 function renderScout(scout, flags){
   const card = (key, label) => {
@@ -927,8 +1104,8 @@ function renderScout(scout, flags){
       <div class="panel-body">
         <div class="scout-grid">
           ${card('scout-car', 'Carousel Scout')}
-          ${card('scout-wav', 'Wave-3 Scout')}
           ${card('scout-pott','Potting Scout')}
+          ${card('scout-wav', 'Wave-3 Scout')}
         </div>
         ${flags.length===0
           ? `<div class="empty" style="padding:20px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px"><div class="empty-icon">✓</div>No flagged items in this range.</div>`
@@ -970,7 +1147,7 @@ function renderTechs(techs){
     'shift-car':  '#a371f7',
   };
   // Order in the stacked bar (left to right)
-  const order = ['scout-car','scout-wav','scout-pott','shift-pott','shift-wav','shift-car'];
+  const order = ['scout-car','scout-pott','scout-wav','shift-car','shift-pott','shift-wav'];
 
   // Find max total for bar scaling
   const maxTotal = techs[0].total;  // already sorted desc
@@ -1013,9 +1190,9 @@ function renderTechs(techs){
         </div>
         <div class="tech-legend">
           <span class="lkey"><span class="dot" style="background:#f0a500"></span>Scout</span>
+          <span class="lkey"><span class="dot" style="background:#a371f7"></span>Shift — Carousel</span>
           <span class="lkey"><span class="dot" style="background:#3fb950"></span>Shift — Potting</span>
           <span class="lkey"><span class="dot" style="background:#388bfd"></span>Shift — Wave-3</span>
-          <span class="lkey"><span class="dot" style="background:#a371f7"></span>Shift — Carousel</span>
         </div>
       </div>
     </div>`;
