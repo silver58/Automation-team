@@ -232,33 +232,15 @@ body::before{
   .card-icon{width:42px;height:42px;font-size:18px;}
   .card-title{font-size:19px;}
 }
-
-/* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
-.lang-toggle{
-  display:inline-flex;align-items:center;
-  background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);
-  border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;
-  font-size:10.5px;font-weight:600;letter-spacing:.04em;
-  cursor:pointer;user-select:none;flex-shrink:0;
-}
-.lang-toggle span{
-  padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);
-  transition:all .15s;
-}
-.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
-
 </style>
 </head>
 <body>
-  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma" style="position:absolute;top:18px;right:18px;z-index:10;">
-    <span class="lang-en active">EN</span><span class="lang-es">ES</span>
-  </button>
 <div class="wrap">
 
   <div class="hdr">
     <div class="hdr-eyebrow">⚙ Salcomp</div>
-    <h1><span data-i18n="app.title">Automation</span><br><span data-i18n="app.title.suffix">Team</span></h1>
-    <p data-i18n="app.subtitle">Select a form to get started</p>
+    <h1>Automation<br><span>Team</span></h1>
+    <p>Select a form to get started</p>
     <div class="date-badge">
       <span class="date-dot"></span>
       <span id="dateStr"></span>
@@ -269,14 +251,14 @@ body::before{
 
     <!-- ── LEFT COLUMN: SCOUT CHECK SHEETS ──────────────────────── -->
     <div class="col">
-      <div class="col-label amber" data-i18n="app.col.scout">Scout Checks</div>
+      <div class="col-label amber">Scout Checks</div>
 
       <a class="card amber" href="Carousel_Scout_Checklist.html">
         <div class="card-icon">👁</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.carousel.scout.label">Carousel</div>
-          <div class="card-title" data-i18n="card.carousel.scout.title">Carousel Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.carousel.scout.desc">26 stations · 251 check points</div>
+          <div class="card-label">Carousel</div>
+          <div class="card-title">Carousel Scout Check Sheet</div>
+          <div class="card-desc">26 stations · 259 check points</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -284,9 +266,9 @@ body::before{
       <a class="card amber" href="Wave3_Scout_Checklist.html">
         <div class="card-icon">👁</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.wave3.scout.label">Wave-3</div>
-          <div class="card-title" data-i18n="card.wave3.scout.title">Wave-3 Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.wave3.scout.desc">11 stations · 97 check points</div>
+          <div class="card-label">Wave-3</div>
+          <div class="card-title">Wave-3 Scout Check Sheet</div>
+          <div class="card-desc">11 stations · 98 check points</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -294,9 +276,9 @@ body::before{
       <a class="card amber" href="Potting_Scout_Checklist.html">
         <div class="card-icon">👁</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.potting.scout.label">Potting</div>
-          <div class="card-title" data-i18n="card.potting.scout.title">Potting Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.potting.scout.desc">Automation + Plumbing · 94 check points</div>
+          <div class="card-label">Potting</div>
+          <div class="card-title">Potting Scout Check Sheet</div>
+          <div class="card-desc">Automation + Plumbing · 94 check points</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -305,14 +287,14 @@ body::before{
 
     <!-- ── RIGHT COLUMN: SHIFT REPORTS ──────────────────────── -->
     <div class="col">
-      <div class="col-label" data-i18n="app.col.shift">Shift Reports</div>
+      <div class="col-label">Shift Reports</div>
 
       <a class="card green" href="Potting_Shift_Report.html">
         <div class="card-icon">📋</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.potting.shift.label">Potting</div>
-          <div class="card-title" data-i18n="card.potting.shift.title">Potting Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.potting.shift.desc">Hr by hr · Downtime · NG parts · Sign off</div>
+          <div class="card-label">Potting</div>
+          <div class="card-title">Potting Tech Shift Report</div>
+          <div class="card-desc">Hr by hr · Downtime · NG parts · Sign off</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -320,9 +302,9 @@ body::before{
       <a class="card blue" href="Wave3_Shift_Report.html">
         <div class="card-icon">🌊</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.wave3.shift.label">Wave-3</div>
-          <div class="card-title" data-i18n="card.wave3.shift.title">Wave-3 Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.wave3.shift.desc">GT production · Material C/O · 5S · NG parts</div>
+          <div class="card-label">Wave-3</div>
+          <div class="card-title">Wave-3 Tech Shift Report</div>
+          <div class="card-desc">GT production · Material C/O · 5S · NG parts</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -330,9 +312,9 @@ body::before{
       <a class="card purple" href="Carousel_Shift_Report.html">
         <div class="card-icon">🎡</div>
         <div class="card-body">
-          <div class="card-label" data-i18n="card.carousel.shift.label">Carousel</div>
-          <div class="card-title" data-i18n="card.carousel.shift.title">Carousel Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.carousel.shift.desc">FT production · 8 C/O items · Scrap by type</div>
+          <div class="card-label">Carousel</div>
+          <div class="card-title">Carousel Tech Shift Report</div>
+          <div class="card-desc">FT production · 8 C/O items · Scrap by type</div>
         </div>
         <div class="card-arrow">→</div>
       </a>
@@ -346,9 +328,9 @@ body::before{
     <a class="card cyan card-wide" href="Analytics_Dashboard.html">
       <div class="card-icon">📊</div>
       <div class="card-body">
-        <div class="card-label" data-i18n="card.analytics.label">Live Data</div>
-        <div class="card-title" data-i18n="card.analytics.title">Analytics Dashboard</div>
-        <div class="card-desc" data-i18n="card.analytics.desc">Production trends · Downtime · Scout flags · Recent activity across all reports</div>
+        <div class="card-label">Live Data</div>
+        <div class="card-title">Analytics Dashboard</div>
+        <div class="card-desc">Production trends · Downtime · Scout flags · Recent activity across all reports</div>
       </div>
       <div class="card-arrow">→</div>
     </a>
@@ -361,6 +343,5 @@ const d = new Date();
 document.getElementById('dateStr').textContent =
   d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 </script>
-<script src="translations.js"></script>
 </body>
 </html>
