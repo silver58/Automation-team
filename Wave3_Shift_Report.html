@@ -167,6 +167,9 @@ input,select,textarea{font-size:16px !important;}
 .rep-actions-row{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr);}
 .rep-del-btn{background:transparent;border:1px solid var(--red);color:var(--red);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:6px 14px;border-radius:5px;cursor:pointer;transition:all .15s;}
 .rep-del-btn:hover{background:rgba(248,81,73,.1);}
+.rep-print-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:6px 14px;border-radius:5px;cursor:pointer;transition:all .15s;}
+.rep-print-btn:hover{border-color:var(--amb);color:var(--amb);}
+
 .rep-empty{text-align:center;padding:48px 20px;color:var(--mut2);font-size:13px;}
 .rep-empty-icon{font-size:34px;margin-bottom:10px;opacity:.45;}
 .rep-loading{text-align:center;padding:36px;color:var(--mut);font-size:13px;}
@@ -967,11 +970,135 @@ function renderRepDetails(r){
     html += `<div class="rep-det-section"><div class="rep-det-section-title">Other Fields</div>
       <div class="rep-kv">${miscKV.join('')}</div></div>`;
   }
-  // Delete button
+  // Print + Delete buttons
   html += `<div class="rep-actions-row">
+    <button class="rep-print-btn" onclick="event.stopPropagation();printReport(${r.id})">🖨 Print this report</button>
     <button class="rep-del-btn" onclick="event.stopPropagation();deleteReport(${r.id})">Delete this report</button>
   </div>`;
   return html;
+}
+
+// ═══ PRINT ═════════════════════════════════════════════════════════
+function printReport(id){
+  // Find the report in cache
+  const reports = _repCache || [];
+  const r = reports.find(x => Number(x.id) === Number(id));
+  if(!r){ showToast('Report not loaded — try again', 't-warn'); return; }
+
+  // Build a clean printable HTML document
+  const win = window.open('', '_blank', 'width=900,height=1100');
+  if(!win){ showToast('Popup blocked — allow popups to print', 't-warn'); return; }
+
+  const escape = (s) => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const subtitle = `${escape(r.tech_name||'Unknown')} · ${escape(r.date||'—')} · Shift ${escape(r.shift||'?')} · Line ${escape(r.line||'?')}`;
+  const submittedAt = r.submitted_at ? new Date(r.submitted_at).toLocaleString() : '—';
+
+  // Build body sections
+  let body = '';
+
+  // Header info
+  const headerKV = [
+    ['Date', r.date], ['Shift', r.shift], ['Line', r.line], ['Machine', r.machine],
+    ['Running Model', r.running_model], ['Model #', r.model_num], ['Change Over', r.change_over],
+    ['Tech', r.tech_name], ['Signature', r.tech_sig],
+  ].filter(([k,v]) => v != null && v !== '');
+  body += `<div class="kv-grid">${headerKV.map(([k,v]) => `<div><span class="kv-key">${k}</span><span class="kv-val">${escape(v)}</span></div>`).join('')}</div>`;
+
+  // Production hours
+  if(Array.isArray(r.production_hrs) && r.production_hrs.some(v => v)){
+    body += `<h3>Hr-by-Hr Production</h3><table class="hr-table"><tr>${r.production_hrs.map((v,i) => `<th>${i+1} Hr</th>`).join('')}<th class="total">Total</th></tr><tr>${r.production_hrs.map(v => `<td>${escape(v||'—')}</td>`).join('')}<td class="total">${escape(r.production_total||'0')}</td></tr></table>`;
+  }
+  // Downtime hours
+  if(Array.isArray(r.downtime_hrs) && r.downtime_hrs.some(v => v)){
+    body += `<h3>Hr-by-Hr Downtime (mins)</h3><table class="hr-table"><tr>${r.downtime_hrs.map((v,i) => `<th>${i+1} Hr</th>`).join('')}<th class="total">Total</th></tr><tr>${r.downtime_hrs.map(v => `<td>${escape(v||'—')}</td>`).join('')}<td class="total">${escape(r.downtime_total||'0')}</td></tr></table>`;
+    if(r.hours_over_target){
+      body += `<div class="kv-line"><span class="kv-key">Hours Over Target:</span> ${escape(r.hours_over_target)}</div>`;
+    }
+  }
+  // WIP hourly
+  if(Array.isArray(r.wip_hourly) && r.wip_hourly.some(v => v)){
+    body += `<h3>WIP Remaining (24hr)</h3><table class="wip-table"><tr>${r.wip_hourly.slice(0,12).map((v,i) => `<th>${String(i).padStart(2,'0')}</th>`).join('')}</tr><tr>${r.wip_hourly.slice(0,12).map(v => `<td>${escape(v||'—')}</td>`).join('')}</tr><tr>${r.wip_hourly.slice(12,24).map((v,i) => `<th>${String(i+12).padStart(2,'0')}</th>`).join('')}</tr><tr>${r.wip_hourly.slice(12,24).map(v => `<td>${escape(v||'—')}</td>`).join('')}</tr></table>`;
+  }
+  // Major downtime events
+  if(Array.isArray(r.downtime_events) && r.downtime_events.length > 0){
+    body += `<h3>Major Downtime Events</h3><table class="dt-table"><tr><th>From</th><th>To</th><th>Mins</th><th>Problem</th><th>Action Taken</th></tr>${r.downtime_events.map(ev => `<tr><td>${escape(ev.from||'?')}</td><td>${escape(ev.to||'?')}</td><td>${escape(ev.mins||'?')}</td><td>${escape(ev.prob||'')}</td><td>${escape(ev.action||'')}</td></tr>`).join('')}</table>`;
+  }
+
+  // Other misc fields
+  const miscFields = {
+    'scrap_qty':'Scrap Qty','scrap_units':'Scrap Units','scrap_source':'Scrap Source',
+    'scrap_base':'Scrap Base','scrap_lid':'Scrap Lid','scrap_spreader':'Scrap Spreader','scrap_unit':'Scrap Unit',
+    'mco_main_label':'MCO Main Label','mco_1d_label':'MCO 1D Label','mco_sealant':'MCO Sealant',
+    'co_tim_a':'CO TIM A','co_tim_b':'CO TIM B','co_pv804':'CO PV804',
+    'co_bh1':'CO BH (1)','co_bh2':'CO BH (2)','co_mainl':'CO MainL',
+    'co_1d_label':'CO 1D Label','co_1d_ribbon':'CO 1D Ribbon',
+    'ng_found_on_line':'NG on Line','trash_on_line':'Trash on Line','main_label_trash':'Main Label Trash',
+    'spillage_of_glue':'Glue Spillage','parts_inside_machine':'Parts in Machine',
+    'valves_swapped':'Valves Swapped','seals_replaced':'Seals Replaced','valves_next':'Valves Next',
+    'prev_mainl':'Prev MainL','prev_bs':'Prev B/S','prev_mes':'Prev MES','prev_other':'Prev Other',
+    'prev_1d_label':'Prev 1D Label','prev_overflow':'Prev Overflow','prev_crashed':'Prev Crashed',
+    'this_mainl':'This MainL','this_bs':'This B/S','this_mes':'This MES','this_other':'This Other',
+    'this_1d_label':'This 1D Label','this_overflow':'This Overflow','this_crashed':'This Crashed',
+  };
+  const miscKV = [];
+  for(const [k,lbl] of Object.entries(miscFields)){
+    if(r[k] != null && r[k] !== ''){
+      miscKV.push(`<div><span class="kv-key">${lbl}</span><span class="kv-val">${escape(r[k])}</span></div>`);
+    }
+  }
+  if(miscKV.length){
+    body += `<h3>Other Fields</h3><div class="kv-grid">${miscKV.join('')}</div>`;
+  }
+
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Shift Report — ${escape(r.tech_name||'Unknown')} · ${escape(r.date||'')}</title><style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;color:#222;background:#fff;padding:32px;font-size:11pt;line-height:1.4;max-width:900px;margin:0 auto;}
+.print-hdr{border-bottom:3px solid #f0a500;padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;}
+.print-hdr h1{font-size:20pt;font-weight:600;color:#222;margin-bottom:3px;}
+.print-hdr .sub{font-size:10pt;color:#666;font-family:'IBM Plex Mono',monospace;}
+.print-hdr .meta{font-size:9pt;color:#888;text-align:right;font-family:'IBM Plex Mono',monospace;}
+h3{font-family:'IBM Plex Mono',monospace;font-size:9.5pt;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#666;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid #ddd;}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 24px;margin-bottom:8px;}
+.kv-line{margin:8px 0;font-size:10pt;}
+.kv-key{font-family:'IBM Plex Mono',monospace;font-size:8.5pt;color:#888;text-transform:uppercase;letter-spacing:.05em;display:inline-block;min-width:120px;margin-right:8px;}
+.kv-val{color:#222;font-size:10pt;}
+table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:9.5pt;}
+table th, table td{border:1px solid #ccc;padding:5px 6px;text-align:center;}
+table th{background:#f5f5f5;font-family:'IBM Plex Mono',monospace;font-size:8.5pt;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.05em;}
+table td.total, table th.total{background:#fff5dc;color:#b07000;font-weight:600;}
+.hr-table th, .hr-table td{padding:6px 4px;}
+.wip-table th, .wip-table td{padding:4px 2px;font-size:8pt;}
+.dt-table{font-size:9.5pt;}
+.dt-table th, .dt-table td{text-align:left;padding:6px 8px;}
+.print-footer{margin-top:32px;padding-top:14px;border-top:1px solid #ddd;font-size:9pt;color:#888;font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;}
+.print-actions{position:fixed;top:16px;right:16px;}
+.print-actions button{background:#f0a500;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:10pt;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.print-actions button:hover{background:#d59300;}
+@media print{
+  .print-actions{display:none;}
+  body{padding:0.4in;}
+  h3{page-break-after:avoid;}
+  table{page-break-inside:avoid;}
+}
+</style></head><body>
+<div class="print-actions"><button onclick="window.print()">🖨 Print</button></div>
+<div class="print-hdr">
+  <div>
+    <h1>Shift Report</h1>
+    <div class="sub">${subtitle}</div>
+  </div>
+  <div class="meta">Submitted: ${escape(submittedAt)}<br>Report ID: #${r.id}</div>
+</div>
+${body}
+<div class="print-footer">
+  <span>Salcomp Automation Team</span>
+  <span>Generated ${new Date().toLocaleString()}</span>
+</div>
+<script>setTimeout(() => window.print(), 600);</scr` + `ipt>
+</body></html>`);
+  win.document.close();
 }
 
 // ═══ DELETE ═════════════════════════════════════════════════════════
