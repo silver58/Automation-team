@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  // Apply user color override on every page load, before paint.
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){ /* ignore */ }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Scout Flags Review</title>
@@ -9,7 +27,7 @@
 
 :root{
   --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
-  --amb:#f0a500;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
+  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);--amb2:var(--amb2);--grn:#3fb950;--red:#f85149;
   --yel:#e3b341;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
   --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
 }
@@ -29,7 +47,7 @@ input,select,textarea{font-size:16px !important;}
 /* LANG TOGGLE */
 .lang-toggle{display:inline-flex;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;user-select:none;flex-shrink:0;}
 .lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2);transition:all .15s;}
-.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb);}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb);}
 
 /* MAIN */
 .main{max-width:1200px;margin:0 auto;padding:24px 28px 60px;}
@@ -41,7 +59,7 @@ input,select,textarea{font-size:16px !important;}
 .range-pills{display:inline-flex;gap:4px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:4px;}
 .rpill{padding:6px 16px;border-radius:5px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
 .rpill:hover{color:var(--txt);}
-.rpill.active{background:rgba(240,165,0,.12);color:var(--amb);}
+.rpill.active{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
 .range-meta{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--mut2);}
 .refresh-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;margin-left:auto;}
 .refresh-btn:hover{border-color:var(--amb);color:var(--amb);}
@@ -52,9 +70,9 @@ input,select,textarea{font-size:16px !important;}
 .sheet-pills{display:inline-flex;gap:3px;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px;flex-wrap:wrap;}
 .spill{padding:5px 14px;border-radius:4px;border:none;background:transparent;color:var(--mut);font-size:11.5px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
 .spill:hover{color:var(--txt);}
-.spill.active{background:rgba(240,165,0,.15);color:var(--amb);}
+.spill.active{background:rgba(var(--amb-rgb), .15);color:var(--amb);}
 .spill .count{margin-left:6px;background:var(--bdr2);color:var(--mut);font-size:10px;padding:1px 6px;border-radius:9px;}
-.spill.active .count{background:rgba(240,165,0,.28);color:var(--amb);}
+.spill.active .count{background:rgba(var(--amb-rgb), .28);color:var(--amb);}
 
 /* LOADING */
 .loading{padding:60px 20px;text-align:center;color:var(--mut);font-size:14px;}

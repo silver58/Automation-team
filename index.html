@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  // Apply user color override on every page load, before paint.
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){ /* ignore */ }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Automation Team</title>
@@ -11,8 +29,8 @@
   --bg:#0a0c0f;
   --sur:#111418;
   --bdr:#1e2328;
-  --amb:#f0a500;
-  --amb2:#ffd166;
+  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);
+  --amb2:var(--amb2);
   --grn:#2dba5c;
   --blu:#2a7fff;
   --pur:#a06cff;
@@ -43,8 +61,8 @@ body::before{
   position:fixed;
   inset:0;
   background-image:
-    linear-gradient(rgba(240,165,0,.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240,165,0,.03) 1px, transparent 1px);
+    linear-gradient(rgba(var(--amb-rgb), .03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--amb-rgb), .03) 1px, transparent 1px);
   background-size:48px 48px;
   pointer-events:none;
   z-index:0;
@@ -60,8 +78,8 @@ body::before{
   font-family:'Barlow Condensed',sans-serif;
   font-size:11px;font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;color:var(--amb);
-  background:rgba(240,165,0,.08);
-  border:1px solid rgba(240,165,0,.2);
+  background:rgba(var(--amb-rgb), .08);
+  border:1px solid rgba(var(--amb-rgb), .2);
   border-radius:20px;padding:4px 14px;margin-bottom:16px;
 }
 
@@ -158,7 +176,7 @@ body::before{
   border-color:var(--mut2);
   background:#161b22;
 }
-.card.amber:hover{border-color:rgba(240,165,0,.3);}
+.card.amber:hover{border-color:rgba(var(--amb-rgb), .3);}
 .card.green:hover{border-color:rgba(45,186,92,.3);}
 .card.blue:hover{border-color:rgba(42,127,255,.3);}
 .card.purple:hover{border-color:rgba(160,108,255,.3);}
@@ -170,7 +188,7 @@ body::before{
   display:flex;align-items:center;justify-content:center;
   font-size:22px;flex-shrink:0;
 }
-.card.amber  .card-icon{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);}
+.card.amber  .card-icon{background:rgba(var(--amb-rgb), .1);border:1px solid rgba(var(--amb-rgb), .2);}
 .card.green  .card-icon{background:rgba(45,186,92,.1);border:1px solid rgba(45,186,92,.2);}
 .card.blue   .card-icon{background:rgba(42,127,255,.1);border:1px solid rgba(42,127,255,.2);}
 .card.purple .card-icon{background:rgba(160,108,255,.1);border:1px solid rgba(160,108,255,.2);}
@@ -245,7 +263,32 @@ body::before{
   padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);
   transition:all .15s;
 }
-.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb,var(--amb));}
+
+/* COLOR PICKER */
+.color-picker-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);border-radius:6px;padding:4px 9px;cursor:pointer;color:var(--mut2,#b1bac4);font-size:10.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;}
+.color-picker-btn:hover{border-color:var(--amb);color:var(--amb);}
+.cp-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--amb);border:1px solid rgba(255,255,255,.2);}
+.cp-label{font-size:10px;}
+
+.cp-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+.cp-modal-bg.show{display:flex;}
+.cp-modal{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:22px;max-width:380px;width:100%;box-shadow:0 16px 40px rgba(0,0,0,.5);}
+.cp-modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cp-modal h3{font-size:15px;font-weight:600;color:#e6edf3;margin:0;}
+.cp-close{background:transparent;border:none;color:#b1bac4;font-size:18px;cursor:pointer;padding:2px 8px;border-radius:4px;}
+.cp-close:hover{background:rgba(255,255,255,.06);color:#fff;}
+.cp-presets{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;}
+.cp-preset{aspect-ratio:1;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:transform .12s, border-color .12s;}
+.cp-preset:hover{transform:scale(1.08);border-color:rgba(255,255,255,.3);}
+.cp-preset.active{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.3);}
+.cp-custom-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 12px;background:#0d1117;border:1px solid #21262d;border-radius:8px;}
+.cp-custom-row label{font-size:12px;color:#d0d7de;font-family:'IBM Plex Mono',monospace;}
+.cp-custom-row input[type=color]{width:42px;height:32px;border:1px solid #30363d;border-radius:5px;background:transparent;cursor:pointer;padding:2px;}
+.cp-apply{background:var(--amb);color:#000;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:11.5px;font-family:'IBM Plex Mono',monospace;margin-left:auto;}
+.cp-apply:hover{background:var(--amb-hover);}
+.cp-reset{width:100%;background:transparent;color:#b1bac4;border:1px solid #30363d;padding:9px;border-radius:6px;cursor:pointer;font-size:11.5px;font-family:'IBM Plex Mono',monospace;}
+.cp-reset:hover{border-color:var(--amb);color:var(--amb);}
 
 </style>
 </head>
@@ -253,6 +296,27 @@ body::before{
   <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma" style="position:absolute;top:18px;right:18px;z-index:10;">
     <span class="lang-en active">EN</span><span class="lang-es">ES</span>
   </button>
+  <button class="color-picker-btn" onclick="openColorPicker()" title="Change accent color" style="position:absolute;top:18px;right:90px;z-index:10;">
+    <span class="cp-swatch"></span>
+    <span class="cp-label">Color</span>
+  </button>
+
+  <!-- COLOR PICKER MODAL -->
+  <div class="cp-modal-bg" id="cpModalBg" onclick="closeColorPicker(event)">
+    <div class="cp-modal" onclick="event.stopPropagation()">
+      <div class="cp-modal-hd">
+        <h3>Choose Accent Color</h3>
+        <button class="cp-close" onclick="closeColorPicker()">✕</button>
+      </div>
+      <div class="cp-presets" id="cpPresets"></div>
+      <div class="cp-custom-row">
+        <label>Custom:</label>
+        <input type="color" id="cpCustomInput" value="#f0a500">
+        <button class="cp-apply" onclick="applyCustomColor()">Apply</button>
+      </div>
+      <button class="cp-reset" onclick="resetColor()">Reset to default (amber)</button>
+    </div>
+  </div>
 <div class="wrap">
 
   <div class="hdr">
@@ -360,6 +424,104 @@ body::before{
 const d = new Date();
 document.getElementById('dateStr').textContent =
   d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+</script>
+<script>
+// ── COLOR PICKER ────────────────────────────────────────────────────
+const COLOR_PRESETS = [
+  {name:'Amber (default)', amb:'#f0a500', rgb:'240,165,0',  hover:'#d59300', deep:'#b07000', light:'#fff5dc', amb2:'#ffd166'},
+  {name:'Red',             amb:'#ff5252', rgb:'255,82,82',  hover:'#e63838', deep:'#c63838', light:'#ffe8e8', amb2:'#ff8a8a'},
+  {name:'Crimson',         amb:'#d72638', rgb:'215,38,56',  hover:'#a81d2c', deep:'#7a1620', light:'#fde0e3', amb2:'#ff6b7a'},
+  {name:'Orange',          amb:'#ff7733', rgb:'255,119,51', hover:'#e65a1a', deep:'#a8400f', light:'#ffe5d5', amb2:'#ffaa7a'},
+  {name:'Green',           amb:'#3fb950', rgb:'63,185,80',  hover:'#2e9c3f', deep:'#1f6e2c', light:'#dcf5e0', amb2:'#7ee089'},
+  {name:'Blue',            amb:'#388bfd', rgb:'56,139,253', hover:'#1f6feb', deep:'#0d4ea6', light:'#dbeafe', amb2:'#79b8ff'},
+  {name:'Purple',          amb:'#a371f7', rgb:'163,113,247',hover:'#8957e5', deep:'#5e2db0', light:'#ece5ff', amb2:'#c4a4ff'},
+  {name:'Pink',            amb:'#ec4899', rgb:'236,72,153', hover:'#c8347d', deep:'#8a1f54', light:'#fce0ef', amb2:'#f87fb8'},
+  {name:'Cyan',            amb:'#39c5cf', rgb:'57,197,207', hover:'#2aa3ac', deep:'#1a6b71', light:'#d8f3f5', amb2:'#7adce3'},
+  {name:'Teal',            amb:'#14b8a6', rgb:'20,184,166', hover:'#0e9384', deep:'#0a5d54', light:'#d3f4ef', amb2:'#5ee0cf'},
+  {name:'Yellow',          amb:'#facc15', rgb:'250,204,21', hover:'#d6ae0a', deep:'#8a6c00', light:'#fef5d0', amb2:'#fde47a'},
+  {name:'Slate',           amb:'#94a3b8', rgb:'148,163,184',hover:'#64748b', deep:'#334155', light:'#e2e8f0', amb2:'#cbd5e1'},
+];
+
+function buildPresetGrid(){
+  const grid = document.getElementById('cpPresets');
+  if(!grid) return;
+  const current = getCurrentColorAmb();
+  grid.innerHTML = COLOR_PRESETS.map((c,i) =>
+    `<div class="cp-preset${c.amb===current?' active':''}" data-i="${i}" style="background:${c.amb}" title="${c.name}"></div>`
+  ).join('');
+  grid.querySelectorAll('.cp-preset').forEach(el => {
+    el.addEventListener('click', () => {
+      applyColor(COLOR_PRESETS[parseInt(el.dataset.i)]);
+      buildPresetGrid();
+    });
+  });
+}
+
+function getCurrentColorAmb(){
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved) return JSON.parse(saved).amb;
+  } catch(e){}
+  return '#f0a500';
+}
+
+function applyColor(c){
+  try { localStorage.setItem('salcomp_amb_color', JSON.stringify(c)); } catch(e){}
+  const r = document.documentElement;
+  r.style.setProperty('--amb', c.amb);
+  r.style.setProperty('--amb-rgb', c.rgb);
+  r.style.setProperty('--amb-hover', c.hover);
+  r.style.setProperty('--amb-deep', c.deep);
+  r.style.setProperty('--amb-light', c.light);
+  r.style.setProperty('--amb2', c.amb2);
+  // Update the swatch on the picker button
+  document.querySelectorAll('.cp-swatch').forEach(s => s.style.background = c.amb);
+}
+
+function applyCustomColor(){
+  const hex = document.getElementById('cpCustomInput').value;
+  // Convert hex to rgb
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  // Generate variants by darkening/lightening
+  const darken = (n) => Math.max(0, Math.floor(n * 0.85));
+  const muchDarken = (n) => Math.max(0, Math.floor(n * 0.6));
+  const lighten = (n) => Math.min(255, Math.floor(n + (255-n) * 0.45));
+  const muchLighten = (n) => Math.min(255, Math.floor(n + (255-n) * 0.9));
+  const toHex = (n) => n.toString(16).padStart(2,'0');
+  const c = {
+    amb: hex,
+    rgb: `${r},${g},${b}`,
+    hover: `#${toHex(darken(r))}${toHex(darken(g))}${toHex(darken(b))}`,
+    deep:  `#${toHex(muchDarken(r))}${toHex(muchDarken(g))}${toHex(muchDarken(b))}`,
+    light: `#${toHex(muchLighten(r))}${toHex(muchLighten(g))}${toHex(muchLighten(b))}`,
+    amb2:  `#${toHex(lighten(r))}${toHex(lighten(g))}${toHex(lighten(b))}`,
+  };
+  applyColor(c);
+  buildPresetGrid();
+}
+
+function resetColor(){
+  try { localStorage.removeItem('salcomp_amb_color'); } catch(e){}
+  applyColor(COLOR_PRESETS[0]);
+  buildPresetGrid();
+}
+
+function openColorPicker(){
+  buildPresetGrid();
+  document.getElementById('cpCustomInput').value = getCurrentColorAmb();
+  document.getElementById('cpModalBg').classList.add('show');
+}
+
+function closeColorPicker(e){
+  if(e && e.target.id !== 'cpModalBg' && e.type === 'click') return;
+  document.getElementById('cpModalBg').classList.remove('show');
+}
+
+// Initialize swatch to current color on load
+document.addEventListener('DOMContentLoaded', () => {
+  const cur = getCurrentColorAmb();
+  document.querySelectorAll('.cp-swatch').forEach(s => s.style.background = cur);
+});
 </script>
 <script src="translations.js"></script>
 </body>

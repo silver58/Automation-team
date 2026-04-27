@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  // Apply user color override on every page load, before paint.
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){ /* ignore */ }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Analytics Dashboard</title>
@@ -9,7 +27,7 @@
 
 :root{
   --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
-  --amb:#f0a500;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
+  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);--amb2:var(--amb2);--grn:#3fb950;--red:#f85149;
   --yel:#e3b341;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
   --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
 }
@@ -39,7 +57,7 @@ input,select,textarea{font-size:16px !important;}
 .range-pills{display:inline-flex;gap:4px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:4px;}
 .rpill{padding:6px 16px;border-radius:5px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
 .rpill:hover{color:var(--txt);}
-.rpill.active{background:rgba(240,165,0,.12);color:var(--amb);}
+.rpill.active{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
 .range-meta{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--mut2);}
 .refresh-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;margin-left:auto;}
 .refresh-btn:hover{border-color:var(--amb);color:var(--amb);}
@@ -101,7 +119,7 @@ input,select,textarea{font-size:16px !important;}
 .scout-card{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:14px;transition:all .15s;}
 .scout-card.clickable{cursor:pointer;}
 .scout-card.clickable:hover{border-color:var(--bdr2);background:#181d24;}
-.scout-card.active{border-color:var(--amb);background:rgba(240,165,0,.06);box-shadow:0 0 0 1px var(--amb) inset;}
+.scout-card.active{border-color:var(--amb);background:rgba(var(--amb-rgb), .06);box-shadow:0 0 0 1px var(--amb) inset;}
 .scout-card.active .scout-card-meta{color:var(--amb);}
 .scout-card-name{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
 .scout-card-num{font-size:24px;font-weight:600;font-family:'IBM Plex Mono',monospace;}
@@ -113,7 +131,7 @@ input,select,textarea{font-size:16px !important;}
 .flag-list-expanded{max-height:none;}
 .flag-list-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);margin:14px 0 6px;letter-spacing:.02em;}
 .scout-clear-btn{background:transparent;border:1px solid var(--amb);color:var(--amb);font-size:10.5px;font-family:'IBM Plex Mono',monospace;padding:4px 11px;border-radius:5px;cursor:pointer;transition:all .15s;}
-.scout-clear-btn:hover{background:rgba(240,165,0,.1);}
+.scout-clear-btn:hover{background:rgba(var(--amb-rgb), .1);}
 .flags-review-btn{background:var(--amb);color:#000;font-size:10.5px;font-family:'IBM Plex Mono',monospace;font-weight:600;padding:5px 13px;border-radius:5px;text-decoration:none;letter-spacing:.04em;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}
 .flags-review-btn:hover{background:var(--amb2);}
 .flag-row{padding:10px 0;border-bottom:1px solid var(--bdr);}
@@ -187,7 +205,7 @@ input,select,textarea{font-size:16px !important;}
 .wip-line-pills{display:inline-flex;gap:3px;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:3px;}
 .wpill{padding:4px 11px;border-radius:4px;border:none;background:transparent;color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
 .wpill:hover{color:var(--txt);}
-.wpill.active{background:rgba(240,165,0,.14);color:var(--amb);}
+.wpill.active{background:rgba(var(--amb-rgb), .14);color:var(--amb);}
 
 .hgrid{display:flex;flex-direction:column;gap:2px;overflow-x:auto;}
 .hrow{display:grid;grid-template-columns:80px 1fr;gap:4px;align-items:center;}
@@ -229,9 +247,9 @@ input,select,textarea{font-size:16px !important;}
 .feed-row:last-child{border-bottom:none;}
 .feed-row:hover{background:rgba(255,255,255,.02);}
 .feed-tag{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:3px;white-space:nowrap;}
-.feed-tag.scout-car{background:rgba(240,165,0,.12);color:var(--amb);}
-.feed-tag.scout-wav{background:rgba(240,165,0,.12);color:var(--amb);}
-.feed-tag.scout-pott{background:rgba(240,165,0,.12);color:var(--amb);}
+.feed-tag.scout-car{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
+.feed-tag.scout-wav{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
+.feed-tag.scout-pott{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
 .feed-tag.shift-pott{background:rgba(63,185,80,.12);color:var(--grn);}
 .feed-tag.shift-wav{background:rgba(56,139,253,.12);color:var(--blu);}
 .feed-tag.shift-car{background:rgba(163,113,247,.12);color:var(--pur);}
@@ -300,7 +318,7 @@ input,select,textarea{font-size:16px !important;}
   cursor:pointer;user-select:none;flex-shrink:0;
 }
 .lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);transition:all .15s;}
-.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb,var(--amb));}
 
 </style>
 </head>
@@ -941,7 +959,7 @@ function drawDowntimeChart(dt){
     const v = dt.byDay[d];
     const y = yPos(v);
     const h = padT + innerH - y;
-    svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#f0a500" opacity="0.85" rx="2"/>`;
+    svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="var(--amb)" opacity="0.85" rx="2"/>`;
     if(barCount<=14 || i % Math.ceil(barCount/8) === 0){
       svg += `<text x="${x+barW/2}" y="${H-8}" text-anchor="middle" font-size="9" fill="#6e7681">${dayLabel(d)}</text>`;
     }
@@ -1185,9 +1203,9 @@ function renderTechs(techs){
   }
   // Color per source key — matches the rest of the dashboard
   const colors = {
-    'scout-car':  '#f0a500',
-    'scout-wav':  '#f0a500',
-    'scout-pott': '#f0a500',
+    'scout-car':  'var(--amb)',
+    'scout-wav':  'var(--amb)',
+    'scout-pott': 'var(--amb)',
     'shift-pott': '#3fb950',
     'shift-wav':  '#388bfd',
     'shift-car':  '#a371f7',
@@ -1235,7 +1253,7 @@ function renderTechs(techs){
           }).join('')}
         </div>
         <div class="tech-legend">
-          <span class="lkey"><span class="dot" style="background:#f0a500"></span>Scout</span>
+          <span class="lkey"><span class="dot" style="background:var(--amb)"></span>Scout</span>
           <span class="lkey"><span class="dot" style="background:#a371f7"></span>Shift — Carousel</span>
           <span class="lkey"><span class="dot" style="background:#3fb950"></span>Shift — Potting</span>
           <span class="lkey"><span class="dot" style="background:#388bfd"></span>Shift — Wave-3</span>

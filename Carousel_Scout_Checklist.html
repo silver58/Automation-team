@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function(){
+  // Apply user color override on every page load, before paint.
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){ /* ignore */ }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carousel – Scout Check Sheet</title>
@@ -8,7 +26,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
   --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
-  --amb:#f0a500;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
+  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);--amb2:var(--amb2);--grn:#3fb950;--red:#f85149;
   --yel:#e3b341;--blu:#388bfd;--txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
   --pur:#a371f7;
 }
@@ -30,7 +48,7 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 .sb-group{padding:8px 14px 4px;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:var(--mut2);text-transform:uppercase;letter-spacing:.12em;}
 .nav-item{display:flex;align-items:center;gap:8px;padding:5px 14px;cursor:pointer;border-left:2px solid transparent;transition:all .12s;font-size:11.5px;color:var(--mut);}
 .nav-item:hover{background:rgba(255,255,255,.03);color:var(--txt);}
-.nav-item.active{background:rgba(240,165,0,.08);border-left-color:var(--amb);color:var(--amb2);}
+.nav-item.active{background:rgba(var(--amb-rgb), .08);border-left-color:var(--amb);color:var(--amb2);}
 .nav-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);min-width:16px;}
 .nav-lbl{flex:1;line-height:1.25;}
 .nav-icon{font-size:11px;width:14px;text-align:center;}
@@ -77,7 +95,7 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 /* FILTER TABS */
 .ftabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap;}
 .ftab{padding:4px 13px;border-radius:20px;border:1px solid var(--bdr2);background:transparent;color:var(--mut);font-size:11.5px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .13s;}
-.ftab:hover,.ftab.active{border-color:var(--amb);color:var(--amb);background:rgba(240,165,0,.07);}
+.ftab:hover,.ftab.active{border-color:var(--amb);color:var(--amb);background:rgba(var(--amb-rgb), .07);}
 #attnTab{display:none;border-color:rgba(248,81,73,.4);color:var(--red);}
 #attnTab.visible{display:inline-block;}
 #attnTab.active{background:rgba(248,81,73,.1);}
@@ -268,9 +286,9 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 .hdr-tabs{display:flex;gap:2px;}
 .hdr-tab{padding:6px 16px;border-radius:6px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
 .hdr-tab:hover{color:var(--txt);background:rgba(255,255,255,.06);}
-.hdr-tab.active{background:rgba(240,165,0,.12);color:var(--amb);font-weight:600;}
+.hdr-tab.active{background:rgba(var(--amb-rgb), .12);color:var(--amb);font-weight:600;}
 .hdr-tab .tab-count{background:var(--bdr2);border-radius:10px;padding:1px 6px;font-size:10px;margin-left:5px;}
-.hdr-tab.active .tab-count{background:rgba(240,165,0,.25);color:var(--amb2);}
+.hdr-tab.active .tab-count{background:rgba(var(--amb-rgb), .25);color:var(--amb2);}
 .page{display:none;}.page.active{display:block;}
 .reports-main{padding:26px 34px;max-width:960px;}
 .rep-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
@@ -369,7 +387,7 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
   padding:4px 9px;border-radius:4px;color:var(--mut2,#6e7681);
   transition:all .15s;
 }
-.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb,#f0a500);}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb,var(--amb));}
 
 </style>
 </head>
@@ -1900,7 +1918,7 @@ function printReport(id){
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'IBM Plex Sans',sans-serif;color:#222;background:#fff;padding:32px;font-size:11pt;line-height:1.4;max-width:900px;margin:0 auto;}
-.print-hdr{border-bottom:3px solid #f0a500;padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;}
+.print-hdr{border-bottom:3px solid var(--amb);padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-end;}
 .print-hdr h1{font-size:20pt;font-weight:600;color:#222;margin-bottom:3px;}
 .print-hdr .sub{font-size:10pt;color:#666;font-family:'IBM Plex Mono',monospace;}
 .print-hdr .meta{font-size:9pt;color:#888;text-align:right;font-family:'IBM Plex Mono',monospace;}
@@ -1922,8 +1940,8 @@ table td.num, table th.num{text-align:center;font-family:'IBM Plex Mono',monospa
 .sec-note-body{font-size:10pt;color:#222;}
 .print-footer{margin-top:32px;padding-top:14px;border-top:1px solid #ddd;font-size:9pt;color:#888;font-family:'IBM Plex Mono',monospace;display:flex;justify-content:space-between;}
 .print-actions{position:fixed;top:16px;right:16px;}
-.print-actions button{background:#f0a500;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:10pt;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
-.print-actions button:hover{background:#d59300;}
+.print-actions button{background:var(--amb);color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:10pt;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
+.print-actions button:hover{background:var(--amb-hover);}
 @media print{
   .print-actions{display:none;}
   body{padding:0.4in;}
