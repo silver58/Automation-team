@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salcomp — Scout Flags Review</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
+  --yel:#e3b341;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
+  --txt:#e6edf3;--mut:#8b949e;--mut2:#6e7681;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;}
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+
+/* HEADER */
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.site-header a.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.site-header a.back:hover{border-color:var(--amb);color:var(--amb);}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+.hdr-right{display:flex;gap:14px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);}
+
+/* LANG TOGGLE */
+.lang-toggle{display:inline-flex;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;user-select:none;flex-shrink:0;}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2);transition:all .15s;}
+.lang-toggle span.active{background:rgba(240,165,0,.18);color:var(--amb);}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:24px 28px 60px;}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:20px;}
+
+/* DATE RANGE PILLS */
+.range-row{display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap;}
+.range-pills{display:inline-flex;gap:4px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:4px;}
+.rpill{padding:6px 16px;border-radius:5px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
+.rpill:hover{color:var(--txt);}
+.rpill.active{background:rgba(240,165,0,.12);color:var(--amb);}
+.range-meta{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--mut2);}
+.refresh-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;margin-left:auto;}
+.refresh-btn:hover{border-color:var(--amb);color:var(--amb);}
+
+/* SHEET FILTER PILLS */
+.sheet-filter-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.sheet-filter-row > span{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;}
+.sheet-pills{display:inline-flex;gap:3px;background:var(--sur);border:1px solid var(--bdr);border-radius:6px;padding:3px;flex-wrap:wrap;}
+.spill{padding:5px 14px;border-radius:4px;border:none;background:transparent;color:var(--mut);font-size:11.5px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
+.spill:hover{color:var(--txt);}
+.spill.active{background:rgba(240,165,0,.15);color:var(--amb);}
+.spill .count{margin-left:6px;background:var(--bdr2);color:var(--mut);font-size:10px;padding:1px 6px;border-radius:9px;}
+.spill.active .count{background:rgba(240,165,0,.28);color:var(--amb);}
+
+/* LOADING */
+.loading{padding:60px 20px;text-align:center;color:var(--mut);font-size:14px;}
+.loading .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--bdr2);border-top-color:var(--amb);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SHEET SECTION (one per sheet: Carousel/Potting/Wave-3) */
+.sheet-section{margin-bottom:28px;}
+.sheet-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--amb);}
+.sheet-hdr h2{font-size:17px;font-weight:600;color:var(--txt);}
+.sheet-hdr .sheet-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);}
+
+/* LINE GROUP (Carousel Line 1, Carousel Line 2, etc.) */
+.line-group{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.line-hdr{padding:11px 18px;background:var(--sur2);border-bottom:1px solid var(--bdr);display:flex;align-items:baseline;justify-content:space-between;cursor:pointer;transition:background .12s;user-select:none;}
+.line-hdr:hover{background:#222831;}
+.line-hdr-name{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--txt);display:inline-flex;align-items:center;gap:8px;}
+.line-hdr-toggle{color:var(--mut2);font-size:11px;transition:transform .2s;display:inline-block;}
+.line-group.collapsed .line-hdr-toggle{transform:rotate(-90deg);}
+.line-hdr-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut);}
+.line-hdr-meta .red{color:var(--red);font-weight:600;}
+.line-body{padding:0;}
+.line-group.collapsed .line-body{display:none;}
+
+/* FLAG ROW */
+.flag-row{padding:11px 18px;border-bottom:1px solid var(--bdr);}
+.flag-row:last-child{border-bottom:none;}
+.flag-row:hover{background:rgba(255,255,255,.015);}
+.flag-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:4px;flex-wrap:wrap;}
+.flag-tech{font-size:12px;color:var(--txt);font-weight:500;}
+.flag-when{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);}
+.flag-section{font-size:11px;color:var(--mut);font-family:'IBM Plex Mono',monospace;margin-bottom:3px;}
+.flag-item{font-size:13px;color:var(--txt);line-height:1.4;}
+.flag-note{font-size:11.5px;color:var(--mut);font-style:italic;margin-top:5px;padding:4px 10px;background:rgba(248,81,73,.06);border-left:2px solid rgba(248,81,73,.4);border-radius:2px;}
+
+.empty{padding:48px 20px;text-align:center;color:var(--mut2);font-size:13px;background:var(--sur);border:1px solid var(--bdr);border-radius:10px;}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:.5;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.t-ok{background:var(--grn);color:#000;}
+.t-warn{background:var(--red);color:#fff;}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+
+@media(max-width:860px){
+  .site-header{padding:0 14px;height:52px;}
+  .logo{font-size:11px;}
+  .main{padding:14px 14px 40px;}
+  .page-title{font-size:18px;}
+  .range-pills{flex:1;}
+  .rpill{flex:1;text-align:center;padding:7px 4px;}
+  .refresh-btn{margin-left:0;}
+  .flag-head{flex-direction:column;gap:2px;}
+  .line-hdr{padding:10px 12px;}
+  .flag-row{padding:10px 12px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back" href="Analytics_Dashboard.html"><span data-i18n="common.back">← Back</span></a>
+  <div class="logo">⚠ Scout Flags Review</div>
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma">
+    <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+  </button>
+</header>
+
+<main class="main">
+
+  <div class="page-title" data-i18n="flags.title">Scout Flags Review</div>
+  <div class="page-sub" data-i18n="flags.subtitle">All flagged items needing attention, grouped by sheet and production line.</div>
+
+  <!-- DATE RANGE -->
+  <div class="range-row">
+    <div class="range-pills" id="rangePills">
+      <button class="rpill active" data-days="7" data-i18n="analytics.range.7">7 day</button>
+      <button class="rpill" data-days="30" data-i18n="analytics.range.30">30 day</button>
+      <button class="rpill" data-days="90" data-i18n="analytics.range.90">90 day</button>
+      <button class="rpill" data-days="0" data-i18n="analytics.range.all">All time</button>
+    </div>
+    <div class="range-meta" id="rangeMeta"></div>
+    <button class="refresh-btn" onclick="loadAll(true)">↻ <span data-i18n="common.refresh">Refresh</span></button>
+  </div>
+
+  <!-- SHEET FILTER -->
+  <div class="sheet-filter-row">
+    <span data-i18n="flags.show">Show:</span>
+    <div class="sheet-pills" id="sheetPills">
+      <button class="spill active" data-sheet="all"><span data-i18n="flags.all">All Sheets</span><span class="count" id="cnt-all">0</span></button>
+      <button class="spill" data-sheet="scout-car"><span data-i18n="flags.car">Carousel</span><span class="count" id="cnt-car">0</span></button>
+      <button class="spill" data-sheet="scout-pott"><span data-i18n="flags.pott">Potting</span><span class="count" id="cnt-pott">0</span></button>
+      <button class="spill" data-sheet="scout-wav"><span data-i18n="flags.wav">Wave-3</span><span class="count" id="cnt-wav">0</span></button>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="loading"><span class="spin"></span><span data-i18n="common.loading">Loading…</span></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="translations.js"></script>
+<script>
+// SUPABASE CONFIG — same as the rest of the project
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+
+function sbHeaders(){
+  return {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+}
+
+// SOURCES — only scout tables this time
+const SOURCES = [
+  {key:'scout-car', table:'reports',                label:'Carousel', link:'Carousel_Scout_Checklist.html'},
+  {key:'scout-pott',table:'potting_scout_reports',  label:'Potting',  link:'Potting_Scout_Checklist.html'},
+  {key:'scout-wav', table:'wave3_scout_reports',    label:'Wave-3',   link:'Wave3_Scout_Checklist.html'},
+];
+
+// STATE
+let allData = {};
+let rangeDays = 7;
+let sheetFilter = 'all';
+
+// HELPERS
+function withinRange(rowDate){
+  if(rangeDays === 0) return true;
+  if(!rowDate) return false;
+  const d = new Date(rowDate);
+  if(isNaN(d.getTime())) return false;
+  return d.getTime() >= Date.now() - rangeDays*86400000;
+}
+
+function relTime(iso){
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime())/1000;
+  if(diff<60) return Math.floor(diff)+'s ago';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  if(diff<604800) return Math.floor(diff/86400)+'d ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showToast(msg, cls){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${cls} show`;
+  setTimeout(() => t.className='toast', 3000);
+}
+
+// FETCH
+async function fetchTable(src){
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/${src.table}?order=submitted_at.desc&limit=2000`, {headers: sbHeaders()});
+    if(!res.ok) return [];
+    return await res.json();
+  } catch(e){
+    console.warn(`Error fetching ${src.table}:`, e);
+    return [];
+  }
+}
+
+async function loadAll(showToastMsg){
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><span class="spin"></span>' + (window.t?window.t('common.loading'):'Loading…') + '</div>';
+  const results = await Promise.all(SOURCES.map(s => fetchTable(s)));
+  allData = {};
+  SOURCES.forEach((s,i) => { allData[s.key] = results[i] || []; });
+  if(showToastMsg) showToast('✓ ' + (window.t?window.t('common.refresh'):'Refresh'), 't-ok');
+  render();
+}
+
+// EXTRACT FLAGS — pulls every flagged item from every report in the date range
+function extractAllFlags(){
+  const out = [];
+  SOURCES.forEach(src => {
+    (allData[src.key] || []).forEach(row => {
+      if(!withinRange(row.submitted_at)) return;
+      const secs = row.sections;
+      if(!Array.isArray(secs)) return;
+      secs.forEach(sec => {
+        const flagged = sec.flaggedItems;
+        if(!Array.isArray(flagged)) return;
+        flagged.forEach(fi => {
+          out.push({
+            src,
+            when: row.submitted_at,
+            tech: row.tech || 'Unknown',
+            line: (String(row.line || '').trim()) || '—',  // — = unknown line
+            shift: row.shift || '?',
+            secNum: sec.num,
+            secTitle: sec.title,
+            item: fi.item,
+            note: fi.note || '',
+          });
+        });
+      });
+    });
+  });
+  // Newest first
+  out.sort((a,b) => new Date(b.when) - new Date(a.when));
+  return out;
+}
+
+// GROUP — by sheet, then by line
+function groupByLine(flags){
+  // Result: { 'scout-car': { '1': [...], '2': [...], '—': [...] }, 'scout-pott': {...}, 'scout-wav': {...} }
+  const groups = { 'scout-car':{}, 'scout-pott':{}, 'scout-wav':{} };
+  flags.forEach(f => {
+    const sheetKey = f.src.key;
+    const line = f.line;
+    if(!groups[sheetKey][line]) groups[sheetKey][line] = [];
+    groups[sheetKey][line].push(f);
+  });
+  return groups;
+}
+
+// COUNT per sheet (for filter pill badges)
+function countsBySheet(flags){
+  const c = { all: flags.length, 'scout-car':0, 'scout-pott':0, 'scout-wav':0 };
+  flags.forEach(f => { c[f.src.key] = (c[f.src.key]||0) + 1; });
+  return c;
+}
+
+// RENDER
+function render(){
+  const allFlags = extractAllFlags();
+  const meta = document.getElementById('rangeMeta');
+  meta.textContent = rangeDays === 0
+    ? `All time · ${allFlags.length} flagged item${allFlags.length!==1?'s':''}`
+    : `Last ${rangeDays} day${rangeDays!==1?'s':''} · ${allFlags.length} flagged item${allFlags.length!==1?'s':''}`;
+
+  // Update filter pill counts
+  const counts = countsBySheet(allFlags);
+  document.getElementById('cnt-all').textContent  = counts.all;
+  document.getElementById('cnt-car').textContent  = counts['scout-car'];
+  document.getElementById('cnt-pott').textContent = counts['scout-pott'];
+  document.getElementById('cnt-wav').textContent  = counts['scout-wav'];
+
+  // Update active pill
+  document.querySelectorAll('.spill').forEach(p => {
+    p.classList.toggle('active', p.dataset.sheet === sheetFilter);
+  });
+
+  if(allFlags.length === 0){
+    document.getElementById('content').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">✓</div>
+        <div>${window.t?window.t('flags.empty.all'):'No flagged items in this range. Everything looks clean.'}</div>
+      </div>`;
+    return;
+  }
+
+  // Filter by sheet
+  const visibleFlags = sheetFilter === 'all' ? allFlags : allFlags.filter(f => f.src.key === sheetFilter);
+  if(visibleFlags.length === 0){
+    document.getElementById('content').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">✓</div>
+        <div>${window.t?window.t('flags.empty.sheet'):'No flagged items for this sheet in this range.'}</div>
+      </div>`;
+    return;
+  }
+
+  // Group by sheet → line
+  const groups = groupByLine(visibleFlags);
+
+  // Render in CAROUSEL → POTTING → WAVE-3 order (production flow order)
+  const renderOrder = ['scout-car', 'scout-pott', 'scout-wav'];
+  let html = '';
+
+  renderOrder.forEach(sheetKey => {
+    if(sheetFilter !== 'all' && sheetFilter !== sheetKey) return;
+    const sheetGroups = groups[sheetKey];
+    const lineKeys = Object.keys(sheetGroups);
+    if(lineKeys.length === 0) return;
+
+    const src = SOURCES.find(s => s.key === sheetKey);
+    const totalForSheet = lineKeys.reduce((a,k) => a + sheetGroups[k].length, 0);
+    const sheetLabel = window.t?window.t('flags.sheet.'+sheetKey.split('-')[1]):src.label;
+
+    html += `<div class="sheet-section">
+      <div class="sheet-hdr">
+        <h2>${escapeHtml(sheetLabel)} ${window.t?window.t('flags.scout'):'Scout'}</h2>
+        <div class="sheet-count">${totalForSheet} ${window.t?window.t('flags.flagged_items'):'flagged item' + (totalForSheet!==1?'s':'')}</div>
+      </div>`;
+
+    // Sort lines: numeric first, then '—' (Unknown) last
+    lineKeys.sort((a,b) => {
+      if(a === '—' && b !== '—') return 1;
+      if(b === '—' && a !== '—') return -1;
+      return a.localeCompare(b, undefined, {numeric:true});
+    });
+
+    lineKeys.forEach(line => {
+      const lineFlags = sheetGroups[line];
+      const lineLabel = line === '—' ? (window.t?window.t('flags.unknown_line'):'Unknown Line') : (window.t?window.t('flags.line'):'Line') + ' ' + line;
+      // Count unique reports contributing flags
+      const uniqueReports = new Set(lineFlags.map(f => f.tech + '|' + f.when)).size;
+
+      html += `<div class="line-group">
+        <div class="line-hdr" onclick="toggleLine(this)">
+          <div class="line-hdr-name">
+            <span class="line-hdr-toggle">▼</span>
+            ${escapeHtml(lineLabel)}
+          </div>
+          <div class="line-hdr-meta">
+            <span class="red">${lineFlags.length}</span> flag${lineFlags.length!==1?'s':''} · ${uniqueReports} report${uniqueReports!==1?'s':''}
+          </div>
+        </div>
+        <div class="line-body">
+          ${lineFlags.map(f => `
+            <div class="flag-row">
+              <div class="flag-head">
+                <div class="flag-tech">${escapeHtml(f.tech)} · Shift ${escapeHtml(f.shift)}</div>
+                <div class="flag-when">${relTime(f.when)}</div>
+              </div>
+              <div class="flag-section">§${escapeHtml(f.secNum)} ${escapeHtml(f.secTitle)}</div>
+              <div class="flag-item">⚠ ${escapeHtml(f.item)}</div>
+              ${f.note ? `<div class="flag-note">${escapeHtml(f.note)}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+function toggleLine(headerEl){
+  headerEl.parentElement.classList.toggle('collapsed');
+}
+
+// EVENT WIRING
+document.getElementById('rangePills').addEventListener('click', e => {
+  const btn = e.target.closest('.rpill');
+  if(!btn) return;
+  document.querySelectorAll('.rpill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  rangeDays = parseInt(btn.dataset.days);
+  render();
+});
+
+document.getElementById('sheetPills').addEventListener('click', e => {
+  const btn = e.target.closest('.spill');
+  if(!btn) return;
+  sheetFilter = btn.dataset.sheet;
+  render();
+});
+
+// Hook for translations.js to call when language toggles
+window.onLangChange = function(){ render(); };
+
+// INIT
+loadAll();
+</script>
+
+</body>
+</html>
