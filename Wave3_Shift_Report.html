@@ -345,35 +345,12 @@ input,select,textarea{font-size:16px !important;}
     <div class="card-head"><h2 data-i18n="shift.section.wip">WIP / Scrap</h2></div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
-        <div class="sdiv"><span data-i18n="wip.timeline.cart">WIP Remaining (24hr · Cart ct)</span></div>
-        <div class="wip-grid">
-          <div class="wip-row-label" data-i18n="wip.timeline.am">AM · 00–11</div>
-          <div class="wip-cell"><label>00</label><input type="text" id="wip-00" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>01</label><input type="text" id="wip-01" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>02</label><input type="text" id="wip-02" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>03</label><input type="text" id="wip-03" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>04</label><input type="text" id="wip-04" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>05</label><input type="text" id="wip-05" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>06</label><input type="text" id="wip-06" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>07</label><input type="text" id="wip-07" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>08</label><input type="text" id="wip-08" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>09</label><input type="text" id="wip-09" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>10</label><input type="text" id="wip-10" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>11</label><input type="text" id="wip-11" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-row-label" data-i18n="wip.timeline.pm">PM · 12–23</div>
-          <div class="wip-cell"><label>12</label><input type="text" id="wip-12" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>13</label><input type="text" id="wip-13" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>14</label><input type="text" id="wip-14" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>15</label><input type="text" id="wip-15" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>16</label><input type="text" id="wip-16" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>17</label><input type="text" id="wip-17" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>18</label><input type="text" id="wip-18" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>19</label><input type="text" id="wip-19" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>20</label><input type="text" id="wip-20" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>21</label><input type="text" id="wip-21" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>22</label><input type="text" id="wip-22" inputmode="numeric" placeholder="—"></div>
-          <div class="wip-cell"><label>23</label><input type="text" id="wip-23" inputmode="numeric" placeholder="—"></div>
-        </div>
+    <div class="sdiv"><span data-i18n="wip.timeline.cart">WIP Remaining (Cart ct)</span></div>
+<div class="wip-grid" style="grid-template-columns:repeat(3,1fr);max-width:360px;">
+  <div class="wip-cell"><label>6 AM</label><input type="text" id="wip-06" inputmode="numeric" placeholder="—"></div>
+  <div class="wip-cell"><label>2 PM</label><input type="text" id="wip-14" inputmode="numeric" placeholder="—"></div>
+  <div class="wip-cell"><label>10 PM</label><input type="text" id="wip-22" inputmode="numeric" placeholder="—"></div>
+</div>
       </div>
       <div>
         <div class="sdiv"><span data-i18n="scrap.qty">Scrap Qty</span></div>
@@ -653,14 +630,11 @@ function collectData(){
     downtime_hrs:       dt,
     downtime_total:     document.getElementById('dt-total').value,
     hours_over_target:  document.getElementById('fHoursOverTarget').value,
-    wip_hourly:         (() => {
-      const arr = [];
-      for(let h=0; h<24; h++){
-        const el = document.getElementById('wip-' + String(h).padStart(2,'0'));
-        arr.push(el ? el.value : '');
-      }
-      return arr;
-    })(),
+   wip_hourly: [
+  document.getElementById('wip-06')?.value || '',
+  document.getElementById('wip-14')?.value || '',
+  document.getElementById('wip-22')?.value || '',
+],
     scrap_qty:          document.getElementById('scrapQty').value,
     scrap_units:        document.getElementById('scrapUnits').value,
     mco_main_label:     ynState['mco-main']||null,
