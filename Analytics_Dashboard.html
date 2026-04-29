@@ -538,29 +538,41 @@ function topCauses(rows){
 // ── WIP HEATMAP ───────────────────────────────────────────────────────────────
 // Builds a {dayKey: {hour: {sum, count}}} structure averaged across reports.
 // `lineFilter` = 'all' | 'pott' | 'wav' | 'car'
-function buildWipCards(rows, lineFilter){
-  // For each line, find the most recent report and pull wip_hourly[6], [14], [22]
-  const lines = {
-    'pott': { label: 'Potting',   slots: {6:null, 14:null, 22:null}, when: null },
-    'wav':  { label: 'Wave-3',    slots: {6:null, 14:null, 22:null}, when: null },
-    'car':  { label: 'Carousel',  slots: {6:null, 14:null, 22:null}, when: null },
-  };
+function buildWipHeatmap(rows, lineFilter){
+  const grid = {};   // dayKey -> [24] of {sum, count, contributors:[]}
+  const byKey = {};  // dayKey -> Date for sorting
   rows.forEach(r => {
     if(r.src.kind !== 'shift') return;
-    const lineKey = r.src.line;
-    if(!lines[lineKey]) return;
+    if(lineFilter !== 'all' && r.src.line !== lineFilter) return;
     const wip = r.row.wip_hourly;
     if(!Array.isArray(wip)) return;
-    // Use most recent report per line
-    if(!lines[lineKey].when || new Date(r.when) > new Date(lines[lineKey].when)){
-      lines[lineKey].when = r.when;
-      lines[lineKey].slots[6]  = wip[0] !== undefined && wip[0] !== '' ? wip[0] : null;
-      lines[lineKey].slots[14] = wip[1] !== undefined && wip[1] !== '' ? wip[1] : null;
-      lines[lineKey].slots[22] = wip[2] !== undefined && wip[2] !== '' ? wip[2] : null;
+    const k = r.date;
+    if(!k) return;
+    if(!grid[k]){
+      grid[k] = Array.from({length:24}, () => ({sum:0, count:0, contributors:[]}));
+      byKey[k] = new Date(k);
+    }
+    for(let h=0; h<24 && h<wip.length; h++){
+      const v = parseFloat(wip[h]);
+      if(isNaN(v)) continue;
+      const cell = grid[k][h];
+      cell.sum += v;
+      cell.count += 1;
+      cell.contributors.push({tech: r.row.tech_name||'?', line: r.src.label, value: v});
     }
   });
-  const target = lineFilter === 'all' ? Object.entries(lines) : [[lineFilter, lines[lineFilter]]].filter(([k]) => lines[k]);
-  return { lines, target };
+  // Sort days descending (newest at top)
+  const days = Object.keys(grid).sort((a,b) => byKey[b] - byKey[a]);
+  // Find max average value across all cells (for color scaling)
+  let max = 0, anyData = false;
+  days.forEach(d => grid[d].forEach(c => {
+    if(c.count > 0){
+      anyData = true;
+      const avg = c.sum / c.count;
+      if(avg > max) max = avg;
+    }
+  }));
+  return {days, grid, max, anyData};
 }
 
 // ── UPH BOARD (24hr Production by Line) ──────────────────────────────────────
@@ -727,7 +739,7 @@ function render(){
   const prod = buildProductionSeries(rows);
   const dt = buildDowntimeSeries(rows);
   const causes = topCauses(rows);
-  const wip = buildWipCards(rows, wipLineFilter);
+  const wip = buildWipHeatmap(rows, wipLineFilter);
   const uph = buildUphBoard(rows);
   const scout = scoutSummary(rows);
   const flags = recentFlags(rows);
@@ -738,7 +750,7 @@ function render(){
     ${renderKPIs(k)}
     ${renderProduction(prod)}
     ${renderDowntime(dt, causes)}
-    ${renderWipCards(wip)}
+    ${renderWipHeatmap(wip)}
     ${renderUphBoard(uph)}
     ${renderScout(scout, flags)}
     ${renderTechs(techs)}
@@ -969,56 +981,76 @@ function renderWipHeatmap(wip){
             <button class="wpill ${wipLineFilter==='all'?'active':''}" data-line="all">All</button>
             <button class="wpill ${wipLineFilter==='car'?'active':''}" data-line="car">Carousel</button>
             <button class="wpill ${wipLineFilter==='pott'?'active':''}" data-line="pott">Potting</button>
-    function renderWipCards(wipData){
-  const { lines, target } = wipData;
-  const anyData = target.some(([k, v]) => v && v.when);
-
-  const slotLabels = { 6: '6 AM', 14: '2 PM', 22: '10 PM' };
-
-  const cardHtml = target.map(([key, v]) => {
-    if(!v) return '';
-    const slots = [6, 14, 22].map(h => {
-      const val = v.slots[h];
-      const display = (val !== null && val !== undefined && val !== '') ? val : '—';
-      return `
-        <div style="flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:10px 12px;text-align:center;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">${slotLabels[h]}</div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:${display==='—'?'var(--mut2)':'var(--amb)'};">${display}</div>
-          <div style="font-size:10px;color:var(--mut2);margin-top:3px;font-family:'IBM Plex Mono',monospace;">carts</div>
-        </div>`;
-    }).join('');
-    const ago = v.when ? relTime(v.when) : 'no data';
-    return `
-      <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:14px 16px;margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);">${v.label}</div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);">${ago}</div>
-        </div>
-        <div style="display:flex;gap:8px;">${slots}</div>
-      </div>`;
-  }).join('');
-
-  return `
-    <div class="panel">
-      <div class="panel-head">
-        <h2>WIP Remaining</h2>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="panel-meta" style="margin-right:6px">Line:</span>
-          <div class="wip-line-pills" id="wipLinePills">
-            <button class="wpill ${wipLineFilter==='all'?'active':''}" data-line="all">All</button>
-            <button class="wpill ${wipLineFilter==='car'?'active':''}" data-line="car">Carousel</button>
-            <button class="wpill ${wipLineFilter==='pott'?'active':''}" data-line="pott">Potting</button>
             <button class="wpill ${wipLineFilter==='wav'?'active':''}" data-line="wav">Wave-3</button>
           </div>
         </div>
       </div>
       <div class="panel-body">
-        ${!anyData
-          ? `<div class="empty"><div class="empty-icon">📭</div>No WIP data in this range.</div>`
-          : cardHtml}
+        ${!wip.anyData
+          ? `<div class="empty"><div class="empty-icon">📭</div>No WIP data submitted in this range${wipLineFilter!=='all'?' for the selected line':''}.</div>`
+          : `<div id="wipHeatmap"></div>
+             <div class="wip-legend">
+               <span class="wip-legend-label">Less</span>
+               <div class="wip-legend-scale">
+                 ${[0,0.2,0.4,0.6,0.8,1].map(t => `<div class="wip-legend-cell" style="background:${wipColor(t,1)}"></div>`).join('')}
+               </div>
+               <span class="wip-legend-label">More</span>
+               <span class="wip-legend-meta">peak avg: ${wip.max.toFixed(1)}</span>
+             </div>`}
       </div>
     </div>`;
 }
+
+function wipColor(value, max){
+  if(value === null || max === 0) return '#1c2128';
+  const t = Math.max(0, Math.min(1, value / max));
+  const alpha = 0.06 + t * 0.89;
+  return `rgba(240,165,0,${alpha.toFixed(3)})`;
+}
+
+function drawWipHeatmap(wip){
+  const el = document.getElementById('wipHeatmap');
+  if(!el || !wip.anyData) return;
+
+  const hourHdr = Array.from({length:24}, (_,h) => `<div class="hcell hcell-hdr">${String(h).padStart(2,'0')}</div>`).join('');
+  const rowsHtml = wip.days.map(d => {
+    const cells = wip.grid[d].map((c,h) => {
+      if(c.count === 0){
+        return `<div class="hcell hcell-empty" title="${dayLabel(d)} ${String(h).padStart(2,'0')}:00 — no data"></div>`;
+      }
+      const avg = c.sum / c.count;
+      const color = wipColor(avg, wip.max);
+      const tip = `${dayLabel(d)} ${String(h).padStart(2,'0')}:00 — avg ${avg.toFixed(1)} (${c.count} report${c.count!==1?'s':''})`;
+      return `<div class="hcell" style="background:${color}" title="${escapeHtml(tip)}">${c.count > 1 ? avg.toFixed(0) : Math.round(avg)}</div>`;
+    }).join('');
+    return `
+      <div class="hrow">
+        <div class="hrow-label">${dayLabel(d)}</div>
+        <div class="hrow-cells">${cells}</div>
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="hgrid">
+      <div class="hrow hhdr">
+        <div class="hrow-label hrow-label-hdr"></div>
+        <div class="hrow-cells">${hourHdr}</div>
+      </div>
+      ${rowsHtml}
+    </div>`;
+}
+
+// ── UPH Board ───────────────────────────────────────────────────────────────
+function renderUphBoard(uph){
+  if(uph.rows.length === 0){
+    return `
+      <div class="panel">
+        <div class="panel-head"><h2>${t('analytics.panel.uph')}</h2></div>
+        <div class="panel-body">
+          <div class="empty"><div class="empty-icon">📊</div>${t('analytics.empty.uph')}</div>
+        </div>
+      </div>`;
+  }
   // Build hour-header row (00-23)
   const hourHdr = Array.from({length:24}, (_,h) =>
     `<div class="uph-cell uph-cell-hdr">${String(h).padStart(2,'0')}</div>`
