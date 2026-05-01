@@ -90,15 +90,12 @@ input[type=date]{color-scheme:dark;}
 
 /* WIP — 24hr hourly timeline */
 .wip-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;}
-/* WIP BUCKETS — 3 fixed time slots */
-.wip-buckets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.wip-bucket{background:var(--bg);border:1px solid var(--bdr2);border-radius:7px;padding:10px 12px;}
-.wip-bucket label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
-.wip-bucket input{width:100%;background:var(--sur);border:1px solid var(--bdr2);border-radius:5px;padding:9px 11px;color:var(--txt);font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;outline:none;}
-.wip-bucket input:focus{border-color:var(--amb);}
-@media(max-width:700px){
-  .wip-buckets{grid-template-columns:1fr;}
-}
+.wip-slot-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.wip-slot-row .field label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.wip-slot-row select, .wip-slot-row input{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:9px 11px;color:var(--txt);font-family:'IBM Plex Sans',sans-serif;font-size:14px;outline:none;transition:border-color .15s;}
+.wip-slot-row select:focus, .wip-slot-row input:focus{border-color:var(--amb);}
+.wip-slot-row input{font-family:'IBM Plex Mono',monospace;font-weight:600;text-align:center;}
+@media(max-width:700px){.wip-slot-row{grid-template-columns:1fr;}}
 
 .wip-cell{display:flex;flex-direction:column;align-items:center;gap:2px;}
 .wip-cell label{font-size:9px;font-family:'IBM Plex Mono',monospace;color:var(--mut2);letter-spacing:.04em;}
@@ -324,18 +321,19 @@ input,select,textarea{font-size:16px !important;}
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
         <div class="sdiv"><span data-i18n="wip.timeline.cart">WIP Remaining (Cart count)</span></div>
-        <div class="wip-buckets">
-          <div class="wip-bucket">
-            <label data-i18n="wip.bucket.6am">6 AM</label>
-            <input type="number" id="wip-6am" inputmode="numeric" min="0" step="1" placeholder="0">
+                <div class="wip-slot-row">
+          <div class="field">
+            <label data-i18n="wip.slot.label">Time Slot</label>
+            <select id="wip-slot">
+              <option value="">— Select a time slot —</option>
+              <option value="6am">6 AM</option>
+              <option value="2pm">2 PM</option>
+              <option value="10pm">10 PM</option>
+            </select>
           </div>
-          <div class="wip-bucket">
-            <label data-i18n="wip.bucket.2pm">2 PM</label>
-            <input type="number" id="wip-2pm" inputmode="numeric" min="0" step="1" placeholder="0">
-          </div>
-          <div class="wip-bucket">
-            <label data-i18n="wip.bucket.10pm">10 PM</label>
-            <input type="number" id="wip-10pm" inputmode="numeric" min="0" step="1" placeholder="0">
+          <div class="field">
+            <label data-i18n="wip.slot.qty">Quantity</label>
+            <input type="number" id="wip-qty" inputmode="numeric" min="0" step="1" placeholder="0">
           </div>
         </div>
       </div>
@@ -651,11 +649,13 @@ function collectData(){
     downtime_total:     document.getElementById('dt-total').value,
     hours_over_target:  document.getElementById('fHoursOverTarget').value,
     wip_hourly:         (() => {
-      const v6  = document.getElementById('wip-6am').value;
-      const v14 = document.getElementById('wip-2pm').value;
-      const v22 = document.getElementById('wip-10pm').value;
-      // Store as 3-slot array [6am, 2pm, 10pm]
-      return [v6, v14, v22];
+      const slot = document.getElementById('wip-slot').value;
+      const qty  = document.getElementById('wip-qty').value;
+      const arr  = ['','',''];
+      if(slot === '6am')  arr[0] = qty;
+      if(slot === '2pm')  arr[1] = qty;
+      if(slot === '10pm') arr[2] = qty;
+      return arr;
     })(),
     scrap_qty:          document.getElementById('scrapQty').value,
     scrap_units:        document.getElementById('scrapUnits').value,
@@ -697,6 +697,11 @@ async function submitReport(){
   if(!data.date) missing.push('Date');
   if(!data.shift) missing.push('Shift');
   if(!data.tech_name) missing.push('Tech Name');
+  if(!data.line || String(data.line).trim()==='') missing.push('Line');
+  // UPH = production_total (units per hour for the shift)
+  if(!data.production_total || String(data.production_total).trim()==='' || isNaN(parseFloat(data.production_total))) missing.push('UPH (production total)');
+  // WIP buckets — at least one of the 3 buckets must have a value
+  if(!Array.isArray(data.wip_hourly) || !data.wip_hourly.some(v => v !== '' && v !== null && v !== undefined && !isNaN(parseFloat(v)))) missing.push('WIP Remaining (select a time slot and enter qty)');
   if(missing.length){
     showToast('Please fill in: ' + missing.join(', '), 't-warn');
     return;  // Button NOT disabled here — still clickable after fixing
