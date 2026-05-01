@@ -768,9 +768,14 @@ async function submitReport(){
     data.pw_hash = REPORT_PW_HASH;
     let res;
     if(editingReportId){
-      // EDIT: PATCH the existing report
+      // EDIT: PATCH the existing report — strip immutable fields first
+      const patchData = {...data};
+      delete patchData.submitted_at;
+      delete patchData.pw_hash;
       res = await fetch(SB_URL+'/rest/v1/carousel_reports?id=eq.'+editingReportId, {
-        method:'PATCH', headers: sbHeaders(), body: JSON.stringify(data)
+        method:'PATCH',
+        headers: {...sbHeaders(), 'Prefer':'return=minimal'},
+        body: JSON.stringify(patchData)
       });
     } else {
       // NEW: INSERT a new report
@@ -778,7 +783,10 @@ async function submitReport(){
         method:'POST', headers: sbHeaders(), body: JSON.stringify(data)
       });
     }
-    if(!res.ok) throw new Error(await res.text());
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status} — ${txt || 'no detail'}`);
+    }
     btn.className = 'btn btn-ok';
     if(editingReportId){
       btn.textContent = '✓ Report Updated';
@@ -1255,10 +1263,18 @@ async function editReport(id){
   const slotEl = document.getElementById('wip-slot');
   const qtyEl  = document.getElementById('wip-qty');
   if(slotEl && qtyEl){
-    if(wip[0] !== '' && wip[0] != null){ slotEl.value = '6am';  qtyEl.value = wip[0]; }
-    else if(wip[1] !== '' && wip[1] != null){ slotEl.value = '2pm';  qtyEl.value = wip[1]; }
-    else if(wip[2] !== '' && wip[2] != null){ slotEl.value = '10pm'; qtyEl.value = wip[2]; }
-    else { slotEl.value = ''; qtyEl.value = ''; }
+    slotEl.value = ''; qtyEl.value = '';
+    if(wip.length === 3){
+      // New format: [v6am, v2pm, v10pm]
+      if(wip[0] !== '' && wip[0] != null){ slotEl.value = '6am';  qtyEl.value = wip[0]; }
+      else if(wip[1] !== '' && wip[1] != null){ slotEl.value = '2pm';  qtyEl.value = wip[1]; }
+      else if(wip[2] !== '' && wip[2] != null){ slotEl.value = '10pm'; qtyEl.value = wip[2]; }
+    } else if(wip.length === 24){
+      // Legacy 24-hour format: pull values at hours 6 / 14 / 22
+      if(wip[6]  !== '' && wip[6]  != null){ slotEl.value = '6am';  qtyEl.value = wip[6]; }
+      else if(wip[14] !== '' && wip[14] != null){ slotEl.value = '2pm';  qtyEl.value = wip[14]; }
+      else if(wip[22] !== '' && wip[22] != null){ slotEl.value = '10pm'; qtyEl.value = wip[22]; }
+    }
   }
 
   // Populate Major Downtime events
