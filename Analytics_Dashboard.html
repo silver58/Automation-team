@@ -55,6 +55,16 @@ input,select,textarea{font-size:16px !important;}
 /* ── DATE RANGE PILLS ─────────────────────────────────────────────────────── */
 .range-row{display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap;}
 .range-pills{display:inline-flex;gap:4px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:4px;}
+
+/* TYPE FILTER PILLS */
+.type-filter-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.type-filter-label{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut2);}
+.type-pills{display:inline-flex;gap:4px;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:4px;flex-wrap:wrap;}
+.tpill{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:5px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .15s;}
+.tpill:hover{color:var(--txt);}
+.tpill.active{background:rgba(var(--amb-rgb), .14);color:var(--amb);}
+.tpill-count{background:var(--bdr2);color:var(--mut);font-size:10.5px;font-family:'IBM Plex Mono',monospace;padding:1px 7px;border-radius:9px;font-weight:600;min-width:22px;text-align:center;}
+.tpill.active .tpill-count{background:rgba(var(--amb-rgb), .28);color:var(--amb);}
 .rpill{padding:6px 16px;border-radius:5px;border:none;background:transparent;color:var(--mut);font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;}
 .rpill:hover{color:var(--txt);}
 .rpill.active{background:rgba(var(--amb-rgb), .12);color:var(--amb);}
@@ -231,7 +241,24 @@ input,select,textarea{font-size:16px !important;}
 .wip-bucket-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
 .wip-bucket-val{font-size:32px;font-weight:600;color:var(--amb);font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:6px;}
 .wip-bucket-meta{font-size:10.5px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;}
-@media(max-width:700px){.wip-bucket-cards{grid-template-columns:1fr;gap:8px;}.wip-bucket-val{font-size:26px;}}
+
+/* WIP per area+line layout */
+.wip-area-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--amb);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--bdr);}
+.wip-area-label:first-child{margin-top:0;}
+.wip-line-row{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;margin-bottom:10px;}
+.wip-line-label{padding-right:6px;}
+.wip-line-name{font-size:13px;font-weight:600;color:var(--txt);}
+.wip-line-meta{font-size:10px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+@media(max-width:700px){
+  .wip-bucket-cards{grid-template-columns:repeat(3,1fr);gap:6px;}
+  .wip-bucket-val{font-size:22px;}
+  .wip-bucket-card{padding:12px 8px;}
+  .wip-bucket-time{font-size:10px;}
+  .wip-bucket-meta{font-size:9.5px;}
+  .wip-line-row{grid-template-columns:1fr;gap:6px;}
+  .wip-line-label{padding-right:0;}
+}
 
 /* ── UPH BOARD ───────────────────────────────────────────────────────────── */
 .uph-grid{display:flex;flex-direction:column;gap:1px;overflow-x:auto;padding:14px 16px;}
@@ -351,6 +378,17 @@ input,select,textarea{font-size:16px !important;}
   <div class="page-title" data-i18n="analytics.title">Operations Overview</div>
   <div class="page-sub" data-i18n="analytics.subtitle">Live data from all check sheets and shift reports — auto-pulls from Supabase on load.</div>
 
+  <!-- TYPE FILTER -->
+  <div class="type-filter-row">
+    <span class="type-filter-label">Show:</span>
+    <div class="type-pills" id="typePills">
+      <button class="tpill active" data-type="all"><span>All</span><span class="tpill-count" id="tcnt-all">0</span></button>
+      <button class="tpill" data-type="shift">📋 <span>Shift Reports</span><span class="tpill-count" id="tcnt-shift">0</span></button>
+      <button class="tpill" data-type="pm">🔧 <span>PM Reports</span><span class="tpill-count" id="tcnt-pm">0</span></button>
+      <button class="tpill" data-type="scout">👁 <span>Scout Reports</span><span class="tpill-count" id="tcnt-scout">0</span></button>
+    </div>
+  </div>
+
   <!-- DATE RANGE -->
   <div class="range-row">
     <div class="range-pills" id="rangePills">
@@ -389,6 +427,7 @@ const SOURCES = [
   {key:'shift-pott',table:'shift_reports',          label:'Shift — Potting',   kind:'shift',  link:'Potting_Shift_Report.html',  line:'pott'},
   {key:'shift-wav', table:'wave3_reports',          label:'Shift — Wave-3',    kind:'shift',  link:'Wave3_Shift_Report.html',    line:'wav'},
   {key:'shift-car', table:'carousel_reports',       label:'Shift — Carousel',  kind:'shift',  link:'Carousel_Shift_Report.html', line:'car'},
+  {key:'pm-all',    table:'pm_reports',             label:'PM Reports',         kind:'pm',     link:null},
 ];
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
@@ -396,6 +435,7 @@ let allData = {};      // {sourceKey: rows[]}
 let rangeDays = 7;     // 0 = all
 let wipLineFilter = 'all';  // 'all'|'pott'|'wav'|'car'
 let scoutFilter = 'all';    // 'all' | 'scout-car' | 'scout-pott' | 'scout-wav'
+let typeFilter = 'all';     // 'all' | 'shift' | 'pm' | 'scout'
 
 // ── DATE HELPERS ───────────────────────────────────────────────────────────────
 function withinRange(rowDate){
@@ -473,7 +513,11 @@ function normalizedRows(){
   return out;
 }
 function filteredRows(){
-  return normalizedRows().filter(r => withinRange(r.when));
+  return normalizedRows().filter(r => {
+    if(!withinRange(r.when)) return false;
+    if(typeFilter !== 'all' && r.src.kind !== typeFilter) return false;
+    return true;
+  });
 }
 
 // ── KPI COMPUTATIONS ───────────────────────────────────────────────────────────
@@ -549,33 +593,70 @@ function topCauses(rows){
 // Builds a {dayKey: {hour: {sum, count}}} structure averaged across reports.
 // `lineFilter` = 'all' | 'pott' | 'wav' | 'car'
 function buildWipBuckets(rows, lineFilter){
-  // Aggregate WIP buckets [6am, 2pm, 10pm] from reports submitted in the last 24 hours.
-  // Each input report has wip_hourly = [v6am, v2pm, v10pm] (3-element array).
+  // Aggregate WIP buckets [6am, 2pm, 10pm] from reports submitted in the last 24 hours,
+  // grouped by area + line. Each input report has wip_hourly = [v6am, v2pm, v10pm].
+  // RULE: only keep the most recent report per (area + line + shift) to avoid
+  // double-counting corrected/duplicate submissions.
   const cutoff = Date.now() - 24*60*60*1000;
-  const buckets = {
-    '6am':  {sum:0, count:0, contributors:[]},
-    '2pm':  {sum:0, count:0, contributors:[]},
-    '10pm': {sum:0, count:0, contributors:[]},
-  };
-  const keys = ['6am','2pm','10pm'];
+  const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
+
+  // Step 1: filter + dedupe (rows are pre-sorted DESC by submitted_at)
+  const seen = new Set();
+  const kept = [];
   rows.forEach(r => {
     if(r.src.kind !== 'shift') return;
     if(lineFilter !== 'all' && r.src.line !== lineFilter) return;
     const submitted = new Date(r.row.submitted_at).getTime();
     if(isNaN(submitted) || submitted < cutoff) return;
-    const wip = r.row.wip_hourly;
-    if(!Array.isArray(wip)) return;
-    for(let i=0; i<3 && i<wip.length; i++){
-      const v = parseFloat(wip[i]);
+    if(!Array.isArray(r.row.wip_hourly)) return;
+    const area = areaMap[r.src.key];
+    if(!area) return;
+    const line = (String(r.row.line || '').trim()) || '—';
+    const dedupeKey = `${area}|${line}|${r.row.shift}`;
+    if(seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+    kept.push({r, area, line});
+  });
+
+  // Step 2: build groups keyed by area+line
+  const groups = {};
+  kept.forEach(({r, area, line}) => {
+    const key = area + '|' + line;
+    if(!groups[key]){
+      groups[key] = {
+        area, line,
+        buckets: {
+          '6am':  {sum:0, count:0},
+          '2pm':  {sum:0, count:0},
+          '10pm': {sum:0, count:0},
+        },
+        reportCount: 0,
+      };
+    }
+    const g = groups[key];
+    g.reportCount++;
+    const keys = ['6am','2pm','10pm'];
+    for(let i=0; i<3 && i<r.row.wip_hourly.length; i++){
+      const v = parseFloat(r.row.wip_hourly[i]);
       if(isNaN(v)) continue;
-      const b = buckets[keys[i]];
+      const b = g.buckets[keys[i]];
       b.sum += v;
       b.count += 1;
-      b.contributors.push({tech: r.row.tech_name||'?', line: r.src.label, value: v});
     }
   });
-  const anyData = keys.some(k => buckets[k].count > 0);
-  return {buckets, anyData};
+
+  // Step 3: sort area then line (matching production-flow order)
+  const areaOrder = {'Carousel':0, 'Potting':1, 'Wave-3':2};
+  const arr = Object.values(groups).sort((a,b) => {
+    const ao = areaOrder[a.area] ?? 99;
+    const bo = areaOrder[b.area] ?? 99;
+    if(ao !== bo) return ao - bo;
+    if(a.line === '—' && b.line !== '—') return 1;
+    if(b.line === '—' && a.line !== '—') return -1;
+    return a.line.localeCompare(b.line, undefined, {numeric:true});
+  });
+
+  return {rows: arr, anyData: arr.length > 0};
 }
 
 // ── UPH BOARD (24hr Production by Line) ──────────────────────────────────────
@@ -595,25 +676,35 @@ function shiftStartHour(shift){
 }
 
 function buildUphBoard(rows){
-  // Map: "area|line" → { area, line, hours: [24 cells], total }
-  const groups = {};
+  // Map: "area|line" → { area, line, hours: [24], total }
+  // RULE: only one shift report per (area + line + shift) — keep the MOST RECENT.
+  // This prevents double-counting when a tech submits a corrected report.
   const cutoff = Date.now() - 24*60*60*1000;
+
+  // Step 1: filter to last 24h shift reports + dedupe by (area, line, shift)
+  // Reports are sorted DESC by submitted_at upstream, so the first one we see for a key wins.
+  const seen = new Set();
+  const kept = [];
   rows.forEach(r => {
     if(r.src.kind !== 'shift') return;
-    // Only include reports submitted within the last 24 hours
     const submitted = new Date(r.row.submitted_at).getTime();
     if(isNaN(submitted) || submitted < cutoff) return;
-    const prodHrs = r.row.production_hrs;
-    if(!Array.isArray(prodHrs)) return;
-    const startHour = shiftStartHour(r.row.shift);
-    if(startHour === null) return;
-    // Determine area name from source
+    if(!Array.isArray(r.row.production_hrs)) return;
+    if(shiftStartHour(r.row.shift) === null) return;
     const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
     const area = areaMap[r.src.key];
     if(!area) return;
-    // Normalize line — empty/null/undefined becomes "Unknown"
-    let line = String(r.row.line || '').trim();
-    if(!line) line = '—';
+    const line = (String(r.row.line || '').trim()) || '—';
+    const dedupeKey = `${area}|${line}|${r.row.shift}`;
+    if(seen.has(dedupeKey)) return;  // older duplicate, skip
+    seen.add(dedupeKey);
+    kept.push({r, area, line, submitted});
+  });
+
+  // Step 2: aggregate the kept reports into the area+line groups
+  const groups = {};
+  kept.forEach(({r, area, line}) => {
+    const startHour = shiftStartHour(r.row.shift);
     const key = area + '|' + line;
     if(!groups[key]){
       groups[key] = {
@@ -626,8 +717,8 @@ function buildUphBoard(rows){
     }
     const g = groups[key];
     g.reportCount++;
-    for(let i = 0; i < 8 && i < prodHrs.length; i++){
-      const v = parseFloat(prodHrs[i]);
+    for(let i = 0; i < 8 && i < r.row.production_hrs.length; i++){
+      const v = parseFloat(r.row.production_hrs[i]);
       if(isNaN(v)) continue;
       const hour = (startHour + i) % 24;
       g.hours[hour] += v;
@@ -725,6 +816,7 @@ function recentFeed(rows){
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 function render(){
+  const allInRange = normalizedRows().filter(r => withinRange(r.when));  // for type pill counts (ignores typeFilter)
   const rows = filteredRows();
   const allRows = normalizedRows();
   const meta = document.getElementById('rangeMeta');
@@ -732,12 +824,23 @@ function render(){
     ? `All time · ${allRows.length} reports`
     : `Last ${rangeDays} days · ${rows.length} of ${allRows.length} reports`;
 
+  // ── Update type pill counts and active state
+  const counts = {all: allInRange.length, shift:0, pm:0, scout:0};
+  allInRange.forEach(r => { counts[r.src.kind] = (counts[r.src.kind]||0) + 1; });
+  document.getElementById('tcnt-all').textContent   = counts.all;
+  document.getElementById('tcnt-shift').textContent = counts.shift;
+  document.getElementById('tcnt-pm').textContent    = counts.pm;
+  document.getElementById('tcnt-scout').textContent = counts.scout;
+  document.querySelectorAll('.tpill').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === typeFilter);
+  });
+
   if(rows.length===0){
     document.getElementById('content').innerHTML = `
       <div class="empty" style="background:var(--sur);border:1px solid var(--bdr);border-radius:10px;">
         <div class="empty-icon">📭</div>
-        <div>No reports submitted in this range yet.</div>
-        <div style="font-size:11px;margin-top:8px;color:var(--mut2);">Try a wider date range or submit some reports first.</div>
+        <div>No ${typeFilter==='all'?'':typeFilter+' '}reports submitted in this range yet.</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--mut2);">Try a wider date range${typeFilter!=='all'?' or remove the type filter':''}.</div>
       </div>`;
     return;
   }
@@ -753,20 +856,32 @@ function render(){
   const techs = techCounts(rows);
   const feed = recentFeed(rows);
 
-  document.getElementById('content').innerHTML = `
-    ${renderKPIs(k)}
-    ${renderProduction(prod)}
-    ${renderDowntime(dt, causes)}
-    ${renderWipBuckets(wip)}
-    ${renderUphBoard(uph)}
-    ${renderScout(scout, flags)}
-    ${renderTechs(techs)}
-    ${renderFeed(feed)}
-  `;
+  // Decide which panels to show based on typeFilter
+  // - 'all': show everything
+  // - 'shift': production, downtime, WIP, UPH (scout panels don't apply)
+  // - 'pm': feed + tech leaderboard (most other charts depend on shift fields)
+  // - 'scout': scout flags only
+  let panelsHtml = renderKPIs(k);
+  const showShiftPanels = (typeFilter === 'all' || typeFilter === 'shift');
+  const showScoutPanels = (typeFilter === 'all' || typeFilter === 'scout');
+  if(showShiftPanels){
+    panelsHtml += renderProduction(prod);
+    panelsHtml += renderDowntime(dt, causes);
+    panelsHtml += renderWipBuckets(wip);
+    panelsHtml += renderUphBoard(uph);
+  }
+  if(showScoutPanels){
+    panelsHtml += renderScout(scout, flags);
+  }
+  panelsHtml += renderTechs(techs);
+  panelsHtml += renderFeed(feed);
+  document.getElementById('content').innerHTML = panelsHtml;
 
   // Now actually draw the SVGs (innerHTML doesn't run scripts)
-  drawProductionChart(prod);
-  drawDowntimeChart(dt);
+  if(showShiftPanels){
+    drawProductionChart(prod);
+    drawDowntimeChart(dt);
+  }
   // (no post-render draw needed — buckets are pure HTML)
 
   // Wire up the WIP line filter pills (re-renders on click)
@@ -979,6 +1094,42 @@ function drawDowntimeChart(dt){
 // ── WIP Heatmap ─────────────────────────────────────────────────────────────
 function renderWipBuckets(wip){
   const labels = {'6am':'6 AM','2pm':'2 PM','10pm':'10 PM'};
+  const keys = ['6am','2pm','10pm'];
+
+  let groupsHtml = '';
+  if(wip.anyData){
+    // Group rows visually by area, like the UPH board
+    const byArea = {};
+    wip.rows.forEach(g => {
+      if(!byArea[g.area]) byArea[g.area] = [];
+      byArea[g.area].push(g);
+    });
+    Object.entries(byArea).forEach(([area, groups]) => {
+      groupsHtml += `<div class="wip-area-label">${escapeHtml(area)}</div>`;
+      groups.forEach(g => {
+        const lineLabel = g.line === '—' ? 'Unknown Line' : `Line ${escapeHtml(g.line)}`;
+        groupsHtml += `
+          <div class="wip-line-row">
+            <div class="wip-line-label">
+              <div class="wip-line-name">${lineLabel}</div>
+              <div class="wip-line-meta">${g.reportCount} report${g.reportCount!==1?'s':''}</div>
+            </div>
+            <div class="wip-bucket-cards">
+              ${keys.map(k => {
+                const b = g.buckets[k];
+                if(b.count === 0){
+                  return `<div class="wip-bucket-card empty-bucket"><div class="wip-bucket-time">${labels[k]}</div><div class="wip-bucket-val">—</div><div class="wip-bucket-meta">no data</div></div>`;
+                }
+                const val = b.count > 1 ? Math.round(b.sum / b.count) : b.sum;
+                const meta = b.count > 1 ? `avg · ${b.count} reports` : `1 report`;
+                return `<div class="wip-bucket-card"><div class="wip-bucket-time">${labels[k]}</div><div class="wip-bucket-val">${val}</div><div class="wip-bucket-meta">${meta}</div></div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      });
+    });
+  }
+
   return `
     <div class="panel">
       <div class="panel-head">
@@ -994,19 +1145,10 @@ function renderWipBuckets(wip){
         </div>
       </div>
       <div class="panel-body">
-        <div class="panel-meta" style="margin-bottom:10px">From shift reports submitted in the last 24 hours${wipLineFilter!=='all'?' · filtered to selected line':''}.</div>
+        <div class="panel-meta" style="margin-bottom:10px">From shift reports submitted in the last 24 hours${wipLineFilter!=='all'?' · filtered to selected area':''}.</div>
         ${!wip.anyData
-          ? `<div class="empty"><div class="empty-icon">📭</div>No WIP data submitted in the last 24 hours${wipLineFilter!=='all'?' for the selected line':''}.</div>`
-          : `<div class="wip-bucket-cards">
-              ${['6am','2pm','10pm'].map(k => {
-                const b = wip.buckets[k];
-                if(b.count === 0){
-                  return `<div class="wip-bucket-card empty-bucket"><div class="wip-bucket-time">${labels[k]}</div><div class="wip-bucket-val">—</div><div class="wip-bucket-meta">no data</div></div>`;
-                }
-                const avg = b.sum / b.count;
-                return `<div class="wip-bucket-card"><div class="wip-bucket-time">${labels[k]}</div><div class="wip-bucket-val">${Math.round(avg)}</div><div class="wip-bucket-meta">avg · ${b.count} report${b.count!==1?'s':''} · total ${Math.round(b.sum)}</div></div>`;
-              }).join('')}
-            </div>`}
+          ? `<div class="empty"><div class="empty-icon">📭</div>No WIP data submitted in the last 24 hours${wipLineFilter!=='all'?' for the selected area':''}.</div>`
+          : groupsHtml}
       </div>
     </div>`;
 }
@@ -1310,6 +1452,15 @@ document.getElementById('rangePills').addEventListener('click', e => {
   document.querySelectorAll('.rpill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   rangeDays = parseInt(btn.dataset.days);
+  render();
+});
+
+document.getElementById('typePills').addEventListener('click', e => {
+  const btn = e.target.closest('.tpill');
+  if(!btn) return;
+  typeFilter = btn.dataset.type;
+  // Reset secondary filters when type changes so we don't end up in an unreachable state
+  if(typeFilter !== 'scout') scoutFilter = 'all';
   render();
 });
 
