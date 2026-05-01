@@ -112,15 +112,43 @@ body::before{
 }
 .date-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
 
-/* THREE-COLUMN LAYOUT */
-.cols{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:14px;
-  margin-bottom:14px;
-  align-items:stretch;
+/* AREAS LAYOUT — collapsible per-area sections */
+.areas{display:flex;flex-direction:column;gap:14px;margin-bottom:24px;}
+.area{animation:fadeUp .6s ease both;}
+.area-btn{
+  width:100%;display:flex;align-items:center;gap:18px;
+  background:var(--sur);border:1px solid var(--bdr);border-radius:14px;
+  padding:22px 26px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;
+  color:var(--txt);
+  transition:all .2s;
+  position:relative;
 }
-.col-label.red{color:#ff5252;}
+.area-btn:hover{border-color:var(--bdr2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.area-btn .area-icon{font-size:32px;line-height:1;}
+.area-btn .area-name{flex:1;text-align:left;font-size:28px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.area-btn .area-toggle{font-size:18px;color:var(--mut);transition:transform .25s;}
+.area.open .area-btn .area-toggle{transform:rotate(180deg);}
+
+/* Color-coded left border to identify the area */
+.area-btn.purple{border-left:5px solid #a371f7;}
+.area-btn.green{border-left:5px solid #3fb950;}
+.area-btn.blue{border-left:5px solid #388bfd;}
+.area-btn.purple .area-name{color:#c4a4ff;}
+.area-btn.green .area-name{color:#7ee089;}
+.area-btn.blue .area-name{color:#79b8ff;}
+
+/* Expandable card row beneath each area button */
+.area-cards{
+  display:none;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:12px;
+  margin-top:12px;
+  padding:0 4px;
+  animation:expandIn .25s ease both;
+}
+.area.open .area-cards{display:grid;}
+@keyframes expandIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
 
 /* ANALYTICS CARD ROW — full width below the grid */
 .analytics-row{margin-bottom:24px;animation:fadeUp .6s .4s ease both;}
@@ -128,20 +156,6 @@ body::before{
 .card-wide .card-icon{width:54px;height:54px;font-size:26px;}
 .card-wide .card-title{font-size:22px;}
 .card-wide .card-desc{font-size:13px;}
-
-.col{display:flex;flex-direction:column;gap:12px;}
-
-/* COLUMN HEADERS */
-.col-label{
-  font-family:'Barlow Condensed',sans-serif;
-  font-size:10px;font-weight:700;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--mut);
-  padding:0 4px 6px;
-  border-bottom:1px solid var(--bdr);
-  margin-bottom:4px;
-  animation:fadeUp .6s ease both;
-}
-.col-label.amber{color:var(--amb);}
 
 /* BASE CARD */
 .card{
@@ -243,15 +257,19 @@ body::before{
   50%{opacity:.5;transform:scale(.8);}
 }
 
-/* MOBILE — single column */
+/* MOBILE */
 @media(max-width:680px){
-  .cols{grid-template-columns:1fr;gap:20px;}
+  .area-cards{grid-template-columns:1fr;gap:10px;}
+  .area-btn{padding:18px 20px;gap:14px;}
+  .area-btn .area-icon{font-size:26px;}
+  .area-btn .area-name{font-size:22px;}
 }
 @media(max-width:480px){
   .hdr h1{font-size:42px;}
   .card{padding:18px 16px 18px 20px;gap:14px;}
   .card-icon{width:42px;height:42px;font-size:18px;}
   .card-title{font-size:19px;}
+  .area-btn .area-name{font-size:19px;}
 }
 
 /* ── LANGUAGE TOGGLE ─────────────────────────────────────── */
@@ -332,114 +350,111 @@ body::before{
     </div>
   </div>
 
-  <div class="cols">
+  <div class="areas">
 
-    <!-- ── LEFT COLUMN: SCOUT CHECK SHEETS ──────────────────────── -->
-    <div class="col">
-      <div class="col-label amber" data-i18n="app.col.scout">Scout Checks</div>
-
-      <a class="card amber" href="Carousel_Scout_Checklist.html">
-        <div class="card-icon">👁</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.carousel.scout.label">Carousel</div>
-          <div class="card-title" data-i18n="card.carousel.scout.title">Carousel Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.carousel.scout.desc">24 stations · 231 check points</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card amber" href="Potting_Scout_Checklist.html">
-        <div class="card-icon">👁</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.potting.scout.label">Potting</div>
-          <div class="card-title" data-i18n="card.potting.scout.title">Potting Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.potting.scout.desc">Automation + Plumbing · 94 check points</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card amber" href="Wave3_Scout_Checklist.html">
-        <div class="card-icon">👁</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.wave3.scout.label">Wave-3</div>
-          <div class="card-title" data-i18n="card.wave3.scout.title">Wave-3 Scout Check Sheet</div>
-          <div class="card-desc" data-i18n="card.wave3.scout.desc">11 stations · 97 check points</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
+    <!-- ─── CAROUSEL ─── -->
+    <div class="area">
+      <button class="area-btn purple" onclick="toggleArea('carousel')">
+        <span class="area-icon">🎡</span>
+        <span class="area-name" data-i18n="area.carousel">Carousel</span>
+        <span class="area-toggle" id="toggle-carousel">▾</span>
+      </button>
+      <div class="area-cards" id="cards-carousel">
+        <a class="card purple" href="Carousel_Shift_Report.html">
+          <div class="card-icon">📋</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.carousel.shift.label">Shift Report</div>
+            <div class="card-desc" data-i18n="card.carousel.shift.desc">FT production · 8 C/O items · Scrap by type</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card amber" href="Carousel_Scout_Checklist.html">
+          <div class="card-icon">👁</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.carousel.scout.label">Scout Check</div>
+            <div class="card-desc" data-i18n="card.carousel.scout.desc">24 stations · 231 check points</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card red" href="Carousel_PM_Report.html">
+          <div class="card-icon">🔧</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.carousel.pm.label">Weekly PM</div>
+            <div class="card-desc" data-i18n="card.carousel.pm.desc">5 sections · 32 weekly tasks + pending flags</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
     </div>
 
-    <!-- ── MIDDLE COLUMN: PM REPORTS ──────────────────────── -->
-    <div class="col">
-      <div class="col-label red" data-i18n="app.col.pm">Weekly PM</div>
-
-      <a class="card red" href="Carousel_PM_Report.html">
-        <div class="card-icon">🔧</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.carousel.pm.label">Carousel</div>
-          <div class="card-title" data-i18n="card.carousel.pm.title">Carousel PM Report</div>
-          <div class="card-desc" data-i18n="card.carousel.pm.desc">5 sections · 32 weekly tasks + pending flags</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card red" href="Potting_PM_Report.html">
-        <div class="card-icon">🔧</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.potting.pm.label">Potting</div>
-          <div class="card-title" data-i18n="card.potting.pm.title">Potting PM Report</div>
-          <div class="card-desc" data-i18n="card.potting.pm.desc">Automation + Plumbing · 22 weekly tasks</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card red" href="Wave3_PM_Report.html">
-        <div class="card-icon">🔧</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.wave3.pm.label">Wave-3</div>
-          <div class="card-title" data-i18n="card.wave3.pm.title">Wave-3 PM Report</div>
-          <div class="card-desc" data-i18n="card.wave3.pm.desc">22 weekly tasks + pending flags</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
+    <!-- ─── POTTING ─── -->
+    <div class="area">
+      <button class="area-btn green" onclick="toggleArea('potting')">
+        <span class="area-icon">💧</span>
+        <span class="area-name" data-i18n="area.potting">Potting</span>
+        <span class="area-toggle" id="toggle-potting">▾</span>
+      </button>
+      <div class="area-cards" id="cards-potting">
+        <a class="card green" href="Potting_Shift_Report.html">
+          <div class="card-icon">📋</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.potting.shift.label">Shift Report</div>
+            <div class="card-desc" data-i18n="card.potting.shift.desc">Hr by hr · Downtime · NG parts · Sign off</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card amber" href="Potting_Scout_Checklist.html">
+          <div class="card-icon">👁</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.potting.scout.label">Scout Check</div>
+            <div class="card-desc" data-i18n="card.potting.scout.desc">Automation + Plumbing · 94 check points</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card red" href="Potting_PM_Report.html">
+          <div class="card-icon">🔧</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.potting.pm.label">Weekly PM</div>
+            <div class="card-desc" data-i18n="card.potting.pm.desc">Automation + Plumbing · 22 weekly tasks</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
     </div>
 
-    <!-- ── RIGHT COLUMN: SHIFT REPORTS ──────────────────────── -->
-    <div class="col">
-      <div class="col-label" data-i18n="app.col.shift">Shift Reports</div>
-
-      <a class="card purple" href="Carousel_Shift_Report.html">
-        <div class="card-icon">🎡</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.carousel.shift.label">Carousel</div>
-          <div class="card-title" data-i18n="card.carousel.shift.title">Carousel Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.carousel.shift.desc">FT production · 8 C/O items · Scrap by type</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card green" href="Potting_Shift_Report.html">
-        <div class="card-icon">📋</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.potting.shift.label">Potting</div>
-          <div class="card-title" data-i18n="card.potting.shift.title">Potting Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.potting.shift.desc">Hr by hr · Downtime · NG parts · Sign off</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
-      <a class="card blue" href="Wave3_Shift_Report.html">
-        <div class="card-icon">🌊</div>
-        <div class="card-body">
-          <div class="card-label" data-i18n="card.wave3.shift.label">Wave-3</div>
-          <div class="card-title" data-i18n="card.wave3.shift.title">Wave-3 Tech Shift Report</div>
-          <div class="card-desc" data-i18n="card.wave3.shift.desc">GT production · Material C/O · 5S · NG parts</div>
-        </div>
-        <div class="card-arrow">→</div>
-      </a>
-
+    <!-- ─── WAVE-3 ─── -->
+    <div class="area">
+      <button class="area-btn blue" onclick="toggleArea('wave3')">
+        <span class="area-icon">🌊</span>
+        <span class="area-name" data-i18n="area.wave3">Wave-3</span>
+        <span class="area-toggle" id="toggle-wave3">▾</span>
+      </button>
+      <div class="area-cards" id="cards-wave3">
+        <a class="card blue" href="Wave3_Shift_Report.html">
+          <div class="card-icon">🌊</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.wave3.shift.label">Shift Report</div>
+            <div class="card-desc" data-i18n="card.wave3.shift.desc">GT production · Material C/O · 5S · NG parts</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card amber" href="Wave3_Scout_Checklist.html">
+          <div class="card-icon">👁</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.wave3.scout.label">Scout Check</div>
+            <div class="card-desc" data-i18n="card.wave3.scout.desc">11 stations · 97 check points</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+        <a class="card red" href="Wave3_PM_Report.html">
+          <div class="card-icon">🔧</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.wave3.pm.label">Weekly PM</div>
+            <div class="card-desc" data-i18n="card.wave3.pm.desc">22 weekly tasks + pending flags</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
     </div>
 
   </div>
@@ -463,6 +478,19 @@ body::before{
 const d = new Date();
 document.getElementById('dateStr').textContent =
   d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+// ── AREA EXPAND/COLLAPSE ──────────────────────────────────────────
+function toggleArea(area){
+  // Find the parent .area element of this button
+  const btn = document.querySelector(`#cards-${area}`);
+  if(!btn) return;
+  const wrapper = btn.closest('.area');
+  if(!wrapper) return;
+  const isOpen = wrapper.classList.contains('open');
+  // Collapse all areas first (only one open at a time keeps it clean)
+  document.querySelectorAll('.area').forEach(a => a.classList.remove('open'));
+  if(!isOpen) wrapper.classList.add('open');
+}
 </script>
 <script>
 // ── COLOR PICKER ────────────────────────────────────────────────────

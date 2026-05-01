@@ -10,6 +10,9 @@ window.SALCOMP_I18N = {
   'app.title.suffix':      { en: 'Team',       es: 'Equipo' },
   'app.subtitle':          { en: 'Select a form to get started', es: 'Seleccione un formulario para comenzar' },
   'app.col.scout':         { en: 'Scout Checks',   es: 'Chequeos Scout' },
+  'area.carousel':         { en: 'Carousel',         es: 'Carrusel' },
+  'area.potting':          { en: 'Potting',          es: 'Encapsulado' },
+  'area.wave3':            { en: 'Wave-3',           es: 'Wave-3' },
   'app.col.pm':            { en: 'Weekly PM',       es: 'MP Semanal' },
   'app.col.shift':         { en: 'Shift Reports',  es: 'Reportes de Turno' },
 
