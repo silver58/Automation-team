@@ -160,8 +160,8 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
 .btn{padding:8px 18px;border-radius:6px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all .13s;display:inline-flex;align-items:center;gap:6px;}
 .btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--mut);}
 .btn-ghost:hover{border-color:var(--amb);color:var(--amb);}
-.btn-primary{background:var(--amb);color:#000;font-weight:600;}
-.btn-primary:hover{background:var(--amb2);}
+.btn-primary{background:#3fb950;color:#000;font-weight:600;}
+.btn-primary:hover{background:#2d8a3a;}
 .btn-ok{background:var(--grn);color:#000;font-weight:600;}
 .btn-warn{background:var(--red);color:#fff;font-weight:600;}
 
@@ -417,14 +417,14 @@ input,select,textarea{font-size:16px !important;} /* prevent iOS zoom on focus *
   <div class="fhdr">
     <div class="fhdr-top">
       <div>
-        <div class="ftitle">Wave-3 — Preventive Maintenance Check Sheet</div>
-        <div class="fsub">11 stations · 97 check points · Visual inspection &amp; functional checks · Complete before any hands-on PM work</div>
+        <div class="ftitle" data-i18n="scout.title.wave3">Wave-3 — Preventive Maintenance Check Sheet</div>
+        <div class="fsub" data-i18n="scout.subtitle.wave3">11 stations · 97 check points · Visual inspection &amp; functional checks · Complete before any hands-on PM work</div>
       </div>
       <div class="scout-tag">⚡ Scout Shift — visual checks &amp; functional tests only</div>
     </div>
     <div class="meta-grid">
       <div class="mf"><label>Machine</label><input type="text" value="Wave-3" readonly></div>
-      <div class="mf"><label>Line / Area</label><input type="text" id="fLine" placeholder="e.g. Line 1"></div>
+      <div class="mf"><label>Line / Area</label><input type="number" id="fLine" inputmode="numeric" min="1" step="1" placeholder="e.g. 1"></div>
       <div class="mf"><label>Date</label><input type="date" id="fDate"></div>
       <div class="mf"><label>Scout Technician</label><input type="text" id="fTech" placeholder="Name"></div>
       <div class="mf"><label>Shift</label>
