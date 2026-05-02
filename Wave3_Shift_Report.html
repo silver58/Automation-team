@@ -121,7 +121,7 @@ input[type=date]{color-scheme:dark;}
 .btn-ok{background:var(--grn);color:#000;font-weight:600;}
 
 /* TOAST */
-.toast{position:fixed;bottom:70px;right:16px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;}
+.toast{position:fixed;bottom:70px;right:16px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .t-ok{background:var(--grn);color:#000;}
 .t-warn{background:var(--red);color:#fff;}
@@ -710,7 +710,6 @@ async function submitReport(){
     if(!Array.isArray(data.wip_hourly) || !data.wip_hourly.some(v => v !== '' && v !== null && v !== undefined && !isNaN(parseFloat(v)))) missing.push('WIP Remaining (select a time slot and enter qty)');
     if(missing.length){
       showToast('Please fill in: ' + missing.join(', '), 't-warn');
-      alert('Please fill in: ' + missing.join(', '));
       return;
     }
   }

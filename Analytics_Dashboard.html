@@ -302,7 +302,7 @@ input,select,textarea{font-size:16px !important;}
 .feed-link{color:inherit;text-decoration:none;display:contents;}
 
 /* ── TOAST ──────────────────────────────────────────────────────────────── */
-.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;}
+.toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:7px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.45);transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:999;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .t-ok{background:var(--grn);color:#000;}
 .t-warn{background:var(--red);color:#fff;}
@@ -516,21 +516,76 @@ async function loadAll(showToastMsg){
 }
 
 // ── ROW NORMALIZATION ──────────────────────────────────────────────────────────
+// Normalize any input that might be a date to a YYYY-MM-DD string, or null
+function normalizeDateStr(v){
+  if(!v) return null;
+  const s = String(v).trim();
+  if(!s) return null;
+  // Already ISO-ish
+  const isoMatch = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(isoMatch) return `${isoMatch[1]}-${isoMatch[2].padStart(2,'0')}-${isoMatch[3].padStart(2,'0')}`;
+  // US format M/D/YYYY or MM/DD/YYYY
+  const usMatch = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(usMatch) return `${usMatch[3]}-${usMatch[1].padStart(2,'0')}-${usMatch[2].padStart(2,'0')}`;
+  // Generic Date parse fallback
+  const d = new Date(s);
+  if(!isNaN(d.getTime())){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  return null;
+}
+
 // Each row → unified shape with .when, .source, .kind, .row (raw)
 function normalizedRows(){
   const out = [];
   SOURCES.forEach(src => {
     (allData[src.key]||[]).forEach(row => {
+      // Be defensive: row may be missing fields entirely on older records
+      if(!row) return;
+      const submittedAt = row.submitted_at || null;
+      const dateStr = normalizeDateStr(row.date) || normalizeDateStr(submittedAt);
       out.push({
         src,
-        when: row.submitted_at,
-        date: row.date || (row.submitted_at ? row.submitted_at.split('T')[0] : null),
+        when: submittedAt,
+        date: dateStr,
         row,
       });
     });
   });
   return out;
 }
+// Helper: deduplicate shift rows by (area+line+shift+date), keeping the most recent.
+// Rows are pre-sorted DESC by submitted_at, so the first occurrence wins.
+// This prevents corrected/duplicate submissions from inflating production/downtime totals.
+function dedupShiftRows(rows){
+  const seen = new Set();
+  const kept = [];
+  rows.forEach(r => {
+    if(r.src.kind !== 'shift'){ kept.push(r); return; }
+    const line = (String(r.row.line || '').trim()) || '—';
+    const key = `${r.src.key}|${line}|${r.row.shift || ''}|${r.date || ''}`;
+    if(seen.has(key)) return;
+    seen.add(key);
+    kept.push(r);
+  });
+  return kept;
+}
+
+// Helper: count scout attention items live from the `sections` array
+// rather than relying on the stored attn_count field (which may be stale
+// if the report was edited after submission).
+function scoutAttnLive(row){
+  const stored = parseInt(row.attn_count);
+  if(!Array.isArray(row.sections)){
+    return isNaN(stored) ? 0 : stored;  // fall back to stored if no sections array
+  }
+  let n = 0;
+  row.sections.forEach(sec => {
+    if(Array.isArray(sec.flaggedItems)) n += sec.flaggedItems.length;
+  });
+  return n;
+}
+
 function filteredRows(){
   return normalizedRows().filter(r => {
     if(!withinRange(r.when)) return false;
@@ -541,19 +596,21 @@ function filteredRows(){
 
 // ── KPI COMPUTATIONS ───────────────────────────────────────────────────────────
 function computeKpis(rows){
-  let reportCt = rows.length;
+  // Dedupe shift rows first so corrected reports don't double-count
+  const deduped = dedupShiftRows(rows);
+  let reportCt = rows.length;       // raw count (includes the duplicates we treated as supersedes)
   let prodTotal = 0;
   let dtTotal = 0;
   let scoutAttn = 0;
-  rows.forEach(r => {
+  deduped.forEach(r => {
     if(r.src.kind==='shift'){
       const p = parseFloat(r.row.production_total);
       if(!isNaN(p)) prodTotal += p;
       const dt = parseFloat(r.row.downtime_total);
       if(!isNaN(dt)) dtTotal += dt;
     } else if(r.src.kind==='scout'){
-      const a = parseInt(r.row.attn_count);
-      if(!isNaN(a)) scoutAttn += a;
+      // Live recompute from sections to handle edited reports
+      scoutAttn += scoutAttnLive(r.row);
     }
   });
   return {reportCt, prodTotal, dtTotal, scoutAttn};
@@ -561,9 +618,10 @@ function computeKpis(rows){
 
 // ── PRODUCTION BY DAY × LINE ──────────────────────────────────────────────────
 function buildProductionSeries(rows){
-  // shift only — group by date, by line key
+  // Dedupe first so a tech's corrected report doesn't double-count
+  const deduped = dedupShiftRows(rows);
   const byDay = {};  // {dayKey: {pott:n, wav:n, car:n}}
-  rows.forEach(r => {
+  deduped.forEach(r => {
     if(r.src.kind!=='shift') return;
     const k = r.date;
     if(!k) return;
@@ -578,8 +636,9 @@ function buildProductionSeries(rows){
 
 // ── DOWNTIME ───────────────────────────────────────────────────────────────────
 function buildDowntimeSeries(rows){
+  const deduped = dedupShiftRows(rows);
   const byDay = {};  // {dayKey: total mins}
-  rows.forEach(r => {
+  deduped.forEach(r => {
     if(r.src.kind!=='shift') return;
     const k = r.date;
     if(!k) return;
@@ -590,20 +649,45 @@ function buildDowntimeSeries(rows){
   const days = Object.keys(byDay).sort();
   return {days, byDay};
 }
+
 function topCauses(rows){
-  const out = [];
-  rows.forEach(r => {
+  // Group by normalized problem text (case + whitespace insensitive)
+  // Sort by total minutes lost (recurring small events outweigh one freak event)
+  const deduped = dedupShiftRows(rows);
+  const groups = {};  // {normalizedProb: {prob (display), mins, count, lastWhen, lastSrc, actions:Set}}
+  deduped.forEach(r => {
     if(r.src.kind!=='shift') return;
     const events = r.row.downtime_events;
     if(!Array.isArray(events)) return;
     events.forEach(ev => {
       const mins = parseFloat(ev.mins);
       if(isNaN(mins)||mins<=0) return;
-      const prob = (ev.prob||'').trim();
-      if(!prob) return;
-      out.push({mins, prob, src:r.src, when:r.when, action:(ev.action||'').trim()});
+      const probRaw = (ev.prob||'').trim();
+      if(!probRaw) return;
+      const norm = probRaw.toLowerCase().replace(/\s+/g,' ');
+      if(!groups[norm]){
+        groups[norm] = {prob: probRaw, mins:0, count:0, lastWhen:r.when, lastSrc:r.src, actions:new Set()};
+      }
+      const g = groups[norm];
+      g.mins += mins;
+      g.count += 1;
+      if(new Date(r.when) > new Date(g.lastWhen)){
+        g.lastWhen = r.when;
+        g.lastSrc = r.src;
+        g.prob = probRaw;  // use most recent capitalization/spelling for display
+      }
+      const actionTxt = (ev.action||'').trim();
+      if(actionTxt) g.actions.add(actionTxt);
     });
   });
+  const out = Object.values(groups).map(g => ({
+    mins: g.mins,
+    count: g.count,
+    prob: g.prob,
+    when: g.lastWhen,
+    src: g.lastSrc,
+    action: Array.from(g.actions).slice(0,2).join(' · '),  // up to 2 distinct actions joined
+  }));
   out.sort((a,b)=>b.mins-a.mins);
   return out.slice(0,12);
 }
@@ -771,8 +855,7 @@ function scoutSummary(rows){
     const s = summary[r.src.key];
     if(!s) return;
     s.reports++;
-    const a = parseInt(r.row.attn_count);
-    if(!isNaN(a)) s.attnTotal += a;
+    s.attnTotal += scoutAttnLive(r.row);  // live recompute, handles edited reports
   });
   return summary;
 }
@@ -1041,7 +1124,7 @@ function renderDowntime(dt, causes){
         <h2>${t('analytics.panel.downtime')}</h2>
         <div style="display:flex;align-items:center;gap:10px">
           <a class="flags-review-btn" href="Downtime_Events.html">${t('analytics.downtime.button') || 'Open full review →'}</a>
-          <div class="panel-meta">${causes.length} event${causes.length!==1?'s':''} ≥1 min</div>
+          <div class="panel-meta">${causes.length} unique cause${causes.length!==1?'s':''}</div>
         </div>
       </div>
       <div class="panel-body">
@@ -1055,9 +1138,9 @@ function renderDowntime(dt, causes){
                   <div class="dt-cause-row">
                     <div>
                       <div class="dt-cause-txt">${escapeHtml(c.prob)}</div>
-                      <div class="dt-cause-meta">${escapeHtml(c.src.label)} · ${relTime(c.when)}</div>
+                      <div class="dt-cause-meta">${c.count} occurrence${c.count!==1?'s':''} · last ${relTime(c.when)}</div>
                     </div>
-                    <div class="dt-cause-mins">${c.mins} min</div>
+                    <div class="dt-cause-mins">${Math.round(c.mins)} min</div>
                   </div>
                 `).join('')}
             </div>
@@ -1294,7 +1377,10 @@ function renderTechs(techs){
   if(techs.length===0){
     return `
       <div class="panel">
-        <div class="panel-head"><h2>${t('analytics.panel.techs')}</h2></div>
+        <div class="panel-head">
+          <h2>${t('analytics.panel.techs')}</h2>
+          <div class="panel-meta">ranked by submission count</div>
+        </div>
         <div class="panel-body">
           <div class="empty"><div class="empty-icon">👤</div>No reports yet.</div>
         </div>
@@ -1324,7 +1410,7 @@ function renderTechs(techs){
     <div class="panel">
       <div class="panel-head">
         <h2>${t('analytics.panel.techs')}</h2>
-        <div class="panel-meta">${techs.length} tech${techs.length!==1?'s':''} · ${totalReports} report${totalReports!==1?'s':''} (${scoutTotal} scout, ${shiftTotal} shift)</div>
+        <div class="panel-meta">ranked by submission count · ${techs.length} tech${techs.length!==1?'s':''} · ${totalReports} report${totalReports!==1?'s':''} (${scoutTotal} scout, ${shiftTotal} shift)</div>
       </div>
       <div class="panel-body" style="padding:0">
         <div class="tech-list">
