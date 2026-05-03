@@ -1657,7 +1657,7 @@ async function submitForm(){
       showToast(`⚠ Saved & locked — ${attn} items flagged`,'t-warn');
     } else {
       btn.className='btn btn-ok'; btn.textContent='✓ Scout Report Submitted';
-      showToast('✓ Report saved & locked','t-ok');
+      if(window.autosaveClearDraft) window.autosaveClearDraft(); showToast('✓ Report saved & locked','t-ok');
     if(editingScoutId){
       const banner = document.getElementById('editBanner');
       if(banner) banner.remove();
@@ -1997,6 +1997,125 @@ ${body}
   <span>Generated ${new Date().toLocaleString()}</span>
 </div>
 <script>setTimeout(() => window.print(), 600);</scr` + `ipt>
+
+<script><!-- AUTOSAVE_INJECTED -->
+
+// ═══ AUTO-SAVE / RESTORE DRAFT ═════════════════════════════════════════════
+// Saves form state to localStorage on every change, restores on page load,
+// clears on successful submit. Survives accidental refreshes / closes.
+const DRAFT_KEY = 'salcomp_draft_car_scout';
+
+function autosaveCollect(){
+  const snap = {};
+  // Standard form fields
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if(!el.id) return;
+    if(el.type === 'password') return;  // never save passwords
+    if(el.type === 'checkbox' || el.type === 'radio'){
+      snap[el.id] = el.checked;
+    } else {
+      snap[el.id] = el.value;
+    }
+  });
+    // Scout sheets: include status/notes/secNotes maps in the snapshot
+    if(typeof status === 'object') snap.__status = {...status};
+    if(typeof notes === 'object') snap.__notes = {...notes};
+    if(typeof secNotes === 'object') snap.__secNotes = {...secNotes};
+
+  return snap;
+}
+
+let _autosaveTimer = null;
+function autosaveSchedule(){
+  if(_autosaveTimer) clearTimeout(_autosaveTimer);
+  _autosaveTimer = setTimeout(() => {
+    try {
+      const snap = autosaveCollect();
+      // Mark with timestamp for staleness check
+      snap.__savedAt = Date.now();
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+    } catch(e){ /* quota or disabled — silent */ }
+  }, 400);  // debounce 400ms so we don't write on every keystroke
+}
+
+function autosaveRestore(){
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if(!raw) return false;
+    const snap = JSON.parse(raw);
+    // Skip drafts older than 24 hours to avoid showing very stale data
+    if(snap.__savedAt && (Date.now() - snap.__savedAt) > 24*3600*1000){
+      localStorage.removeItem(DRAFT_KEY);
+      return false;
+    }
+    Object.entries(snap).forEach(([id, val]) => {
+      if(id.startsWith('__')) return;
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.type === 'checkbox' || el.type === 'radio'){
+        el.checked = !!val;
+      } else {
+        el.value = val == null ? '' : val;
+      }
+    });
+    // Scout sheets: rehydrate status/notes/secNotes maps + re-render
+    if(snap.__status && typeof status === 'object'){
+      Object.keys(status).forEach(k => delete status[k]);
+      Object.assign(status, snap.__status);
+    }
+    if(snap.__notes && typeof notes === 'object'){
+      Object.keys(notes).forEach(k => delete notes[k]);
+      Object.assign(notes, snap.__notes);
+    }
+    if(snap.__secNotes && typeof secNotes === 'object'){
+      Object.keys(secNotes).forEach(k => delete secNotes[k]);
+      Object.assign(secNotes, snap.__secNotes);
+    }
+    // Apply visual state for restored statuses
+    Object.entries(snap.__status || {}).forEach(([tid, cur]) => {
+      if(!cur) return;
+      const row = document.getElementById(`row-${tid}`);
+      if(row) row.className = 'chk-item status-' + cur;
+      ['ok','attn','na'].forEach(v => {
+        const b = document.getElementById(`${v}-${tid}`);
+        if(b) b.className = 'sbtn' + (cur===v ? ` s-${v}` : '');
+      });
+      const noteRow = document.getElementById(`note-${tid}`);
+      if(noteRow) noteRow.className = 'note-row' + (cur==='attn' ? ' show' : '');
+    });
+    if(typeof updateProgress === 'function') updateProgress();
+    if(typeof refreshAttn === 'function') refreshAttn();
+
+    return true;
+  } catch(e){
+    return false;
+  }
+}
+
+function autosaveClear(){
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+}
+
+// Wire up listeners as soon as DOM is ready
+(function initAutosave(){
+  // Hook every input/select/textarea
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', autosaveSchedule);
+    el.addEventListener('change', autosaveSchedule);
+  });
+  // Restore any saved draft (if not already in edit mode)
+  const restored = autosaveRestore();
+  if(restored){
+    // Show a small banner letting the user know they can clear it
+    if(typeof showToast === 'function'){
+      showToast('Draft restored — your previous work was preserved', 't-ok');
+    }
+  }
+})();
+
+// Public hook: forms call autosaveClear() in their success path after submit
+window.autosaveClearDraft = autosaveClear;
+</script>
 </body></html>`);
   win.document.close();
 }
