@@ -251,6 +251,7 @@ window.SALCOMP_I18N = {
   'analytics.panel.scout':      { en: 'Scout Flags by Sheet', es: 'Banderas Scout por Hoja', vi: 'Cờ Scout Theo Bảng' },
   'analytics.panel.techs':      { en: 'Reports by Technician', es: 'Reportes por Técnico', vi: 'Báo Cáo Theo Kỹ Thuật Viên' },
   'analytics.panel.feed':       { en: 'Recent Submissions', es: 'Envíos Recientes', vi: 'Báo Cáo Gần Đây' },
+  'analytics.panel.pm':         { en: 'PM Activity — Weekly Maintenance', es: 'Actividad MP — Mantenimiento Semanal', vi: 'Hoạt Động Bảo Trì — Bảo Trì Hàng Tuần' },
   'analytics.panel.uph':        { en: '24-Hour Production by Line (UPH)',
                                   es: 'Producción 24 Horas por Línea (UPH)',
                                   vi: 'Sản Xuất 24 Giờ Theo Dây Chuyền (UPH)' },

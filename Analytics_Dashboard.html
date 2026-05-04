@@ -180,6 +180,46 @@ svg .bar-clickable:hover{opacity:.7;}
 /* ── DOWNTIME 2-UP ────────────────────────────────────────────────────────── */
 .dt-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
 .dt-causes{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:14px;max-height:260px;overflow-y:auto;}
+
+/* ═══ PM ACTIVITY PANEL ═════════════════════════════════════════════════ */
+.pm-resolution-badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--grn);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);padding:3px 9px;border-radius:5px;}
+.pm-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:760px){.pm-grid{grid-template-columns:1fr;}}
+.pm-areas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+@media(max-width:560px){.pm-areas{grid-template-columns:1fr;}}
+.pm-area-card{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:11px 12px;display:flex;flex-direction:column;gap:8px;}
+.pm-area-card.pm-empty{justify-content:center;align-items:flex-start;min-height:140px;}
+.pm-empty-text{color:var(--mut2);font-size:11px;font-style:italic;}
+.pm-area-hd{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--txt);font-weight:600;letter-spacing:.04em;}
+.pm-area-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.pm-area-count{margin-left:auto;color:var(--mut);font-size:10px;font-weight:500;}
+.pm-bar{display:flex;height:9px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--bdr);}
+.pm-bar-tall{height:24px;}
+.pm-bar-seg{height:100%;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#fff;font-weight:600;transition:width .3s ease;}
+.pm-seg-ok  {background:linear-gradient(90deg, #2da44e, #3fb950);}
+.pm-seg-attn{background:linear-gradient(90deg, #d29922, #ff8a3c);}
+.pm-seg-na  {background:linear-gradient(90deg, #545d6a, #6e7681);}
+.pm-bar-legend{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10px;}
+.pm-leg-ok{color:var(--grn);}
+.pm-leg-attn{color:#ff8a3c;}
+.pm-leg-na{color:var(--mut2);}
+.pm-meta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:6px;border-top:1px solid var(--bdr);}
+.pm-meta-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;}
+.pm-meta-val{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--txt);font-weight:600;margin-top:2px;}
+.pm-meta-val-sm{font-size:11px;font-weight:500;}
+.pm-meta-sub{font-size:9.5px;color:var(--mut);font-weight:400;margin-left:4px;}
+
+.pm-attn-block{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:11px 12px;display:flex;flex-direction:column;gap:6px;}
+.pm-attn-hd{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--txt);font-weight:600;letter-spacing:.04em;}
+.pm-attn-sub{font-size:10px;color:var(--mut2);margin-bottom:4px;}
+.pm-attn-list{display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;}
+.pm-attn-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:5px 0;border-bottom:1px dashed var(--bdr);align-items:baseline;}
+.pm-attn-row:last-child{border-bottom:none;}
+.pm-attn-text{font-size:11.5px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pm-attn-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600;}
+
+.pm-overall-bar-wrap{margin-top:6px;}
+.pm-overall-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
 .dt-cause-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr);align-items:baseline;}
 .dt-cause-row:last-child{border-bottom:none;}
 .dt-cause-txt{font-size:12px;color:var(--txt);line-height:1.3;}
@@ -428,7 +468,7 @@ svg .bar-clickable:hover{opacity:.7;}
     <span class="live-dot"><span id="hdrDate"></span></span>
   </div>
 
-  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma">
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language · Cambiar idioma · Đổi ngôn ngữ">
     <span class="lang-en active">EN</span><span class="lang-es">ES</span>
   </button>
 </header>
@@ -1033,6 +1073,180 @@ function recentFlags(rows){
 }
 
 // ── RECENT FEED ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// PM ACTIVITY PANEL
+// ═══════════════════════════════════════════════════════════════════════════
+// Aggregates all PM (preventive maintenance) reports across the 3 areas:
+// - per-area volume + total task health (OK / Attn / N/A breakdown)
+// - flag-resolution efficacy (resolved vs pending across the period)
+// - top 5 tasks that triggered "needs attention" most often
+// - latest submitted PM report per area (so we can spot lapsed maintenance)
+function pmStats(rows){
+  const pmRows = rows.filter(r => r.src.kind === 'pm');
+  // Map area names → our internal short keys
+  const areaKey = (a) => {
+    const s = String(a||'').toLowerCase();
+    if(s.includes('carousel')) return 'car';
+    if(s.includes('potting'))  return 'pott';
+    if(s.includes('wave'))     return 'wav';
+    return 'other';
+  };
+  const areaLabel = {car:'Carousel', pott:'Potting', wav:'Wave-3', other:'Other'};
+  const areaColor = {car:'#a371f7', pott:'#3fb950', wav:'#388bfd', other:'#6e7681'};
+
+  const stats = {
+    total: pmRows.length,
+    okAll: 0, attnAll: 0, naAll: 0,
+    pendingAll: 0, resolvedAll: 0,
+    byArea: {car:null, pott:null, wav:null},
+    topAttn: {},   // {taskText: count}
+    latestByArea: {car:null, pott:null, wav:null},
+  };
+
+  pmRows.forEach(r => {
+    const ak = areaKey(r.row.area);
+    if(!stats.byArea[ak]){
+      stats.byArea[ak] = {label: areaLabel[ak] || ak, color: areaColor[ak], count:0, ok:0, attn:0, na:0, pending:0, resolved:0};
+    }
+    const a = stats.byArea[ak];
+    a.count++;
+    const tasks = Array.isArray(r.row.weekly_tasks) ? r.row.weekly_tasks : [];
+    tasks.forEach(t => {
+      if(t.state === 'ok')   { a.ok++;   stats.okAll++; }
+      if(t.state === 'attn') {
+        a.attn++; stats.attnAll++;
+        const txt = (t.text || '').trim();
+        if(txt) stats.topAttn[txt] = (stats.topAttn[txt]||0) + 1;
+      }
+      if(t.state === 'na')   { a.na++;   stats.naAll++; }
+    });
+    a.pending  += parseInt(r.row.pending_count)  || 0;
+    a.resolved += parseInt(r.row.resolved_count) || 0;
+    stats.pendingAll  += parseInt(r.row.pending_count)  || 0;
+    stats.resolvedAll += parseInt(r.row.resolved_count) || 0;
+
+    // Track most recent PM per area
+    const submittedAt = r.when ? new Date(r.when).getTime() : 0;
+    if(stats.byArea[ak] && (!stats.latestByArea[ak] || submittedAt > stats.latestByArea[ak].t)){
+      stats.latestByArea[ak] = { t:submittedAt, tech:r.row.tech_name||'Unknown', date:r.date||'—', line:r.row.line||'?', id:r.row.id };
+    }
+  });
+
+  // Top 5 attn tasks sorted by count
+  stats.topAttnList = Object.entries(stats.topAttn)
+    .map(([text, count]) => ({text, count}))
+    .sort((a,b) => b.count - a.count)
+    .slice(0, 5);
+
+  return stats;
+}
+
+function renderPmActivity(s){
+  const hasData = s.total > 0;
+  const totalTasks = s.okAll + s.attnAll + s.naAll;
+  const pctOk   = totalTasks > 0 ? Math.round(s.okAll  /totalTasks*100) : 0;
+  const pctAttn = totalTasks > 0 ? Math.round(s.attnAll/totalTasks*100) : 0;
+  const pctNa   = totalTasks > 0 ? Math.round(s.naAll  /totalTasks*100) : 0;
+  // Resolution rate
+  const totalFlagsHandled = s.pendingAll;
+  const resolutionRate = totalFlagsHandled > 0 ? Math.round((s.resolvedAll/totalFlagsHandled)*100) : null;
+
+  const areaCards = ['car','pott','wav'].map(ak => {
+    const a = s.byArea[ak];
+    const label = {car:'Carousel', pott:'Potting', wav:'Wave-3'}[ak];
+    const color = {car:'#a371f7', pott:'#3fb950', wav:'#388bfd'}[ak];
+    const latest = s.latestByArea[ak];
+    if(!a){
+      return `
+        <div class="pm-area-card pm-empty">
+          <div class="pm-area-hd"><span class="pm-area-dot" style="background:${color}"></span>${label}</div>
+          <div class="pm-empty-text">No PM reports in range</div>
+        </div>`;
+    }
+    const aTotal = a.ok + a.attn + a.na;
+    const aPctOk = aTotal > 0 ? Math.round(a.ok/aTotal*100) : 0;
+    const aPctAttn = aTotal > 0 ? Math.round(a.attn/aTotal*100) : 0;
+    const aPctNa = aTotal > 0 ? Math.round(a.na/aTotal*100) : 0;
+    const aResRate = a.pending > 0 ? Math.round((a.resolved/a.pending)*100) : null;
+    const lastSubmittedRel = latest ? relTime(new Date(latest.t).toISOString()) : '—';
+    return `
+      <div class="pm-area-card">
+        <div class="pm-area-hd">
+          <span class="pm-area-dot" style="background:${color}"></span>
+          <span>${label}</span>
+          <span class="pm-area-count">${a.count} report${a.count!==1?'s':''}</span>
+        </div>
+        <div class="pm-bar">
+          <div class="pm-bar-seg pm-seg-ok"   style="width:${aPctOk}%"  title="${a.ok} OK (${aPctOk}%)"></div>
+          <div class="pm-bar-seg pm-seg-attn" style="width:${aPctAttn}%" title="${a.attn} need attention (${aPctAttn}%)"></div>
+          <div class="pm-bar-seg pm-seg-na"   style="width:${aPctNa}%"  title="${a.na} N/A (${aPctNa}%)"></div>
+        </div>
+        <div class="pm-bar-legend">
+          <span class="pm-leg-ok">${a.ok} ✓</span>
+          <span class="pm-leg-attn">${a.attn} ⚠</span>
+          <span class="pm-leg-na">${a.na} —</span>
+        </div>
+        <div class="pm-meta-row">
+          <div>
+            <div class="pm-meta-lbl">Flag resolution</div>
+            <div class="pm-meta-val">${aResRate==null ? '—' : aResRate+'%'}<span class="pm-meta-sub">${a.resolved}/${a.pending}</span></div>
+          </div>
+          <div>
+            <div class="pm-meta-lbl">Last submitted</div>
+            <div class="pm-meta-val pm-meta-val-sm">${lastSubmittedRel}</div>
+            ${latest ? `<div class="pm-meta-sub">by ${escapeHtml(latest.tech)}</div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const topAttnHtml = s.topAttnList.length === 0
+    ? `<div class="empty" style="padding:20px 10px;font-size:11px;"><div class="empty-icon" style="font-size:18px;margin-bottom:4px">✓</div>No tasks flagged in this period</div>`
+    : s.topAttnList.map(t => `
+        <div class="pm-attn-row">
+          <div class="pm-attn-text" title="${escapeHtml(t.text)}">${escapeHtml(t.text)}</div>
+          <div class="pm-attn-count">${t.count}×</div>
+        </div>
+      `).join('');
+
+  return `
+    <div class="panel">
+      <div class="panel-head">
+        <h2>${t('analytics.panel.pm') || 'PM Activity — Weekly Maintenance'}</h2>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="panel-meta">${s.total} PM report${s.total!==1?'s':''}</span>
+          ${resolutionRate != null ? `<span class="pm-resolution-badge">Flag resolution: ${resolutionRate}% (${s.resolvedAll}/${s.pendingAll})</span>` : ''}
+        </div>
+      </div>
+      <div class="panel-body">
+        ${hasData ? `
+          <div class="pm-grid">
+            <div class="pm-areas">${areaCards}</div>
+            <div class="pm-attn-block">
+              <div class="pm-attn-hd">Top Recurring Issues</div>
+              <div class="pm-attn-sub">tasks that flagged ⚠ most often this period</div>
+              <div class="pm-attn-list">${topAttnHtml}</div>
+            </div>
+          </div>
+          <div class="pm-overall-bar-wrap">
+            <div class="pm-overall-lbl">Overall task health · ${totalTasks} total tasks across all PM reports</div>
+            <div class="pm-bar pm-bar-tall">
+              <div class="pm-bar-seg pm-seg-ok"   style="width:${pctOk}%">${pctOk>10?pctOk+'% OK':''}</div>
+              <div class="pm-bar-seg pm-seg-attn" style="width:${pctAttn}%">${pctAttn>10?pctAttn+'% ⚠':''}</div>
+              <div class="pm-bar-seg pm-seg-na"   style="width:${pctNa}%">${pctNa>10?pctNa+'% N/A':''}</div>
+            </div>
+          </div>
+        ` : `
+          <div class="empty">
+            <div class="empty-icon">🔧</div>
+            No PM (preventive maintenance) reports in this range.
+            <div style="font-size:11px;margin-top:8px;color:var(--mut2);">Submit a PM report from one of the area dashboards to populate this panel.</div>
+          </div>
+        `}
+      </div>
+    </div>`;
+}
+
 function recentFeed(rows){
   const sorted = rows.slice().sort((a,b)=> new Date(b.when) - new Date(a.when));
   return sorted.slice(0,6);
@@ -1115,6 +1329,10 @@ function render(){
   }
   if(showScoutPanels){
     panelsHtml += renderScout(scout, flags);
+  }
+  // PM panel — show whenever PM type is included
+  if(typeFilter === 'all' || typeFilter === 'pm'){
+    panelsHtml += renderPmActivity(pmStats(rows));
   }
   panelsHtml += renderTechs(techs);
   panelsHtml += renderFeed(feed);
