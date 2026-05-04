@@ -635,7 +635,18 @@ body::after{
 .lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb,var(--amb));}
 
 /* COLOR PICKER */
-.color-picker-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);border-radius:6px;padding:4px 9px;cursor:pointer;color:var(--mut2,#b1bac4);font-size:10.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;}
+.color-picker-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border:1px solid var(--bdr,#21262d);border-radius:6px;padding:4px 9px;cursor:pointer;color:var(--mut2,#b1bac4);font-size:10.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;
+  /* Default: top-right next to language toggle (desktop) */
+  position:absolute;top:18px;right:90px;z-index:10;
+}
+@media(max-width:600px){
+  /* On mobile, move it to the LEFT to avoid the cluster in the top-right */
+  .color-picker-btn{
+    right:auto;
+    left:14px;
+    top:14px;
+  }
+}
 .color-picker-btn:hover{border-color:var(--amb);color:var(--amb);}
 .cp-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--amb);border:1px solid rgba(255,255,255,.2);}
 .cp-label{font-size:10px;}
@@ -662,10 +673,10 @@ body::after{
 </style>
 </head>
 <body>
-  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language / Cambiar idioma" style="position:absolute;top:18px;right:18px;z-index:10;">
+  <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language · Cambiar idioma · Đổi ngôn ngữ" style="position:absolute;top:18px;right:18px;z-index:10;">
     <span class="lang-en active">EN</span><span class="lang-es">ES</span>
   </button>
-  <button class="color-picker-btn" onclick="openColorPicker()" title="Change accent color" style="position:absolute;top:18px;right:90px;z-index:10;">
+  <button class="color-picker-btn" id="colorPickerBtn" onclick="openColorPicker()" title="Change accent color">
     <span class="cp-swatch"></span>
     <span class="cp-label">Color</span>
   </button>
