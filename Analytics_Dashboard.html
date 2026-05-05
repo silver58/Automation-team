@@ -184,10 +184,31 @@ svg .bar-clickable:hover{opacity:.7;}
 
 /* ── PANELS ──────────────────────────────────────────────────────────────── */
 .panel{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;margin-bottom:18px;overflow:hidden;}
-.panel-head{padding:13px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.panel-head{padding:13px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none;transition:background .15s;position:relative;}
+.panel-head:hover{background:rgba(255,255,255,.02);}
 .panel-head h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);}
 .panel-head .panel-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);}
-.panel-body{padding:18px 20px;}
+/* Collapse caret on the left of the title */
+.panel-head h2::before{
+  content:'▾';
+  display:inline-block;
+  margin-right:8px;
+  color:var(--mut2);
+  font-size:9px;
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  vertical-align:middle;
+}
+.panel.collapsed .panel-head{border-bottom-color:transparent;}
+.panel.collapsed .panel-head h2::before{transform:rotate(-90deg);}
+.panel.collapsed .panel-body{
+  max-height:0;
+  padding-top:0;
+  padding-bottom:0;
+  opacity:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.panel-body{padding:18px 20px;max-height:5000px;opacity:1;transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s, padding .25s;}
 
 /* legend strip used in chart panels */
 .legend-strip{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
@@ -207,6 +228,60 @@ svg .bar-clickable:hover{opacity:.7;}
 /* ── DOWNTIME 2-UP ────────────────────────────────────────────────────────── */
 .dt-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
 .dt-causes{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:14px;max-height:260px;overflow-y:auto;}
+
+/* Mech vs Production summary cards on downtime panel */
+.dt-type-summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+  gap:10px;
+  margin-bottom:18px;
+}
+.dt-type-card{
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:8px;
+  padding:12px 14px;
+  position:relative;
+}
+.dt-type-card.dt-type-mech{border-left:3px solid var(--red);}
+.dt-type-card.dt-type-prod{border-left:3px solid #5fb1ff;}
+.dt-type-card.dt-type-unk {border-left:3px solid var(--mut2);}
+.dt-type-lbl{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;color:var(--mut);
+  text-transform:uppercase;letter-spacing:.08em;
+  margin-bottom:4px;
+}
+.dt-type-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:22px;font-weight:600;
+  color:var(--txt);line-height:1;
+}
+.dt-type-card.dt-type-mech .dt-type-val{color:var(--red);}
+.dt-type-card.dt-type-prod .dt-type-val{color:#5fb1ff;}
+.dt-type-unit{font-size:11px;color:var(--mut2);font-weight:500;margin-left:3px;}
+.dt-type-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:6px;}
+
+/* Type pill on top-causes list */
+.dt-cause-txt .dt-pill{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;
+  padding:1px 7px;
+  border-radius:9px;
+  margin-right:6px;
+  vertical-align:middle;
+}
+.dt-cause-txt .dt-pill-mech{background:rgba(248,81,73,.15);color:var(--red);}
+.dt-cause-txt .dt-pill-prod{background:rgba(95,177,255,.15);color:#5fb1ff;}
+.dt-cause-txt .dt-pill-unk {background:rgba(110,118,129,.15);color:var(--mut2);}
+
+/* Downtime panel local-range pills */
+.dt-range-pills{display:inline-flex;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:2px;}
+.dt-range-pill{background:transparent;border:none;color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s;font-weight:500;}
+.dt-range-pill:hover{color:var(--txt);}
+.dt-range-pill.active{background:rgba(var(--amb-rgb), .15);color:var(--amb);}
 
 /* ═══ PM ACTIVITY PANEL ═════════════════════════════════════════════════ */
 .pm-resolution-badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--grn);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);padding:3px 9px;border-radius:5px;}
@@ -519,6 +594,7 @@ svg .bar-clickable:hover{opacity:.7;}
   <!-- DATE RANGE -->
   <div class="range-row">
     <div class="range-pills" id="rangePills">
+      <button class="rpill" data-days="1" data-i18n="analytics.range.24h">24 hr</button>
       <button class="rpill active" data-days="7" data-i18n="analytics.range.7">7 day</button>
       <button class="rpill" data-days="30" data-i18n="analytics.range.30">30 day</button>
       <button class="rpill" data-days="90" data-i18n="analytics.range.90">90 day</button>
@@ -570,6 +646,7 @@ let rangeDays = 7;     // 0 = all, 'custom' = use customFrom/To
 let customFromDate = null;  // 'YYYY-MM-DD' string
 let customToDate = null;
 let prodGoal = parseInt(localStorage.getItem('salcomp_prod_goal')) || 0;  // 0 = no goal line
+let dtRangeHours = parseInt(localStorage.getItem('salcomp_dt_range_hrs')) || 24;  // downtime panel local range
 let wipLineFilter = 'all';  // 'all'|'pott'|'wav'|'car'
 let scoutFilter = 'all';    // 'all' | 'scout-car' | 'scout-pott' | 'scout-wav'
 let typeFilter = 'all';     // 'all' | 'shift' | 'pm' | 'scout'
@@ -815,7 +892,19 @@ function buildDowntimeSeries(rows){
   return {days, byDay};
 }
 
-// Fill missing days between earliest and latest so chart reflects gaps in submission
+// Filter rows to the downtime panel's local time window (default 24hr)
+// Uses an absolute "now - dtRangeHours" cutoff so the panel always shows recent data
+// even when the global range is wider (e.g. 30 days).
+function filterByLocalDtRange(rows){
+  if(!dtRangeHours || dtRangeHours === 0) return rows;  // 0 = follow global
+  const cutoff = Date.now() - dtRangeHours * 3600_000;
+  return rows.filter(r => {
+    if(!r.when) return false;
+    const t = new Date(r.when).getTime();
+    return !isNaN(t) && t >= cutoff;
+  });
+}
+
 function fillMissingDays(dayKeys){
   if(!dayKeys.length) return [];
   const sorted = dayKeys.slice().sort();
@@ -833,7 +922,7 @@ function topCauses(rows){
   // Group by normalized problem text (case + whitespace insensitive)
   // Sort by total minutes lost (recurring small events outweigh one freak event)
   const deduped = dedupShiftRows(rows);
-  const groups = {};  // {normalizedProb: {prob (display), mins, count, lastWhen, lastSrc, actions:Set}}
+  const groups = {};  // {normalizedKey: {prob, type, mins, count, lastWhen, lastSrc, actions}}
   deduped.forEach(r => {
     if(r.src.kind!=='shift') return;
     const events = r.row.downtime_events;
@@ -841,11 +930,17 @@ function topCauses(rows){
     events.forEach(ev => {
       const mins = parseFloat(ev.mins);
       if(isNaN(mins)||mins<=0) return;
-      const probRaw = (ev.prob||'').trim();
+      // Determine type — fall back for legacy events
+      const type = ev.type || (ev.prob ? 'mech' : '');
+      // For production events, the cause IS the description
+      const probRaw = (type === 'prod')
+        ? ((ev.cause || ev.prob || '').trim())
+        : ((ev.prob || '').trim());
       if(!probRaw) return;
-      const norm = probRaw.toLowerCase().replace(/\s+/g,' ');
+      // Group key includes type so "No Material" (prod) doesn't merge with a freak mechanical "no material" issue
+      const norm = (type||'unknown') + '||' + probRaw.toLowerCase().replace(/\s+/g,' ');
       if(!groups[norm]){
-        groups[norm] = {prob: probRaw, mins:0, count:0, lastWhen:r.when, lastSrc:r.src, actions:new Set()};
+        groups[norm] = {prob: probRaw, type, mins:0, count:0, lastWhen:r.when, lastSrc:r.src, actions:new Set()};
       }
       const g = groups[norm];
       g.mins += mins;
@@ -853,7 +948,7 @@ function topCauses(rows){
       if(new Date(r.when) > new Date(g.lastWhen)){
         g.lastWhen = r.when;
         g.lastSrc = r.src;
-        g.prob = probRaw;  // use most recent capitalization/spelling for display
+        g.prob = probRaw;
       }
       const actionTxt = (ev.action||'').trim();
       if(actionTxt) g.actions.add(actionTxt);
@@ -863,12 +958,33 @@ function topCauses(rows){
     mins: g.mins,
     count: g.count,
     prob: g.prob,
+    type: g.type,
     when: g.lastWhen,
     src: g.lastSrc,
-    action: Array.from(g.actions).slice(0,2).join(' · '),  // up to 2 distinct actions joined
+    action: Array.from(g.actions).slice(0,2).join(' · '),
   }));
   out.sort((a,b)=>b.mins-a.mins);
   return out.slice(0,12);
+}
+
+// Split downtime totals by type for the panel summary cards
+function downtimeByType(rows){
+  const deduped = dedupShiftRows(rows);
+  const out = {mech:{mins:0, count:0}, prod:{mins:0, count:0}, unknown:{mins:0, count:0}};
+  deduped.forEach(r => {
+    if(r.src.kind!=='shift') return;
+    const events = r.row.downtime_events;
+    if(!Array.isArray(events)) return;
+    events.forEach(ev => {
+      const mins = parseFloat(ev.mins);
+      if(isNaN(mins)||mins<=0) return;
+      const type = ev.type || (ev.prob ? 'mech' : 'unknown');
+      const bucket = (type === 'mech' || type === 'prod') ? type : 'unknown';
+      out[bucket].mins += mins;
+      out[bucket].count += 1;
+    });
+  });
+  return out;
 }
 
 // ── WIP HEATMAP ───────────────────────────────────────────────────────────────
@@ -1294,7 +1410,8 @@ function render(){
   } else if(rangeDays === 0){
     meta.innerHTML = `All time · ${allRows.length} reports ${liveBadge}`;
   } else {
-    meta.innerHTML = `Last ${rangeDays} days · ${rows.length} of ${allRows.length} reports ${liveBadge}`;
+    const rangeLbl = rangeDays === 1 ? 'Last 24 hours' : `Last ${rangeDays} days`;
+    meta.innerHTML = `${rangeLbl} · ${rows.length} of ${allRows.length} reports ${liveBadge}`;
   }
 
   // Type pill counts
@@ -1324,8 +1441,10 @@ function render(){
 
   const k = computeKpis(rows);
   const prod = buildProductionSeries(rows);
-  const dt = buildDowntimeSeries(rows);
-  const causes = topCauses(rows);
+  // Downtime gets its own time-window filter (default 24hr)
+  const dtRows = filterByLocalDtRange(rows);
+  const dt = buildDowntimeSeries(dtRows);
+  const causes = topCauses(dtRows);
   const wip = buildWipBuckets(rows, wipLineFilter);
   const uph = buildUphBoard(rows);
   const scout = scoutSummary(rows);
@@ -1364,6 +1483,9 @@ function render(){
   panelsHtml += renderTechs(techs);
   panelsHtml += renderFeed(feed);
   document.getElementById('content').innerHTML = panelsHtml;
+
+  // Restore previously collapsed panels
+  applyCollapsedState();
 
   // Now actually draw the SVGs (innerHTML doesn't run scripts)
   if(showShiftPanels){
@@ -1497,6 +1619,13 @@ function setProdGoal(v){
   render();
 }
 
+// Set the downtime panel's local time range in HOURS (0 = follow global)
+function setDtRange(hours){
+  dtRangeHours = parseInt(hours) || 0;
+  try { localStorage.setItem('salcomp_dt_range_hrs', dtRangeHours); } catch(e){}
+  render();
+}
+
 function drawProductionChart(prod){
   const el = document.getElementById('prodChart');
   if(!el || !prod.days.length) return;
@@ -1573,11 +1702,24 @@ function drawProductionChart(prod){
 function renderDowntime(dt, causes){
   const hasData = dt.days.length>0 || causes.length>0;
   const heat = buildDowntimeByHour();
+  const dtRows = filterByLocalDtRange(applyDrill(filteredRows()));
+  const byType = downtimeByType(dtRows);
+  const totalMins = byType.mech.mins + byType.prod.mins + byType.unknown.mins;
+  const ranges = [
+    {h:24,  label:'24 hr'},
+    {h:72,  label:'3 day'},
+    {h:168, label:'7 day'},
+    {h:0,   label:'Global'},
+  ];
+  const rangePillsHtml = ranges.map(r =>
+    `<button class="dt-range-pill ${dtRangeHours===r.h?'active':''}" onclick="setDtRange(${r.h}); event.stopPropagation();">${r.label}</button>`
+  ).join('');
   return `
     <div class="panel">
       <div class="panel-head">
         <h2>${t('analytics.panel.downtime')}</h2>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="event.stopPropagation()">
+          <div class="dt-range-pills">${rangePillsHtml}</div>
           <a class="flags-review-btn" href="Downtime_Events.html">${t('analytics.downtime.button') || 'Open full review →'}</a>
           <button class="csv-btn" onclick="exportDowntimeCsv()" title="Download events as CSV">↓ CSV</button>
           <div class="panel-meta">${causes.length} unique cause${causes.length!==1?'s':''}</div>
@@ -1585,20 +1727,41 @@ function renderDowntime(dt, causes){
       </div>
       <div class="panel-body">
         ${hasData ? `
+          <div class="dt-type-summary">
+            <div class="dt-type-card dt-type-mech">
+              <div class="dt-type-lbl">⚙ Mechanical</div>
+              <div class="dt-type-val">${Math.round(byType.mech.mins)}<span class="dt-type-unit">min</span></div>
+              <div class="dt-type-sub">${byType.mech.count} event${byType.mech.count!==1?'s':''} · ${totalMins>0?Math.round(byType.mech.mins/totalMins*100):0}% of total</div>
+            </div>
+            <div class="dt-type-card dt-type-prod">
+              <div class="dt-type-lbl">📦 Production</div>
+              <div class="dt-type-val">${Math.round(byType.prod.mins)}<span class="dt-type-unit">min</span></div>
+              <div class="dt-type-sub">${byType.prod.count} event${byType.prod.count!==1?'s':''} · ${totalMins>0?Math.round(byType.prod.mins/totalMins*100):0}% of total</div>
+            </div>
+            ${byType.unknown.count > 0 ? `
+            <div class="dt-type-card dt-type-unk">
+              <div class="dt-type-lbl">— Unclassified</div>
+              <div class="dt-type-val">${Math.round(byType.unknown.mins)}<span class="dt-type-unit">min</span></div>
+              <div class="dt-type-sub">${byType.unknown.count} event${byType.unknown.count!==1?'s':''} · legacy data</div>
+            </div>` : ''}
+          </div>
           <div class="dt-grid">
             <div class="chart-wrap" id="dtChart"></div>
             <div class="dt-causes">
               ${causes.length===0
                 ? `<div class="empty" style="padding:20px 10px"><div class="empty-icon">✓</div>No major downtime events</div>`
-                : causes.map(c => `
+                : causes.map(c => {
+                    const pillCls = c.type === 'mech' ? 'dt-pill-mech' : c.type === 'prod' ? 'dt-pill-prod' : 'dt-pill-unk';
+                    const pillTxt = c.type === 'mech' ? '⚙' : c.type === 'prod' ? '📦' : '—';
+                    return `
                   <div class="dt-cause-row">
                     <div>
-                      <div class="dt-cause-txt">${escapeHtml(c.prob)}</div>
+                      <div class="dt-cause-txt"><span class="dt-pill ${pillCls}">${pillTxt}</span>${escapeHtml(c.prob)}</div>
                       <div class="dt-cause-meta">${c.count} occurrence${c.count!==1?'s':''} · last ${relTime(c.when)}</div>
                     </div>
                     <div class="dt-cause-mins">${Math.round(c.mins)} min</div>
                   </div>
-                `).join('')}
+                `;}).join('')}
             </div>
           </div>
           ${heat.hasData ? renderDowntimeHeatmap(heat) : ''}
@@ -1609,7 +1772,7 @@ function renderDowntime(dt, causes){
 
 // Build downtime-by-hour-of-day grid: per-area + total
 function buildDowntimeByHour(){
-  const rows = applyDrill(filteredRows());
+  const rows = filterByLocalDtRange(applyDrill(filteredRows()));
   const deduped = dedupShiftRows(rows);
   // hours[area][24] in minutes
   const blank = () => Array(24).fill(0);
@@ -2091,6 +2254,9 @@ function exportDowntimeCsv(){
       const mins = parseFloat(ev.mins);
       if(isNaN(mins) || mins <= 0) return;
       const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
+      const type = ev.type || (ev.prob ? 'mech' : '');
+      const typeLbl = type === 'mech' ? 'Mechanical' : type === 'prod' ? 'Production' : '';
+      const desc = type === 'prod' ? (ev.cause || ev.prob || '') : (ev.prob || '');
       out.push([
         r.date || '',
         areaMap[r.src.key] || '',
@@ -2100,13 +2266,14 @@ function exportDowntimeCsv(){
         ev.from || '',
         ev.to || '',
         mins,
-        ev.prob || '',
+        typeLbl,
+        desc,
         ev.action || '',
       ]);
     });
   });
   downloadCsv('downtime-events.csv',
-    ['Date','Area','Line','Shift','Tech','From','To','Mins','Problem','Action'], out);
+    ['Date','Area','Line','Shift','Tech','From','To','Mins','Type','Problem / Cause','Action'], out);
 }
 function exportSubmissionsCsv(){
   const rows = filteredRows();
@@ -2266,8 +2433,60 @@ window.addEventListener('resize', () => {
     const rows = filteredRows();
     if(rows.length===0) return;
     drawProductionChart(buildProductionSeries(rows));
-    drawDowntimeChart(buildDowntimeSeries(rows));
+    drawDowntimeChart(buildDowntimeSeries(filterByLocalDtRange(rows)));
   }, 200);
+});
+
+// ──────────────────────────────────────────────────────────────────
+// COLLAPSIBLE PANELS — click any panel head to fold/unfold the body
+// State persisted by panel title (matches across renders + reloads)
+// ──────────────────────────────────────────────────────────────────
+const PANEL_COLLAPSED_KEY = 'salcomp_panel_collapsed';
+
+function getCollapsedSet(){
+  try {
+    const raw = localStorage.getItem(PANEL_COLLAPSED_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch(e){ return new Set(); }
+}
+function saveCollapsedSet(set){
+  try { localStorage.setItem(PANEL_COLLAPSED_KEY, JSON.stringify([...set])); } catch(e){}
+}
+function panelKey(panel){
+  const h2 = panel.querySelector('.panel-head h2');
+  if(!h2) return null;
+  // Strip non-text and whitespace to get a stable key
+  return (h2.textContent || '').trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+}
+function applyCollapsedState(){
+  const collapsed = getCollapsedSet();
+  document.querySelectorAll('.panel').forEach(p => {
+    const k = panelKey(p);
+    if(k && collapsed.has(k)) p.classList.add('collapsed');
+    else p.classList.remove('collapsed');
+  });
+}
+function togglePanelCollapse(panel){
+  const k = panelKey(panel);
+  if(!k) return;
+  const collapsed = getCollapsedSet();
+  if(collapsed.has(k)){
+    collapsed.delete(k);
+    panel.classList.remove('collapsed');
+  } else {
+    collapsed.add(k);
+    panel.classList.add('collapsed');
+  }
+  saveCollapsedSet(collapsed);
+}
+// Delegated click handler — survives re-renders without rebinding
+document.addEventListener('click', e => {
+  // Ignore clicks on interactive children (buttons, links, inputs) inside the head
+  if(e.target.closest('button, a, input, select, .legend-strip')) return;
+  const head = e.target.closest('.panel-head');
+  if(!head) return;
+  const panel = head.closest('.panel');
+  if(panel) togglePanelCollapse(panel);
 });
 
 // ── INIT ────────────────────────────────────────────────────────────────────
