@@ -107,6 +107,32 @@ body::before{
   transition:background .2s;
 }
 .kpi-cell:hover{background:#1a2028;}
+/* Clickable variant — anchor element with subtle hover + visible arrow */
+.kpi-clickable{
+  text-decoration:none;
+  color:inherit;
+  cursor:pointer;
+  transition:background .2s, transform .15s;
+}
+.kpi-clickable:hover{
+  background:#1a2028;
+  transform:translateY(-1px);
+}
+.kpi-clickable:active{transform:translateY(0);}
+.kpi-arrow{
+  position:absolute;
+  top:10px;right:12px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--mut2);
+  opacity:0;
+  transition:opacity .2s, transform .2s, color .15s;
+}
+.kpi-clickable:hover .kpi-arrow{
+  opacity:1;
+  color:var(--amb);
+  transform:translateX(2px);
+}
 .kpi-icon{
   font-size:22px;line-height:1;flex-shrink:0;
   width:38px;height:38px;
@@ -859,16 +885,16 @@ body::after{
   <div class="cp-modal-bg" id="cpModalBg" onclick="closeColorPicker(event)">
     <div class="cp-modal" onclick="event.stopPropagation()">
       <div class="cp-modal-hd">
-        <h3>Choose Accent Color</h3>
+        <h3 data-i18n="cp.title">Choose Accent Color</h3>
         <button class="cp-close" onclick="closeColorPicker()">✕</button>
       </div>
       <div class="cp-presets" id="cpPresets"></div>
       <div class="cp-custom-row">
-        <label>Custom:</label>
+        <label data-i18n="cp.custom">Custom:</label>
         <input type="color" id="cpCustomInput" value="#f0a500">
-        <button class="cp-apply" onclick="applyCustomColor()">Apply</button>
+        <button class="cp-apply" onclick="applyCustomColor()" data-i18n="cp.apply">Apply</button>
       </div>
-      <button class="cp-reset" onclick="resetColor()">Reset to default (amber)</button>
+      <button class="cp-reset" onclick="resetColor()" data-i18n="cp.reset">Reset to default (amber)</button>
     </div>
   </div>
 <div class="wrap">
@@ -885,33 +911,37 @@ body::after{
 
   <!-- ── LIVE KPI BAND ─────────────────────────────────────────── -->
   <div class="kpi-band" id="kpiBand">
-    <div class="kpi-cell">
+    <a class="kpi-cell kpi-clickable" href="Submission_History.html" title="View today's submissions">
       <div class="kpi-icon">📋</div>
       <div class="kpi-text">
         <div class="kpi-num" data-target="0" id="kpiToday">0</div>
         <div class="kpi-lbl">reports today</div>
       </div>
-    </div>
-    <div class="kpi-cell">
+      <span class="kpi-arrow">→</span>
+    </a>
+    <a class="kpi-cell kpi-clickable" href="Scout_Flags.html" title="View pending scout flags">
       <div class="kpi-icon">⚠</div>
       <div class="kpi-text">
         <div class="kpi-num kpi-warn" data-target="0" id="kpiFlags">0</div>
         <div class="kpi-lbl">flags pending</div>
       </div>
-    </div>
-    <div class="kpi-cell">
+      <span class="kpi-arrow">→</span>
+    </a>
+    <a class="kpi-cell kpi-clickable" href="Analytics_Detail.html?subject=techs" title="View tech activity">
       <div class="kpi-icon">👥</div>
       <div class="kpi-text">
         <div class="kpi-num" data-target="0" id="kpiTechs">0</div>
         <div class="kpi-lbl">active techs</div>
       </div>
-    </div>
-    <div class="kpi-cell kpi-spark-cell">
+      <span class="kpi-arrow">→</span>
+    </a>
+    <a class="kpi-cell kpi-spark-cell kpi-clickable" href="Analytics_Detail.html?subject=production" title="View production detail">
       <div class="kpi-text">
         <div class="kpi-lbl">7-day production</div>
         <svg class="kpi-spark" id="prodSpark" viewBox="0 0 100 28" preserveAspectRatio="none"></svg>
       </div>
-    </div>
+      <span class="kpi-arrow">→</span>
+    </a>
   </div>
 
   <div class="areas">
