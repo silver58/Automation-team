@@ -471,22 +471,22 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="mco.main_label">Main label</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-main-yes" onclick="setYN('mco-main','yes')">Yes</button>
-          <button class="yn-btn" id="mco-main-no" onclick="setYN('mco-main','no')">No</button>
+          <button class="yn-btn" id="mco-main-yes" onclick="setYN('mco-main','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="mco-main-no" onclick="setYN('mco-main','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="mco.1d_label">1D label</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-1d-yes" onclick="setYN('mco-1d','yes')">Yes</button>
-          <button class="yn-btn" id="mco-1d-no" onclick="setYN('mco-1d','no')">No</button>
+          <button class="yn-btn" id="mco-1d-yes" onclick="setYN('mco-1d','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="mco-1d-no" onclick="setYN('mco-1d','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="mco.sealant">Sealant</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="mco-seal-yes" onclick="setYN('mco-seal','yes')">Yes</button>
-          <button class="yn-btn" id="mco-seal-no" onclick="setYN('mco-seal','no')">No</button>
+          <button class="yn-btn" id="mco-seal-yes" onclick="setYN('mco-seal','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="mco-seal-no" onclick="setYN('mco-seal','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
     </div>
@@ -499,29 +499,29 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="5s.ng_found">NG parts found on line</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="ng-found-yes" onclick="setYN('ng-found','yes')">Yes</button>
-          <button class="yn-btn" id="ng-found-no" onclick="setYN('ng-found','no')">No</button>
+          <button class="yn-btn" id="ng-found-yes" onclick="setYN('ng-found','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="ng-found-no" onclick="setYN('ng-found','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="5s.trash">Trash on line</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="trash-yes" onclick="setYN('trash','yes')">Yes</button>
-          <button class="yn-btn" id="trash-no" onclick="setYN('trash','no')">No</button>
+          <button class="yn-btn" id="trash-yes" onclick="setYN('trash','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="trash-no" onclick="setYN('trash','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="5s.spillage">Spillage of glue</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="spill-yes" onclick="setYN('spill','yes')">Yes</button>
-          <button class="yn-btn" id="spill-no" onclick="setYN('spill','no')">No</button>
+          <button class="yn-btn" id="spill-yes" onclick="setYN('spill','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="spill-no" onclick="setYN('spill','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
       <div class="fivs-row">
         <div><div class="fivs-label" data-i18n="5s.parts_inside">Parts inside machine</div></div>
         <div class="yn-group" style="width:140px">
-          <button class="yn-btn" id="parts-yes" onclick="setYN('parts','yes')">Yes</button>
-          <button class="yn-btn" id="parts-no" onclick="setYN('parts','no')">No</button>
+          <button class="yn-btn" id="parts-yes" onclick="setYN('parts','yes')"><span data-i18n="common.yes_btn">Yes</span></button>
+          <button class="yn-btn" id="parts-no" onclick="setYN('parts','no')"><span data-i18n="common.no_btn">No</span></button>
         </div>
       </div>
     </div>
@@ -741,12 +741,19 @@ function setYN(key, val){
 // ── TOTALS ─────────────────────────────────────────────────────────────────────
 function calcTotal(type){
   if(type === 'prod'){
-    let sum = 0;
+    let sum = 0, hasNum = false;
     for(let i=1;i<=8;i++){
-      const v = parseFloat(document.getElementById('p'+i).value)||0;
-      sum += v;
+      const raw = document.getElementById('p'+i).value;
+      if(raw.trim() !== ''){
+        const v = parseFloat(raw);
+        if(!isNaN(v)){
+          sum += v;
+          hasNum = true;
+        }
+      }
     }
-    document.getElementById('prod-total').value = sum || '';
+    // Show '0' explicitly when user entered all zeros (not empty string)
+    document.getElementById('prod-total').value = hasNum ? String(sum) : '';
   } else {
     let sum = 0, hasNum = false;
     for(let i=1;i<=8;i++){

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salcomp — Analytics Detail</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;--amb2:#ffd166;
+  --grn:#3fb950;--red:#f85149;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
+  --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;}
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.site-header a.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.site-header a.back:hover{border-color:var(--amb);color:var(--amb);}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.lang-toggle{display:inline-flex;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;user-select:none;flex-shrink:0;}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2);transition:all .15s;}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb);}
+
+.main{max-width:1200px;margin:0 auto;padding:24px 28px 60px;}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.page-icon{font-size:24px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:20px;}
+
+.controls{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.range-pills{display:inline-flex;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:2px;}
+.rpill{background:transparent;border:none;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;padding:5px 11px;border-radius:4px;cursor:pointer;transition:all .15s;}
+.rpill:hover{color:var(--txt);}
+.rpill.active{background:rgba(var(--amb-rgb), .15);color:var(--amb);font-weight:600;}
+.search-box{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:7px 12px;color:var(--txt);font-size:13px;outline:none;transition:border-color .15s;font-family:'IBM Plex Sans',sans-serif;}
+.search-box:focus{border-color:var(--amb);}
+.csv-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 11px;border-radius:5px;cursor:pointer;transition:all .15s;}
+.csv-btn:hover{border-color:var(--amb);color:var(--amb);}
+
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:20px;}
+.kpi-card{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:12px 16px;}
+.kpi-card-lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.kpi-card-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;line-height:1;color:var(--amb);}
+
+.section-hd{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin:24px 0 10px;font-weight:600;}
+
+.report-card{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.report-card-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--bdr);padding-bottom:8px;margin-bottom:10px;}
+.report-card-title{font-size:14px;font-weight:600;color:var(--txt);}
+.report-card-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);}
+.report-card-body{display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:10px 16px;}
+.r-field{display:flex;flex-direction:column;gap:2px;}
+.r-field-lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;}
+.r-field-val{font-size:13px;color:var(--txt);font-weight:500;}
+.r-field-val.r-yes{color:var(--grn);}
+.r-field-val.r-no{color:var(--mut2);}
+
+.r-area{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:9px;}
+.r-area-car {background:rgba(163,113,247,.15);color:#c89cff;}
+.r-area-pott{background:rgba(63,185,80,.15);color:var(--grn);}
+.r-area-wav {background:rgba(56,139,253,.15);color:#5fb1ff;}
+.r-shift{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amb);background:rgba(var(--amb-rgb),.12);padding:2px 7px;border-radius:9px;font-weight:600;letter-spacing:.04em;}
+
+.empty{text-align:center;padding:60px 20px;color:var(--mut2);}
+.empty-icon{font-size:42px;margin-bottom:10px;}
+.loading{text-align:center;padding:80px 20px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+
+.task-list{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:5px;}
+.task-list li{padding:6px 10px;border-radius:5px;display:flex;align-items:flex-start;gap:8px;font-size:12px;background:var(--bg);}
+.task-list .ico{font-family:'IBM Plex Mono',monospace;font-weight:600;flex-shrink:0;}
+.task-list .ok .ico{color:var(--grn);}
+.task-list .attn .ico{color:var(--red);}
+.task-list .na .ico{color:var(--mut2);}
+.task-list .task-note{display:block;font-size:11px;color:var(--mut2);margin-top:2px;font-style:italic;}
+
+.co-events{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.co-event-chip{font-family:'IBM Plex Mono',monospace;font-size:9.5px;background:rgba(var(--amb-rgb),.12);color:var(--amb);padding:2px 8px;border-radius:9px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+
+.dt-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.dt-item{display:grid;grid-template-columns:auto 60px 1fr;gap:10px;padding:6px 10px;background:var(--bg);border-radius:5px;align-items:baseline;}
+.dt-item-pill{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:2px 6px;border-radius:7px;text-align:center;align-self:center;}
+.dt-pill-mech{background:rgba(248,81,73,.15);color:var(--red);}
+.dt-pill-prod{background:rgba(95,177,255,.15);color:#5fb1ff;}
+.dt-pill-unk {background:rgba(110,118,129,.15);color:var(--mut2);}
+.dt-item-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);}
+.dt-item-desc{font-size:12px;color:var(--txt);}
+.dt-item-action{font-size:11px;color:var(--mut2);font-style:italic;display:block;margin-top:2px;}
+
+@media(max-width:600px){
+  .main{padding:16px;}
+  .controls{padding:11px 12px;gap:10px;}
+  .search-box{min-width:0;}
+  .report-card{padding:12px;}
+}
+</style>
+<script src="theme.js"></script>
+<script src="translations.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back" href="Analytics_Dashboard.html">← Dashboard</a>
+  <div class="logo">SALCOMP</div>
+  <div class="hdr-right">
+    <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language · Cambiar idioma · Đổi ngôn ngữ">
+      <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">
+    <span class="page-icon" id="pageIcon">📊</span>
+    <span id="pageTitle">Loading…</span>
+  </div>
+  <div class="page-sub" id="pageSub"></div>
+
+  <div class="controls">
+    <div class="range-pills" id="rangePills">
+      <button class="rpill" data-days="1">24 hr</button>
+      <button class="rpill active" data-days="7">7 day</button>
+      <button class="rpill" data-days="30">30 day</button>
+      <button class="rpill" data-days="90">90 day</button>
+      <button class="rpill" data-days="0">All time</button>
+    </div>
+    <input type="text" class="search-box" id="searchBox" placeholder="Search by tech, line, shift, date…" oninput="renderList()">
+    <button class="csv-btn" onclick="exportCsv()">↓ CSV</button>
+  </div>
+
+  <div class="kpi-strip" id="kpiStrip"></div>
+  <div id="content"><div class="loading">Loading data…</div></div>
+</main>
+
+<script>
+// ──────────────────────────────────────────────────────────────────
+// SUPABASE CONFIG
+// ──────────────────────────────────────────────────────────────────
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+const sbHeaders = () => ({'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY});
+
+// Map subject keys → page configuration
+const SUBJECTS = {
+  production: {
+    icon: '📈',
+    title: 'Production Detail',
+    sub: 'All shift reports with production data, organized by report.',
+    sources: ['shift'],
+    filter: r => parseFloat(r.row.production_total) > 0 || (Array.isArray(r.row.production_hrs) && r.row.production_hrs.some(v => parseFloat(v) > 0)),
+  },
+  downtime: {
+    icon: '⏱',
+    title: 'Downtime Detail',
+    sub: 'All shift reports containing downtime events, with mechanical/production breakdown.',
+    sources: ['shift'],
+    filter: r => Array.isArray(r.row.downtime_events) && r.row.downtime_events.length > 0,
+  },
+  wip: {
+    icon: '📦',
+    title: 'WIP Detail',
+    sub: 'Work-in-progress remaining counts from each shift report.',
+    sources: ['shift'],
+    filter: r => Array.isArray(r.row.wip_hourly) && r.row.wip_hourly.some(v => v && parseFloat(v) > 0),
+  },
+  uph: {
+    icon: '⚡',
+    title: 'UPH Detail (Hourly Production)',
+    sub: 'Per-hour production breakdown for each shift.',
+    sources: ['shift'],
+    filter: r => Array.isArray(r.row.production_hrs) && r.row.production_hrs.some(v => parseFloat(v) > 0),
+  },
+  changeover: {
+    icon: '🔄',
+    title: 'Changeover Detail',
+    sub: 'Every shift report showing what changeover items were triggered.',
+    sources: ['shift'],
+    filter: r => {
+      const co = (r.row.change_over || '').toLowerCase() === 'yes';
+      const items = ['co_tim_a','co_tim_b','co_pv804','co_bh1','co_bh2','co_mainl','co_1d_label','co_1d_ribbon','mco_main_label','mco_1d_label','mco_sealant'];
+      return co || items.some(k => (r.row[k] || '').toLowerCase() === 'yes');
+    },
+  },
+  shifts: {
+    icon: '👥',
+    title: 'Shift Participation Detail',
+    sub: 'All shift reports submitted, organized by shift (A/B/C).',
+    sources: ['shift'],
+    filter: r => true,
+  },
+  pm: {
+    icon: '🔧',
+    title: 'PM Reports Detail',
+    sub: 'Every preventive maintenance report with weekly task results.',
+    sources: ['pm'],
+    filter: r => true,
+  },
+  scout: {
+    icon: '🔍',
+    title: 'Scout Flags Detail',
+    sub: 'Every flagged item from scout check sheets, organized by report.',
+    sources: ['scout'],
+    filter: r => Array.isArray(r.row.sections) && r.row.sections.some(s => Array.isArray(s.flaggedItems) && s.flaggedItems.length > 0),
+  },
+  techs: {
+    icon: '🧑‍🔧',
+    title: 'Tech Activity Detail',
+    sub: 'Every report by every technician.',
+    sources: ['shift', 'pm', 'scout'],
+    filter: r => true,
+  },
+  feed: {
+    icon: '📋',
+    title: 'Submission Feed',
+    sub: 'All form submissions across the operation.',
+    sources: ['shift', 'pm', 'scout'],
+    filter: r => true,
+  },
+};
+
+// Sources to fetch
+const ALL_SOURCES = [
+  {key:'shift-pott', table:'shift_reports',           kind:'shift', area:'Potting',  areaKey:'pott'},
+  {key:'shift-wav',  table:'wave3_reports',           kind:'shift', area:'Wave-3',   areaKey:'wav'},
+  {key:'shift-car',  table:'carousel_reports',        kind:'shift', area:'Carousel', areaKey:'car'},
+  {key:'pm-all',     table:'pm_reports',              kind:'pm',    area:null,       areaKey:null},
+  {key:'scout-pott', table:'potting_scout_reports',   kind:'scout', area:'Potting',  areaKey:'pott'},
+  {key:'scout-wav',  table:'wave3_scout_reports',     kind:'scout', area:'Wave-3',   areaKey:'wav'},
+  {key:'scout-car',  table:'reports',                 kind:'scout', area:'Carousel', areaKey:'car'},
+];
+
+// State
+let currentSubject = 'feed';
+let rangeDays = 7;
+let allRows = [];
+
+function getSubjectFromUrl(){
+  const params = new URLSearchParams(window.location.search);
+  const s = params.get('subject');
+  return SUBJECTS[s] ? s : 'feed';
+}
+
+async function fetchSource(src){
+  try {
+    const url = `${SB_URL}/rest/v1/${src.table}?order=submitted_at.desc&limit=2000`;
+    const res = await fetch(url, {headers: sbHeaders()});
+    if(!res.ok) return [];
+    const data = await res.json();
+    return data.map(row => ({
+      row,
+      src,
+      when: row.submitted_at,
+      date: row.date || row.submitted_at,
+    }));
+  } catch(e){
+    return [];
+  }
+}
+
+async function loadAll(){
+  const subject = SUBJECTS[currentSubject];
+  // Only fetch sources we need for this subject
+  const wantKinds = new Set(subject.sources);
+  const needed = ALL_SOURCES.filter(s => wantKinds.has(s.kind));
+  const results = await Promise.all(needed.map(fetchSource));
+  allRows = [].concat(...results);
+  // Sort by date desc
+  allRows.sort((a, b) => new Date(b.when) - new Date(a.when));
+  renderList();
+}
+
+function withinRange(when){
+  if(rangeDays === 0) return true;
+  const t = new Date(when).getTime();
+  if(isNaN(t)) return false;
+  return t >= Date.now() - rangeDays * 86400000;
+}
+
+function getFilteredRows(){
+  const subject = SUBJECTS[currentSubject];
+  const search = (document.getElementById('searchBox').value || '').trim().toLowerCase();
+  return allRows.filter(r => {
+    if(!withinRange(r.when)) return false;
+    if(!subject.filter(r)) return false;
+    if(search){
+      const hay = [
+        r.row.tech || r.row.tech_name || '',
+        r.row.line || '',
+        r.row.shift || '',
+        r.row.date || '',
+        r.src.area || r.row.area || '',
+      ].join(' ').toLowerCase();
+      if(!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function renderList(){
+  const subject = SUBJECTS[currentSubject];
+  const rows = getFilteredRows();
+  // KPI strip + body
+  document.getElementById('kpiStrip').innerHTML = renderKpis(rows, subject);
+  if(rows.length === 0){
+    document.getElementById('content').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">${subject.icon}</div>
+        <div>No reports match the current filters.</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--mut2);">Try a wider date range or clear the search.</div>
+      </div>`;
+    return;
+  }
+  // Render appropriate per-subject view
+  let html;
+  switch(currentSubject){
+    case 'production': html = renderProduction(rows); break;
+    case 'downtime':   html = renderDowntime(rows); break;
+    case 'wip':        html = renderWip(rows); break;
+    case 'uph':        html = renderUph(rows); break;
+    case 'changeover': html = renderChangeover(rows); break;
+    case 'shifts':     html = renderShifts(rows); break;
+    case 'pm':         html = renderPm(rows); break;
+    case 'scout':      html = renderScout(rows); break;
+    case 'techs':      html = renderTechs(rows); break;
+    case 'feed':
+    default:           html = renderFeed(rows); break;
+  }
+  document.getElementById('content').innerHTML = html;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// KPI STRIP — adaptive per subject
+// ──────────────────────────────────────────────────────────────────
+function renderKpis(rows, subject){
+  const cards = [{lbl:'Total Reports', val:rows.length}];
+  if(currentSubject === 'production'){
+    let total = 0;
+    rows.forEach(r => { const p = parseFloat(r.row.production_total); if(!isNaN(p)) total += p; });
+    cards.push({lbl:'Total Units', val:Math.round(total).toLocaleString()});
+    cards.push({lbl:'Avg per Report', val:Math.round(total / rows.length).toLocaleString()});
+  } else if(currentSubject === 'downtime'){
+    let totalMins = 0, mechMins = 0, prodMins = 0, eventCt = 0;
+    rows.forEach(r => {
+      (r.row.downtime_events || []).forEach(ev => {
+        const m = parseFloat(ev.mins);
+        if(isNaN(m) || m <= 0) return;
+        totalMins += m;
+        eventCt++;
+        const type = ev.type || (ev.prob ? 'mech' : '');
+        if(type === 'mech') mechMins += m;
+        if(type === 'prod') prodMins += m;
+      });
+    });
+    cards.push({lbl:'Total Events', val:eventCt});
+    cards.push({lbl:'Total Minutes', val:Math.round(totalMins).toLocaleString()});
+    cards.push({lbl:'⚙ Mechanical', val:Math.round(mechMins) + ' min'});
+    cards.push({lbl:'📦 Production', val:Math.round(prodMins) + ' min'});
+  } else if(currentSubject === 'shifts'){
+    const shifts = {A:0, B:0, C:0, Other:0};
+    rows.forEach(r => {
+      const s = (r.row.shift || '').trim().toUpperCase().charAt(0);
+      shifts[['A','B','C'].includes(s) ? s : 'Other']++;
+    });
+    cards.push({lbl:'A-Shift', val:shifts.A});
+    cards.push({lbl:'B-Shift', val:shifts.B});
+    cards.push({lbl:'C-Shift', val:shifts.C});
+  } else if(currentSubject === 'changeover'){
+    let coCt = 0, totalItems = 0;
+    rows.forEach(r => {
+      if((r.row.change_over || '').toLowerCase() === 'yes') coCt++;
+      ['co_tim_a','co_tim_b','co_pv804','co_bh1','co_bh2','co_mainl','co_1d_label','co_1d_ribbon','mco_main_label','mco_1d_label','mco_sealant'].forEach(k => {
+        if((r.row[k] || '').toLowerCase() === 'yes') totalItems++;
+      });
+    });
+    cards.push({lbl:'Reports w/ Changeover', val:coCt});
+    cards.push({lbl:'Items Triggered', val:totalItems});
+  } else if(currentSubject === 'pm'){
+    let okCt = 0, attnCt = 0, naCt = 0, resolved = 0, pending = 0;
+    rows.forEach(r => {
+      (r.row.weekly_tasks || []).forEach(t => {
+        if(t.state === 'ok')   okCt++;
+        if(t.state === 'attn') attnCt++;
+        if(t.state === 'na')   naCt++;
+      });
+      resolved += parseInt(r.row.resolved_count) || 0;
+      pending += parseInt(r.row.pending_count) || 0;
+    });
+    cards.push({lbl:'Tasks OK', val:okCt});
+    cards.push({lbl:'Need Attn', val:attnCt});
+    cards.push({lbl:'Resolved Flags', val:`${resolved}/${pending}`});
+  } else if(currentSubject === 'scout'){
+    let totalFlags = 0;
+    rows.forEach(r => {
+      (r.row.sections || []).forEach(s => {
+        if(Array.isArray(s.flaggedItems)) totalFlags += s.flaggedItems.length;
+      });
+    });
+    cards.push({lbl:'Total Flags', val:totalFlags});
+    cards.push({lbl:'Avg per Report', val:rows.length > 0 ? (totalFlags/rows.length).toFixed(1) : '0'});
+  } else if(currentSubject === 'techs'){
+    const techs = new Set();
+    rows.forEach(r => {
+      const n = r.row.tech || r.row.tech_name || '';
+      if(n.trim()) techs.add(n.trim().toLowerCase());
+    });
+    cards.push({lbl:'Active Techs', val:techs.size});
+  }
+  return cards.map(c => `
+    <div class="kpi-card">
+      <div class="kpi-card-lbl">${escape(c.lbl)}</div>
+      <div class="kpi-card-val">${c.val}</div>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────────────────────────────────────
+// PER-SUBJECT RENDERERS
+// ──────────────────────────────────────────────────────────────────
+function reportHeader(r){
+  const areaKey = r.src.areaKey || (r.row.area || '').toLowerCase().includes('carousel') ? 'car' : (r.row.area || '').toLowerCase().includes('potting') ? 'pott' : (r.row.area || '').toLowerCase().includes('wave') ? 'wav' : '';
+  const ak = r.src.areaKey || areaKey;
+  const areaLabel = r.src.area || r.row.area || '—';
+  const areaPill = ak ? `<span class="r-area r-area-${ak}">${escape(areaLabel)}</span>` : '';
+  const shiftPill = r.row.shift ? `<span class="r-shift">Shift ${escape(r.row.shift)}</span>` : '';
+  const tech = r.row.tech_name || r.row.tech || 'Unknown';
+  return `
+    <div class="report-card-hd">
+      <div class="report-card-title">
+        ${areaPill} ${shiftPill}
+        <span style="margin-left:6px">${escape(tech)}</span>
+      </div>
+      <div class="report-card-meta">${escape(r.date || '')} · submitted ${relTime(r.when)}</div>
+    </div>`;
+}
+
+function renderProduction(rows){
+  return rows.map(r => {
+    const total = r.row.production_total || '—';
+    const hrs = (r.row.production_hrs || []).map((v,i) => v ? `<span style="background:rgba(63,185,80,.1);color:var(--grn);padding:2px 5px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;display:inline-block;margin:1px;">H${i+1}: ${v}</span>` : '').filter(x=>x).join(' ');
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Total Units</div><div class="r-field-val" style="color:var(--grn);font-size:18px;">${escape(total)}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Hours Over Target</div><div class="r-field-val">${escape(r.row.hours_over_target || '—')}</div></div>
+        </div>
+        ${hrs ? `<div style="margin-top:10px"><div class="r-field-lbl" style="margin-bottom:4px">Hourly Production</div>${hrs}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderDowntime(rows){
+  return rows.map(r => {
+    const events = r.row.downtime_events || [];
+    const totalMins = events.reduce((s,e) => s + (parseFloat(e.mins)||0), 0);
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Total Mins</div><div class="r-field-val" style="color:var(--red);font-size:18px;">${Math.round(totalMins)}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Events</div><div class="r-field-val">${events.length}</div></div>
+        </div>
+        <div class="dt-list">
+          ${events.map(ev => {
+            const type = ev.type || (ev.prob ? 'mech' : '');
+            const pillCls = type === 'mech' ? 'dt-pill-mech' : type === 'prod' ? 'dt-pill-prod' : 'dt-pill-unk';
+            const pillTxt = type === 'mech' ? '⚙ MECH' : type === 'prod' ? '📦 PROD' : '— LEGACY';
+            const desc = type === 'prod' ? (ev.cause || ev.prob || '') : (ev.prob || '');
+            return `
+              <div class="dt-item">
+                <div class="dt-item-pill ${pillCls}">${pillTxt}</div>
+                <div class="dt-item-time">${escape(ev.from || '?')} → ${escape(ev.to || '?')} · ${escape(ev.mins || '?')} min</div>
+                <div>
+                  <div class="dt-item-desc">${escape(desc) || '<span style="color:var(--mut2)">—</span>'}</div>
+                  ${ev.action ? `<div class="dt-item-action">→ ${escape(ev.action)}</div>` : ''}
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderWip(rows){
+  return rows.map(r => {
+    const wip = r.row.wip_hourly || [];
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">6 AM</div><div class="r-field-val">${wip[0] ? wip[0] : '—'}</div></div>
+          <div class="r-field"><div class="r-field-lbl">2 PM</div><div class="r-field-val">${wip[1] ? wip[1] : '—'}</div></div>
+          <div class="r-field"><div class="r-field-lbl">10 PM</div><div class="r-field-val">${wip[2] ? wip[2] : '—'}</div></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderUph(rows){
+  return rows.map(r => {
+    const hrs = r.row.production_hrs || [];
+    const startHour = ({A:6, B:14, C:22})[(r.row.shift||'').trim().toUpperCase().charAt(0)] ?? 0;
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Total</div><div class="r-field-val" style="color:var(--grn)">${escape(r.row.production_total || '—')}</div></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+          ${hrs.map((v,i) => {
+            if(!v) return '';
+            const h = (startHour + i) % 24;
+            return `<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:5px;padding:6px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:center;min-width:60px;">
+              <div style="color:var(--mut2);font-size:9px;">${String(h).padStart(2,'0')}:00</div>
+              <div style="color:var(--grn);font-weight:600;">${v}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderChangeover(rows){
+  const coLabels = {
+    co_tim_a:'TIM A', co_tim_b:'TIM B', co_pv804:'PV 804',
+    co_bh1:'BH (1)', co_bh2:'BH (2)', co_mainl:'MainL',
+    co_1d_label:'1D Label', co_1d_ribbon:'1D Ribbon',
+    mco_main_label:'Main Label', mco_1d_label:'1D Label', mco_sealant:'Sealant',
+  };
+  return rows.map(r => {
+    const triggeredItems = Object.entries(coLabels)
+      .filter(([k]) => (r.row[k] || '').toLowerCase() === 'yes')
+      .map(([_, lbl]) => lbl);
+    const hadCO = (r.row.change_over || '').toLowerCase() === 'yes';
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Changeover</div><div class="r-field-val ${hadCO?'r-yes':'r-no'}">${hadCO ? '✓ Yes' : 'No'}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Items Triggered</div><div class="r-field-val">${triggeredItems.length}</div></div>
+        </div>
+        ${triggeredItems.length > 0 ? `
+          <div style="margin-top:10px"><div class="r-field-lbl" style="margin-bottom:4px">Triggered Items</div>
+            <div class="co-events">${triggeredItems.map(i => `<span class="co-event-chip">${escape(i)}</span>`).join('')}</div>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderShifts(rows){
+  // Group by shift
+  const groups = {A:[], B:[], C:[], Other:[]};
+  rows.forEach(r => {
+    const s = (r.row.shift || '').trim().toUpperCase().charAt(0);
+    const k = ['A','B','C'].includes(s) ? s : 'Other';
+    groups[k].push(r);
+  });
+  let html = '';
+  ['A','B','C','Other'].forEach(k => {
+    if(groups[k].length === 0) return;
+    const label = k === 'Other' ? 'Unspecified Shift' : `${k}-Shift`;
+    const hours = ({A:'6 AM – 2 PM', B:'2 PM – 10 PM', C:'10 PM – 6 AM'})[k] || '';
+    html += `<div class="section-hd">${label} ${hours ? `· ${hours}` : ''} · ${groups[k].length} report${groups[k].length!==1?'s':''}</div>`;
+    html += groups[k].map(r => `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Production</div><div class="r-field-val">${escape(r.row.production_total || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Downtime</div><div class="r-field-val">${escape(r.row.downtime_total || '—')} min</div></div>
+        </div>
+      </div>`).join('');
+  });
+  return html;
+}
+
+function renderPm(rows){
+  return rows.map(r => {
+    const tasks = r.row.weekly_tasks || [];
+    const okCt = tasks.filter(t => t.state==='ok').length;
+    const attnCt = tasks.filter(t => t.state==='attn').length;
+    const naCt = tasks.filter(t => t.state==='na').length;
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Area</div><div class="r-field-val">${escape(r.row.area || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Tasks</div><div class="r-field-val"><span style="color:var(--grn)">${okCt} OK</span> · <span style="color:var(--red)">${attnCt} ⚠</span> · ${naCt} N/A</div></div>
+          <div class="r-field"><div class="r-field-lbl">Resolved Flags</div><div class="r-field-val">${r.row.resolved_count||0}/${r.row.pending_count||0}</div></div>
+        </div>
+        ${attnCt > 0 ? `
+          <ul class="task-list">
+            ${tasks.filter(t => t.state==='attn').map(t => `
+              <li class="attn">
+                <span class="ico">⚠</span>
+                <div>${escape(t.text || '')}${t.note ? `<span class="task-note">${escape(t.note)}</span>` : ''}</div>
+              </li>`).join('')}
+          </ul>` : ''}
+        ${r.row.notes ? `<div style="margin-top:8px;padding:8px;background:var(--bg);border-radius:5px;font-size:11px;color:var(--mut);"><strong style="color:var(--mut2)">Notes:</strong> ${escape(r.row.notes)}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderScout(rows){
+  return rows.map(r => {
+    const flagged = [];
+    (r.row.sections || []).forEach(s => {
+      (s.flaggedItems || []).forEach(f => flagged.push({section:s.id || s.title, item:f.item, note:f.note}));
+    });
+    if(flagged.length === 0) return '';
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Total Flags</div><div class="r-field-val" style="color:var(--red)">${flagged.length}</div></div>
+        </div>
+        <ul class="task-list">
+          ${flagged.map(f => `
+            <li class="attn">
+              <span class="ico">⚠</span>
+              <div><strong>${escape(f.section || '')}</strong> · ${escape(f.item || '')}${f.note ? `<span class="task-note">${escape(f.note)}</span>` : ''}</div>
+            </li>`).join('')}
+        </ul>
+      </div>`;
+  }).join('');
+}
+
+function renderTechs(rows){
+  // Group by tech name
+  const byTech = {};
+  rows.forEach(r => {
+    const n = (r.row.tech || r.row.tech_name || 'Unknown').trim();
+    if(!byTech[n]) byTech[n] = [];
+    byTech[n].push(r);
+  });
+  const sorted = Object.entries(byTech).sort((a,b) => b[1].length - a[1].length);
+  return sorted.map(([name, list]) => `
+    <div class="report-card">
+      <div class="report-card-hd">
+        <div class="report-card-title">${escape(name)}</div>
+        <div class="report-card-meta">${list.length} report${list.length!==1?'s':''}</div>
+      </div>
+      <div class="report-card-body">
+        ${['shift','pm','scout'].map(kind => {
+          const n = list.filter(r => r.src.kind === kind).length;
+          return n > 0 ? `<div class="r-field"><div class="r-field-lbl">${kind.toUpperCase()}</div><div class="r-field-val">${n}</div></div>` : '';
+        }).join('')}
+        <div class="r-field"><div class="r-field-lbl">Most Recent</div><div class="r-field-val">${relTime(list[0].when)}</div></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFeed(rows){
+  return rows.map(r => {
+    const kindLbl = r.src.kind.toUpperCase();
+    const kindColor = r.src.kind === 'shift' ? 'var(--blu)' : r.src.kind === 'pm' ? 'var(--cyn)' : 'var(--amb)';
+    return `
+      <div class="report-card">
+        ${reportHeader(r)}
+        <div class="report-card-body">
+          <div class="r-field"><div class="r-field-lbl">Type</div><div class="r-field-val" style="color:${kindColor}">${kindLbl}</div></div>
+          <div class="r-field"><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.row.line || '—')}</div></div>
+          ${r.row.production_total ? `<div class="r-field"><div class="r-field-lbl">Production</div><div class="r-field-val">${escape(r.row.production_total)}</div></div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ──────────────────────────────────────────────────────────────────
+// CSV EXPORT
+// ──────────────────────────────────────────────────────────────────
+function csvEscape(v){
+  if(v == null) return '';
+  const s = String(v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function exportCsv(){
+  const rows = getFilteredRows();
+  if(rows.length === 0) return alert('Nothing to export.');
+  const out = rows.map(r => [
+    new Date(r.when).toISOString(),
+    r.src.kind,
+    r.src.area || r.row.area || '',
+    r.row.line || '',
+    r.row.shift || '',
+    r.row.tech_name || r.row.tech || '',
+    r.date || '',
+    r.row.production_total || '',
+    r.row.downtime_total || '',
+  ]);
+  const headers = ['Submitted','Kind','Area','Line','Shift','Tech','Date','Production','Downtime'];
+  const csv = [headers.map(csvEscape).join(',')].concat(out.map(r => r.map(csvEscape).join(','))).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `salcomp-${currentSubject}-detail.csv`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
+
+// ──────────────────────────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────────────────────────
+function escape(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function relTime(iso){
+  if(!iso) return '—';
+  const t = new Date(iso).getTime();
+  if(isNaN(t)) return '—';
+  const s = Math.round((Date.now() - t) / 1000);
+  if(s < 60) return `${s}s ago`;
+  if(s < 3600) return `${Math.round(s/60)}m ago`;
+  if(s < 86400) return `${Math.round(s/3600)}h ago`;
+  return `${Math.round(s/86400)}d ago`;
+}
+
+// Range pill wiring
+document.querySelectorAll('.rpill').forEach(b => {
+  b.addEventListener('click', () => {
+    rangeDays = parseInt(b.dataset.days);
+    document.querySelectorAll('.rpill').forEach(x => x.classList.toggle('active', x === b));
+    renderList();
+  });
+});
+
+// Init
+currentSubject = getSubjectFromUrl();
+const conf = SUBJECTS[currentSubject];
+document.getElementById('pageTitle').textContent = conf.title;
+document.getElementById('pageIcon').textContent = conf.icon;
+document.getElementById('pageSub').textContent = conf.sub;
+document.title = `Salcomp — ${conf.title}`;
+loadAll();
+
+window.onLangChange = function(){ renderList(); };
+</script>
+
+</body>
+</html>
