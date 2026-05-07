@@ -578,6 +578,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
                 <option value="No Material">No Material</option>
                 <option value="No WIP">No WIP</option>
                 <option value="No Operators">No Operators</option>
+                <option value="Production Stoppage">Production Stoppage</option>
               </select>
             </td>
             <td data-label="Action Taken"><input type="text" id="pdt-action-0" placeholder="Action taken"></td>
@@ -769,6 +770,7 @@ function addPDTRow(){
         <option value="No Material">No Material</option>
         <option value="No WIP">No WIP</option>
         <option value="No Operators">No Operators</option>
+                <option value="Production Stoppage">Production Stoppage</option>
       </select>
     </td>
     <td data-label="Action Taken"><input type="text" id="pdt-action-${i}" placeholder="Action taken"></td>`;
@@ -968,6 +970,7 @@ function resetForm(){
         <option value="No Material">No Material</option>
         <option value="No WIP">No WIP</option>
         <option value="No Operators">No Operators</option>
+                <option value="Production Stoppage">Production Stoppage</option>
       </select>
     </td>
     <td data-label="Action Taken"><input type="text" id="pdt-action-0" placeholder="Action taken"></td>
@@ -1433,7 +1436,7 @@ async function editReport(id){
       if(evType === 'prod'){
         const i = pdtRowCount;
         const evCause = ev.cause || ev.prob || '';
-        const causeOpts = ['No Material','No WIP','No Operators']
+        const causeOpts = ['No Material','No WIP','No Operators','Production Stoppage']
           .map(c => `<option value="${c}" ${c===evCause?'selected':''}>${c}</option>`).join('');
         const tr = document.createElement('tr');
         tr.setAttribute('data-pdt-row', i);

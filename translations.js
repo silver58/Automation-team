@@ -264,12 +264,14 @@ window.SALCOMP_I18N = {
   'analytics.panel.techs':      { en: 'Reports by Technician', es: 'Reportes por Técnico', vi: 'Báo Cáo Theo Kỹ Thuật Viên' },
   'analytics.panel.feed':       { en: 'Recent Submissions', es: 'Envíos Recientes', vi: 'Báo Cáo Gần Đây' },
   'analytics.panel.pm':         { en: 'PM Activity — Weekly Maintenance', es: 'Actividad MP — Mantenimiento Semanal', vi: 'Hoạt Động Bảo Trì — Bảo Trì Hàng Tuần' },
+  'analytics.panel.changeover': { en: 'Changeover Activity', es: 'Actividad de Cambio', vi: 'Hoạt Động Đổi Mẫu' },
+  'analytics.panel.shifts':     { en: 'Shift Participation — Reports per Shift', es: 'Participación de Turno — Reportes por Turno', vi: 'Tham Gia Theo Ca — Báo Cáo Mỗi Ca' },
   'analytics.panel.uph':        { en: '24-Hour Production by Line (UPH)',
                                   es: 'Producción 24 Horas por Línea (UPH)',
                                   vi: 'Sản Xuất 24 Giờ Theo Dây Chuyền (UPH)' },
-  'analytics.uph.subtitle':     { en: 'units per hour, from shift reports submitted in the last 24 hours',
-                                  es: 'unidades por hora, de reportes enviados en las últimas 24 horas',
-                                  vi: 'đơn vị mỗi giờ, từ các báo cáo ca gửi trong 24 giờ qua' },
+  'analytics.uph.subtitle':     { en: 'units per hour, from shift reports submitted in the last 24 hours · 6am → 6am',
+                                  es: 'unidades por hora, de reportes enviados en las últimas 24 horas · 6am → 6am',
+                                  vi: 'đơn vị mỗi giờ, từ các báo cáo ca gửi trong 24 giờ qua · 6h → 6h' },
   'analytics.uph.line':         { en: 'Line', es: 'Línea', vi: 'Dây chuyền' },
   'analytics.uph.unknown_line': { en: 'Unknown Line', es: 'Línea Desconocida', vi: 'Dây Chuyền Không Xác Định' },
   'analytics.uph.reports_short': { en: 'rpts', es: 'rpts', vi: 'bc' },
@@ -337,6 +339,152 @@ window.SALCOMP_I18N = {
   'lang.label':            { en: 'EN', es: 'EN', vi: 'EN' },
   'lang.label.es':         { en: 'ES', es: 'ES', vi: 'ES' },
   'lang.label.vi':         { en: 'VI', es: 'VI', vi: 'VI' },
+// ── COLOR PICKER ───────────────────────────────────────────────────────
+  'cp.title':              { en: 'Choose Accent Color', es: 'Elegir Color de Acento', vi: 'Chọn Màu Nhấn' },
+  'cp.custom':             { en: 'Custom:', es: 'Personalizado:', vi: 'Tùy chỉnh:' },
+  'cp.apply':              { en: 'Apply', es: 'Aplicar', vi: 'Áp dụng' },
+  'cp.reset':              { en: 'Reset to default (amber)', es: 'Restablecer al predeterminado (ámbar)', vi: 'Đặt lại mặc định (hổ phách)' },
+
+  // ── ANALYTICS DASHBOARD UI ─────────────────────────────────────────────
+  'analytics.range.24h':   { en: '24 hr', es: '24 hr', vi: '24 giờ' },
+  'analytics.custom.apply':{ en: 'Apply', es: 'Aplicar', vi: 'Áp dụng' },
+  'analytics.drill.clear': { en: 'Clear ✕', es: 'Limpiar ✕', vi: 'Xóa ✕' },
+  'analytics.drill.label': { en: '🔍 Drill-down:', es: '🔍 Detalle:', vi: '🔍 Chi tiết:' },
+  'analytics.drill.matching': { en: 'matching reports', es: 'reportes coincidentes', vi: 'báo cáo phù hợp' },
+  'analytics.live':        { en: 'live · updated', es: 'en vivo · actualizado', vi: 'trực tiếp · cập nhật' },
+  'analytics.last24h':     { en: 'Last 24 hours', es: 'Últimas 24 horas', vi: '24 giờ qua' },
+  'analytics.last_days':   { en: 'Last {n} days', es: 'Últimos {n} días', vi: '{n} ngày qua' },
+  'analytics.panel.range.global': { en: 'Global', es: 'Global', vi: 'Toàn cục' },
+
+  // Filter pills
+  'filter.all_areas':      { en: 'All', es: 'Todo', vi: 'Tất cả' },
+  'filter.line':           { en: 'Line', es: 'Línea', vi: 'Dây chuyền' },
+  'filter.shift':          { en: 'Shift', es: 'Turno', vi: 'Ca' },
+  'filter.scout':          { en: 'Scout', es: 'Scout', vi: 'Scout' },
+  'filter.pm':             { en: 'PM', es: 'MP', vi: 'BT' },
+
+  // ── SHIFT PARTICIPATION PANEL ──────────────────────────────────────────
+  'shift.part.target':     { en: 'target {n} per shift', es: 'meta {n} por turno', vi: 'mục tiêu {n} mỗi ca' },
+  'shift.part.overall':    { en: 'Overall:', es: 'General:', vi: 'Tổng thể:' },
+  'shift.part.a_label':    { en: 'A-Shift', es: 'Turno A', vi: 'Ca A' },
+  'shift.part.b_label':    { en: 'B-Shift', es: 'Turno B', vi: 'Ca B' },
+  'shift.part.c_label':    { en: 'C-Shift', es: 'Turno C', vi: 'Ca C' },
+  'shift.part.unspec':     { en: 'Unspecified', es: 'Sin especificar', vi: 'Chưa xác định' },
+  'shift.part.a_hours':    { en: '6 AM – 2 PM', es: '6 AM – 2 PM', vi: '6h – 14h' },
+  'shift.part.b_hours':    { en: '2 PM – 10 PM', es: '2 PM – 10 PM', vi: '14h – 22h' },
+  'shift.part.c_hours':    { en: '10 PM – 6 AM', es: '10 PM – 6 AM', vi: '22h – 6h' },
+  'shift.part.target_met': { en: '✓ target met', es: '✓ meta alcanzada', vi: '✓ đã đạt mục tiêu' },
+  'shift.part.more_needed':{ en: 'more needed', es: 'más necesarios', vi: 'cần thêm' },
+  'shift.part.no_reports': { en: 'no reports', es: 'sin reportes', vi: 'không có báo cáo' },
+  'shift.part.no_label':   { en: 'reports without a shift label', es: 'reportes sin etiqueta de turno', vi: 'báo cáo không có nhãn ca' },
+
+  // ── PM PANEL ───────────────────────────────────────────────────────────
+  'pm.top_recurring':      { en: 'Top Recurring Issues', es: 'Problemas Recurrentes Principales', vi: 'Vấn Đề Tái Diễn Hàng Đầu' },
+  'pm.top_recurring_sub':  { en: 'tasks that flagged ⚠ most often this period', es: 'tareas marcadas ⚠ con más frecuencia en este período', vi: 'nhiệm vụ được đánh dấu ⚠ thường xuyên nhất trong giai đoạn này' },
+  'pm.flag_resolution':    { en: 'Flag resolution:', es: 'Resolución de banderas:', vi: 'Giải quyết cờ:' },
+  'pm.last_submitted':     { en: 'Last submitted', es: 'Último envío', vi: 'Gửi gần nhất' },
+  'pm.no_in_range':        { en: 'No PM reports in range', es: 'Sin reportes MP en el rango', vi: 'Không có báo cáo BT trong khoảng' },
+  'pm.report':             { en: 'report', es: 'reporte', vi: 'báo cáo' },
+  'pm.reports':            { en: 'reports', es: 'reportes', vi: 'báo cáo' },
+  'pm.task_health':        { en: 'Overall task health ·', es: 'Salud general de tareas ·', vi: 'Tình trạng nhiệm vụ tổng thể ·' },
+  'pm.total_tasks':        { en: 'total tasks across all PM reports', es: 'tareas totales en todos los reportes MP', vi: 'tổng số nhiệm vụ trong tất cả báo cáo BT' },
+  'pm.empty':              { en: 'No PM (preventive maintenance) reports in this range.', es: 'No hay reportes MP (mantenimiento preventivo) en este rango.', vi: 'Không có báo cáo BT (bảo trì phòng ngừa) trong khoảng này.' },
+  'pm.empty_hint':         { en: 'Submit a PM report from one of the area dashboards to populate this panel.', es: 'Envíe un reporte MP desde uno de los paneles de área para poblar este panel.', vi: 'Gửi báo cáo BT từ một trong các bảng điều khiển khu vực để điền vào bảng này.' },
+  'pm.by':                 { en: 'by', es: 'por', vi: 'bởi' },
+
+  // ── CHANGEOVER PANEL ───────────────────────────────────────────────────
+  'co.overall_rate':       { en: 'Overall rate:', es: 'Tasa general:', vi: 'Tỷ lệ tổng thể:' },
+  'co.no_in_range':        { en: 'No reports in range', es: 'Sin reportes en el rango', vi: 'Không có báo cáo trong khoảng' },
+  'co.no_tracked':         { en: 'No tracked items for this area', es: 'Sin ítems rastreados para esta área', vi: 'Không có mục theo dõi cho khu vực này' },
+  'co.no_triggered':       { en: 'No items triggered', es: 'No se activaron ítems', vi: 'Không có mục nào được kích hoạt' },
+  'co.recent':             { en: 'Recent Changeovers', es: 'Cambios Recientes', vi: 'Đổi Mẫu Gần Đây' },
+  'co.no_events':          { en: 'No changeover events to show', es: 'No hay eventos de cambio para mostrar', vi: 'Không có sự kiện đổi mẫu để hiển thị' },
+  'co.empty':              { en: 'No changeover data in this range.', es: 'No hay datos de cambio en este rango.', vi: 'Không có dữ liệu đổi mẫu trong khoảng này.' },
+  'co.had_changeover':     { en: 'had a changeover', es: 'tuvieron un cambio', vi: 'có đổi mẫu' },
+  'co.of':                 { en: 'of', es: 'de', vi: 'của' },
+
+  // ── TECH LEADERBOARD ───────────────────────────────────────────────────
+  'techs.click_drill':     { en: 'click a tech to drill down', es: 'haga clic en un técnico para detalles', vi: 'bấm vào kỹ thuật viên để xem chi tiết' },
+  'techs.tech':            { en: 'tech', es: 'técnico', vi: 'kỹ thuật viên' },
+  'techs.techs':           { en: 'techs', es: 'técnicos', vi: 'kỹ thuật viên' },
+  'techs.report_singular': { en: 'report', es: 'reporte', vi: 'báo cáo' },
+  'techs.report_plural':   { en: 'reports', es: 'reportes', vi: 'báo cáo' },
+  'techs.scout':           { en: 'scout', es: 'scout', vi: 'scout' },
+  'techs.shift':           { en: 'shift', es: 'turno', vi: 'ca' },
+  'techs.legend.scout':    { en: 'Scout', es: 'Scout', vi: 'Scout' },
+  'techs.legend.car':      { en: 'Shift — Carousel', es: 'Turno — Carrusel', vi: 'Ca — Carousel' },
+  'techs.legend.pott':     { en: 'Shift — Potting', es: 'Turno — Encapsulado', vi: 'Ca — Đổ Keo' },
+  'techs.legend.wav':      { en: 'Shift — Wave-3', es: 'Turno — Wave-3', vi: 'Ca — Wave-3' },
+
+  // ── DOWNTIME PANEL EXTRAS ─────────────────────────────────────────────
+  'dt.unique_cause':       { en: 'unique cause', es: 'causa única', vi: 'nguyên nhân duy nhất' },
+  'dt.unique_causes':      { en: 'unique causes', es: 'causas únicas', vi: 'nguyên nhân duy nhất' },
+  'dt.no_major':           { en: 'No major downtime events', es: 'No hay eventos de tiempo muerto mayor', vi: 'Không có sự kiện dừng lớn' },
+  'dt.no_recorded':        { en: 'No downtime recorded in this range.', es: 'Sin tiempo muerto registrado en este rango.', vi: 'Không có thời gian dừng được ghi trong khoảng này.' },
+  'dt.occurrence':         { en: 'occurrence', es: 'ocurrencia', vi: 'lần xảy ra' },
+  'dt.occurrences':        { en: 'occurrences', es: 'ocurrencias', vi: 'lần xảy ra' },
+  'dt.last':               { en: 'last', es: 'último', vi: 'gần nhất' },
+  'dt.by_hour':            { en: 'Downtime by hour-of-day · 6am → 6am · minutes lost', es: 'Tiempo muerto por hora del día · 6am → 6am · minutos perdidos', vi: 'Thời gian dừng theo giờ · 6h → 6h · phút mất' },
+  'dt.mech_card':          { en: '⚙ Mechanical', es: '⚙ Mecánico', vi: '⚙ Cơ Khí' },
+  'dt.prod_card':          { en: '📦 Production', es: '📦 Producción', vi: '📦 Sản Xuất' },
+  'dt.unclassified':       { en: '— Unclassified', es: '— Sin clasificar', vi: '— Chưa phân loại' },
+  'dt.event':              { en: 'event', es: 'evento', vi: 'sự kiện' },
+  'dt.events':             { en: 'events', es: 'eventos', vi: 'sự kiện' },
+  'dt.of_total':           { en: 'of total', es: 'del total', vi: 'của tổng số' },
+  'dt.legacy_data':        { en: 'legacy data', es: 'datos heredados', vi: 'dữ liệu cũ' },
+
+  // ── PRODUCTION PANEL ───────────────────────────────────────────────────
+  'prod.units_per_day':    { en: 'units per day', es: 'unidades por día', vi: 'đơn vị mỗi ngày' },
+  'prod.target':           { en: 'Target:', es: 'Meta:', vi: 'Mục tiêu:' },
+  'prod.no_data':          { en: 'No production data in this range.', es: 'Sin datos de producción en este rango.', vi: 'Không có dữ liệu sản xuất trong khoảng này.' },
+  'prod.target_n':         { en: 'target', es: 'meta', vi: 'mục tiêu' },
+
+  // ── WIP / SCOUT / FEED PANELS ─────────────────────────────────────────
+  'wip.empty':             { en: 'No WIP data in this range.', es: 'No hay datos de WIP en este rango.', vi: 'Không có dữ liệu WIP trong khoảng này.' },
+  'scout.empty':           { en: 'No scout reports in this range.', es: 'No hay reportes Scout en este rango.', vi: 'Không có báo cáo Scout trong khoảng này.' },
+  'feed.empty':            { en: 'No submissions in this range.', es: 'No hay envíos en este rango.', vi: 'Không có báo cáo trong khoảng này.' },
+  'feed.last_n_across':    { en: 'last {n} across all sources', es: 'últimos {n} de todas las fuentes', vi: '{n} gần nhất từ tất cả nguồn' },
+
+  // ── CSV BUTTON ─────────────────────────────────────────────────────────
+  'csv.export':            { en: '↓ CSV', es: '↓ CSV', vi: '↓ CSV' },
+  'csv.export_title':      { en: 'Download data as CSV', es: 'Descargar datos como CSV', vi: 'Tải dữ liệu CSV' },
+
+  // ── EMPTY STATES ───────────────────────────────────────────────────────
+  'empty.no_match':        { en: 'reports match the current filters.', es: 'reportes coinciden con los filtros actuales.', vi: 'báo cáo khớp với bộ lọc hiện tại.' },
+  'empty.try_clear_drill': { en: 'Try clearing the drill-down or remove a filter.', es: 'Pruebe limpiar el detalle o eliminar un filtro.', vi: 'Hãy xóa chi tiết hoặc gỡ bỏ bộ lọc.' },
+  'empty.try_wider':       { en: 'Try a wider date range or remove a filter.', es: 'Pruebe un rango más amplio o elimine un filtro.', vi: 'Hãy thử khoảng thời gian rộng hơn hoặc gỡ bộ lọc.' },
+
+  // ── SHIFT REPORT FORM EXTRAS ───────────────────────────────────────────
+  'common.yes_btn':        { en: 'Yes', es: 'Sí', vi: 'Có' },
+  'common.no_btn':         { en: 'No', es: 'No', vi: 'Không' },
+  'ng.mainl_label':        { en: 'MainL', es: 'MainL', vi: 'MainL' },
+  'ng.mes_label':          { en: 'MES', es: 'MES', vi: 'MES' },
+  'ng.other_label':        { en: 'Other', es: 'Otro', vi: 'Khác' },
+  'ng.bs_label':           { en: 'B/S', es: 'B/S', vi: 'B/S' },
+  'ng.1d_label_label':     { en: '1D Label', es: 'Etiqueta 1D', vi: 'Nhãn 1D' },
+
+  // ── DOWNTIME FORM ROW HELPERS ──────────────────────────────────────────
+  'dt.add_row':            { en: '+ Add Row', es: '+ Agregar Fila', vi: '+ Thêm Hàng' },
+  'dt.placeholder.mins':   { en: 'mins', es: 'min', vi: 'phút' },
+  'dt.placeholder.problem':{ en: 'Describe problem', es: 'Describir problema', vi: 'Mô tả vấn đề' },
+  'dt.placeholder.action': { en: 'Action taken', es: 'Acción tomada', vi: 'Hành động đã thực hiện' },
+  'dt.placeholder.cause':  { en: '— select cause —', es: '— seleccionar causa —', vi: '— chọn nguyên nhân —' },
+  'dt.cause.no_material':  { en: 'No Material', es: 'Sin Material', vi: 'Không Có Vật Liệu' },
+  'dt.cause.no_wip':       { en: 'No WIP', es: 'Sin WIP', vi: 'Không Có WIP' },
+  'dt.cause.no_operators': { en: 'No Operators', es: 'Sin Operadores', vi: 'Không Có Người Vận Hành' },
+  'dt.cause.prod_stoppage':{ en: 'Production Stoppage', es: 'Paro de Producción', vi: 'Ngừng Sản Xuất' },
+
+  // ── REPORT ACTION BUTTONS ──────────────────────────────────────────────
+  'rep.print':             { en: '🖨 Print Report', es: '🖨 Imprimir Reporte', vi: '🖨 In Báo Cáo' },
+  'rep.edit':              { en: '✎ Edit Report', es: '✎ Editar Reporte', vi: '✎ Chỉnh Sửa Báo Cáo' },
+  'rep.delete':            { en: '🗑 Delete Report', es: '🗑 Eliminar Reporte', vi: '🗑 Xóa Báo Cáo' },
+  'rep.print_short':       { en: '🖨 Print this report', es: '🖨 Imprimir este reporte', vi: '🖨 In báo cáo này' },
+  'rep.edit_short':        { en: '✎ Edit this report', es: '✎ Editar este reporte', vi: '✎ Chỉnh sửa báo cáo này' },
+  'rep.delete_short':      { en: 'Delete this report', es: 'Eliminar este reporte', vi: 'Xóa báo cáo này' },
+  'rep.update_btn':        { en: 'Update Report →', es: 'Actualizar Reporte →', vi: 'Cập Nhật Báo Cáo →' },
+  'rep.cancel_edit':       { en: 'Cancel edit', es: 'Cancelar edición', vi: 'Hủy chỉnh sửa' },
+
+
 };
 
 // ═══════════════════════════════════════════════════════════════════════
