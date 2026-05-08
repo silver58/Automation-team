@@ -23,6 +23,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wave-3 – Scout Check Sheet</title>
 <style>
+button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
   --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
@@ -580,6 +581,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <script src="theme.js"></script>
 <script src="translations.js"></script>
+<script src="techs.js"></script>
 <script>
 const DATA = [
   {id:'s01',num:'01',grp:'wave3',
@@ -1457,9 +1459,9 @@ async function renderReports(){
           ${flagsHtml}
           ${secNotesHtml}
           <div class="rep-actions">
-            <button class="rep-print" onclick="printReport(${r.id})">🖨 Print Report</button>
-            <button class="rep-edit" onclick="editScout(${r.id})">✎ Edit Report</button>
-            <button class="rep-del" onclick="deleteReport(${r.id})">🗑 Delete Report</button>
+            <button class="rep-print" onclick="printReport(${r.id})">${t("rep.print")}</button>
+            <button class="rep-edit" onclick="editScout(${r.id})">${t("rep.edit")}</button>
+            <button class="rep-del" onclick="deleteReport(${r.id})">${t("rep.delete")}</button>
           </div>
           `}
         </div>

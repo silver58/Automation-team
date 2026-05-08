@@ -22,6 +22,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Wave-3 PM Report</title>
 <style>
+button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 :root{
@@ -568,6 +569,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <script src="theme.js"></script>
 <script src="translations.js"></script>
+<script src="techs.js"></script>
 <script>
 // ═══ CONFIG ═══════════════════════════════════════════════════════════
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -826,7 +828,7 @@ function collectData(){
       line:      document.getElementById('fLine').value.trim(),
       date:      document.getElementById('fDate').value,
       shift:     document.getElementById('fShift').value,
-      tech_name: document.getElementById('techName').value.trim(),
+      tech_name: getTechName().trim(),
       tech_sig:  document.getElementById('techSig').value.trim(),
       weekly_tasks: weeklyTaskResults,
       pending_count: pendingFlags.length,
@@ -942,7 +944,7 @@ function resetForm(){
   document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('fShift').value = '';
   document.getElementById('fLine').value = '';
-  document.getElementById('techName').value = '';
+  if(typeof window.setTechName === 'function') window.setTechName(''); else document.getElementById('techName').value = '';
   document.getElementById('techSig').value = '';
   document.getElementById('generalNotes').value = '';
   document.querySelectorAll('[data-task]').forEach(r => {
@@ -1029,9 +1031,9 @@ async function renderReports(){
             ${tasks.map(t => `<li class="${t.state||''}">${t.state==='ok'?'✓':t.state==='attn'?'⚠':t.state==='na'?'—':'·'} ${escapeHtml(t.text||'')}${t.note?` <span style="color:var(--mut2)">— ${escapeHtml(t.note)}</span>`:''}</li>`).join('')}
           </ul>
           <div class="rep-actions-row" onclick="event.stopPropagation();">
-            <button class="rep-print-btn" onclick="printPmReport(${r.id})">🖨 Print this report</button>
-            <button class="rep-edit-btn" onclick="editPmReport(${r.id})">✎ Edit this report</button>
-            <button class="rep-del-btn" onclick="deletePmReport(${r.id})">Delete this report</button>
+            <button class="rep-print-btn" onclick="printPmReport(${r.id})">${t("rep.print_short")}</button>
+            <button class="rep-edit-btn" onclick="editPmReport(${r.id})">${t("rep.edit_short")}</button>
+            <button class="rep-del-btn" onclick="deletePmReport(${r.id})">${t("rep.delete_short")}</button>
           </div>
         </div>
       </div>`;
@@ -1145,7 +1147,7 @@ async function editPmReport(id){
   setIf('fLine', r.line);
   setIf('fDate', r.date);
   setIf('fShift', r.shift);
-  setIf('techName', r.tech_name);
+  if(typeof window.setTechName === 'function') window.setTechName(r.tech_name || ''); else setIf('techName', r.tech_name);
   setIf('techSig', r.tech_sig);
   setIf('generalNotes', r.notes);
 

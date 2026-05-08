@@ -23,6 +23,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Automation Team</title>
 <style>
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap');
 
 :root{
@@ -46,7 +49,7 @@ body{
   font-family:'Barlow',sans-serif;
   background:var(--bg);
   color:var(--txt);
-  min-height:100vh;
+  min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;
   display:flex;
   flex-direction:column;
   align-items:center;

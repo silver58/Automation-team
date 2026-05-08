@@ -23,6 +23,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Potting TECH Shift Report</title>
 <style>
+button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
   --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
@@ -30,7 +31,7 @@
   --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;--blu:#388bfd;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding-bottom:80px;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
 
 /* HEADER */
 .site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
@@ -132,7 +133,7 @@ input[type=date]{color-scheme:dark;}
 .sdiv::before,.sdiv::after{content:'';flex:1;height:1px;background:var(--bdr);}
 
 input,select,textarea{font-size:16px !important;}
-@media(min-width:600px){input,select,textarea{font-size:13px !important;}}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
 
 @media(max-width:600px){
   .fg-3{grid-template-columns:1fr 1fr;}
@@ -683,6 +684,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <script src="theme.js"></script>
 <script src="translations.js"></script>
+<script src="techs.js"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -845,7 +847,7 @@ function collectData(){
     this_mes:        document.getElementById('this-mes').value,
     this_other:      document.getElementById('this-other').value,
     downtime_events: dtEvents,
-    tech_name:       document.getElementById('techName').value,
+    tech_name:       getTechName(),
     tech_sig:        document.getElementById('techSig').value,
   };
 }
@@ -947,6 +949,8 @@ function resetForm(){
   document.querySelectorAll('input,select,textarea').forEach(el=>{
     el.value=''; if(el.readOnly) el.value='';
   });
+  // Reset tech dropdown + clear free-text fallback
+  if(typeof window.setTechName === 'function') window.setTechName('');
   Object.keys(ynState).forEach(k=>delete ynState[k]);
   document.querySelectorAll('.yn-btn').forEach(b=>b.className='yn-btn');
   setYN('co','no');
@@ -1371,6 +1375,11 @@ async function editReport(id){
   Object.entries(FIELD_MAP).forEach(([elemId, propName]) => {
     const el = document.getElementById(elemId);
     if(!el) return;
+    // Tech name dropdown — use helper to handle Unknown free-text fallback
+    if(elemId === 'techName' && typeof window.setTechName === 'function'){
+      window.setTechName(r[propName] || '');
+      return;
+    }
     const v = r[propName];
     el.value = (v == null) ? '' : String(v);
   });
@@ -1602,6 +1611,14 @@ function autosaveRestore(){
     }
     Object.entries(snap).forEach(([id, val]) => {
       if(id.startsWith('__')) return;
+      // Tech name dropdown — defer to setTechName so the Unknown free-text branch
+      // restores correctly even when val isn't a roster entry.
+      if(id === 'techName' && typeof window.setTechName === 'function'){
+        window.setTechName(val == null ? '' : val);
+        return;
+      }
+      // Skip techNameOther — already handled by setTechName above
+      if(id === 'techNameOther') return;
       const el = document.getElementById(id);
       if(!el) return;
       if(el.type === 'checkbox' || el.type === 'radio'){
