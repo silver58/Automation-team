@@ -264,7 +264,7 @@ window.SALCOMP_I18N = {
   'analytics.panel.techs':      { en: 'Reports by Technician', es: 'Reportes por Técnico', vi: 'Báo Cáo Theo Kỹ Thuật Viên' },
   'analytics.panel.feed':       { en: 'Recent Submissions', es: 'Envíos Recientes', vi: 'Báo Cáo Gần Đây' },
   'analytics.panel.pm':         { en: 'PM Activity — Weekly Maintenance', es: 'Actividad MP — Mantenimiento Semanal', vi: 'Hoạt Động Bảo Trì — Bảo Trì Hàng Tuần' },
-  'analytics.panel.changeover': { en: 'Changeover Activity', es: 'Actividad de Cambio', vi: 'Hoạt Động Đổi Mẫu' },
+  'analytics.panel.changeover': { en: 'Material Change', es: 'Cambio de Material', vi: 'Đổi Vật Liệu' },
   'analytics.panel.shifts':     { en: 'Shift Participation — Reports per Shift', es: 'Participación de Turno — Reportes por Turno', vi: 'Tham Gia Theo Ca — Báo Cáo Mỗi Ca' },
   'analytics.panel.uph':        { en: '24-Hour Production by Line (UPH)',
                                   es: 'Producción 24 Horas por Línea (UPH)',

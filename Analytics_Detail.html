@@ -140,8 +140,8 @@ input,select,textarea{font-size:16px !important;}
 
   <div class="controls">
     <div class="range-pills" id="rangePills">
-      <button class="rpill" data-days="1">24 hr</button>
-      <button class="rpill active" data-days="7">7 day</button>
+      <button class="rpill active" data-days="1">24 hr</button>
+      <button class="rpill" data-days="7">7 day</button>
       <button class="rpill" data-days="30">30 day</button>
       <button class="rpill" data-days="90">90 day</button>
       <button class="rpill" data-days="0">All time</button>
@@ -194,8 +194,8 @@ const SUBJECTS = {
   },
   changeover: {
     icon: '🔄',
-    title: 'Changeover Detail',
-    sub: 'Every shift report showing what changeover items were triggered.',
+    title: 'Material Change Detail',
+    sub: 'Every shift report showing what material change items were triggered.',
     sources: ['shift'],
     filter: r => {
       const co = (r.row.change_over || '').toLowerCase() === 'yes';
@@ -253,7 +253,7 @@ const ALL_SOURCES = [
 
 // State
 let currentSubject = 'feed';
-let rangeDays = 7;
+let rangeDays = 1;
 let allRows = [];
 
 function getSubjectFromUrl(){
