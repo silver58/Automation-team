@@ -1548,7 +1548,7 @@ function recentFlags(rows){
 function buildOeeStats(rows){
   const deduped = dedupShiftRows(rows.filter(r => r.src.kind === 'shift'));
   const PLANNED_MINS_PER_SHIFT = 480;  // 8h shift baseline
-  const TARGET_UPH = 60;                // placeholder ideal cycle — adjust if you have a real spec
+  const TARGET_UPH = 977;                // placeholder ideal cycle — adjust if you have a real spec
   let plannedMins = 0, downtimeMins = 0, production = 0, scrap = 0, shiftCount = 0;
   const byArea = {Carousel:{a:0,p:0,q:0,n:0}, Potting:{a:0,p:0,q:0,n:0}, 'Wave-3':{a:0,p:0,q:0,n:0}};
   const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
@@ -1679,7 +1679,7 @@ function renderOee(s){
     </div>`;
 }
 const TARGET_OEE_NOTE = '85%+ world-class';
-const TARGET_UPH_NOTE = '60 UPH ideal — adjust in code if you have a real cycle-time spec';
+const TARGET_UPH_NOTE = '977 UPH ideal — adjust in code if you have a real cycle-time spec';
 const TARGET_UPH = 60;
 
 // ═══════════════════════════════════════════════════════════════════════════
