@@ -393,6 +393,108 @@ body::after{
   100% { top:110vh; opacity:0; transform:scaleY(1.4); }
 }
 
+/* ── BATTERY THEME (jagged lightning bolts cracking across the screen) ── */
+.fx-bat-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 50%, rgba(245,217,55,.18) 0%, transparent 70%);
+  opacity:0;
+  animation:fxBatGlow 1.4s ease-out forwards;
+}
+@keyframes fxBatGlow{
+  0%{opacity:0;} 30%{opacity:1;} 100%{opacity:0;}
+}
+/* Brief white flash when each bolt strikes — sells the "lightning" feel */
+.fx-bat-flash{
+  position:absolute;inset:0;
+  background:rgba(255,255,255,.0);
+  pointer-events:none;
+  animation:fxBatFlash 1.5s ease-out forwards;
+}
+@keyframes fxBatFlash{
+  0%   {background:rgba(255,255,255,0);}
+  3%   {background:rgba(255,255,255,.18);}
+  8%   {background:rgba(255,255,255,0);}
+  22%  {background:rgba(255,255,255,.12);}
+  28%  {background:rgba(255,255,255,0);}
+  44%  {background:rgba(255,255,255,.10);}
+  50%  {background:rgba(255,255,255,0);}
+  100% {background:rgba(255,255,255,0);}
+}
+.fx-bolt{
+  position:absolute;
+  left:0;right:0;top:0;bottom:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  opacity:0;
+}
+.fx-bolt path{
+  /* Animated stroke draw — bolt "cracks" into existence left to right */
+  stroke-dasharray:1500;
+  stroke-dashoffset:1500;
+}
+.fx-bolt-1, .fx-bolt-2, .fx-bolt-3{
+  animation:fxBoltCrack 1s ease-out forwards;
+}
+.fx-bolt-1 path, .fx-bolt-2 path, .fx-bolt-3 path{
+  animation:fxBoltDraw 1s ease-out forwards;
+}
+.fx-bolt-2{animation-delay:.18s !important;} .fx-bolt-2 path{animation-delay:.18s !important;}
+.fx-bolt-3{animation-delay:.36s !important;} .fx-bolt-3 path{animation-delay:.36s !important;}
+@keyframes fxBoltCrack{
+  0%   {opacity:0;}
+  5%   {opacity:1;}
+  60%  {opacity:1;}
+  100% {opacity:0;}
+}
+@keyframes fxBoltDraw{
+  0%   {stroke-dashoffset:1500;}
+  35%  {stroke-dashoffset:0;}
+  100% {stroke-dashoffset:0;}
+}
+
+/* ── IQ9 COMMERCIAL THEME (orange laser beams sweeping right) ── */
+.fx-iq-glow{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,140,66,.16) 0%, transparent 70%);
+  opacity:0;
+  animation:fxBatGlow 1.4s ease-out forwards;
+}
+.fx-laser-source{
+  /* Pulsing orange point on the left edge that "emits" the beams */
+  position:absolute;
+  left:0;top:50%;
+  width:10px;height:10px;
+  background:#ff8c42;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 30px 8px rgba(255,140,66,.8), 0 0 60px 14px rgba(255,140,66,.4);
+  opacity:0;
+  animation:fxLaserSource 1.3s ease-out forwards;
+}
+@keyframes fxLaserSource{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4);}
+  20%{opacity:1;transform:translate(-50%,-50%) scale(1.4);}
+  60%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(.6);}
+}
+.fx-laser{
+  /* Thin horizontal beam that streaks across the screen */
+  position:absolute;
+  left:-20%;
+  width:0;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(255,140,66,.95) 40%, #ff8c42 80%, transparent);
+  box-shadow:0 0 12px rgba(255,140,66,.7), 0 0 24px rgba(255,140,66,.4);
+  opacity:0;
+  animation:fxLaserSweep 1s ease-out forwards;
+}
+@keyframes fxLaserSweep{
+  0%   { width:0;     left:0;    opacity:0; }
+  20%  { width:30%;   left:0;    opacity:1; }
+  60%  { width:60%;   left:30%;  opacity:1; }
+  100% { width:0;     left:120%; opacity:0; }
+}
+
 /* ── ANALYTICS THEME (rising bars + trend line + floating digits) ── */
 .fx-anal-glow{
   position:absolute;inset:0;
@@ -643,6 +745,16 @@ body::after{
 .area-btn.blue .area-name{color:#9ac6ff;}
 .area-btn.blue:hover{border-color:rgba(56,139,253,.35);}
 
+.area-btn.yellow{--glow:rgba(245,217,55,.18);}
+.area-btn.yellow .area-icon{background:linear-gradient(135deg, rgba(245,217,55,.28), rgba(245,217,55,.08));color:#f5d937;border:1px solid rgba(245,217,55,.35);}
+.area-btn.yellow .area-name{color:#f5d937;}
+.area-btn.yellow:hover{border-color:rgba(245,217,55,.4);}
+
+.area-btn.orange{--glow:rgba(255,140,66,.18);}
+.area-btn.orange .area-icon{background:linear-gradient(135deg, rgba(255,140,66,.28), rgba(255,140,66,.08));color:#ff8c42;border:1px solid rgba(255,140,66,.35);}
+.area-btn.orange .area-name{color:#ff8c42;}
+.area-btn.orange:hover{border-color:rgba(255,140,66,.4);}
+
 /* Expandable card row beneath each area button */
 .area-cards{
   display:none;
@@ -733,6 +845,8 @@ body::after{
 .card.purple::before{background:linear-gradient(to bottom, var(--pur), #8957e5);}
 .card.cyan::before{background:linear-gradient(to bottom, var(--cyn), #2aa3ac);}
 .card.red::before{background:linear-gradient(to bottom, #ff5252, #d63838);}
+.card.yellow::before{background:linear-gradient(to bottom, #f5d937, #d4b91d);}
+.card.orange::before{background:linear-gradient(to bottom, #ff8c42, #d96a1f);}
 
 .card:hover{
   transform:translateY(-3px);
@@ -1063,9 +1177,47 @@ body::after{
       </div>
     </div>
 
-  </div>
+    <!-- ─── BATTERY 1/2 ─── -->
+    <div class="area">
+      <button class="area-btn yellow" onclick="toggleArea('battery')">
+        <span class="area-icon">🔋</span>
+        <span class="area-status-dot" id="dot-battery" title="Status"></span><span class="area-name" data-i18n="area.battery">Battery 1/2</span>
+        <span class="area-count" id="cnt-battery" title="Submissions today"></span><span class="area-toggle" id="toggle-battery">▾</span>
+      </button>
+      <div class="area-cards" id="cards-battery">
+        <a class="card yellow" href="Battery_Shift_Report.html">
+          <div class="card-icon">📋</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.battery.shift.label">Shift Report</div>
+            <div class="card-title" data-i18n="card.battery.shift.title">Battery 1/2 Shift Report</div>
+            <div class="card-desc" data-i18n="card.battery.shift.desc">Hr by hr · Downtime · NG parts · Sign off</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
+    </div>
 
-  <!-- ── ANALYTICS — full-width card ─────────────────────────────── -->
+    <!-- ─── IQ9 COMMERCIAL ─── -->
+    <div class="area">
+      <button class="area-btn orange" onclick="toggleArea('iq9')">
+        <span class="area-icon">🔦</span>
+        <span class="area-status-dot" id="dot-iq9" title="Status"></span><span class="area-name" data-i18n="area.iq9">IQ9 Commercial</span>
+        <span class="area-count" id="cnt-iq9" title="Submissions today"></span><span class="area-toggle" id="toggle-iq9">▾</span>
+      </button>
+      <div class="area-cards" id="cards-iq9">
+        <a class="card orange" href="IQ9_Shift_Report.html">
+          <div class="card-icon">📋</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="card.iq9.shift.label">Shift Report</div>
+            <div class="card-title" data-i18n="card.iq9.shift.title">IQ9 Commercial Shift Report</div>
+            <div class="card-desc" data-i18n="card.iq9.shift.desc">Hr by hr · Downtime · NG parts · Sign off</div>
+          </div>
+          <div class="card-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
   <div class="analytics-row">
     <a class="card cyan card-wide card-analytics" href="Analytics_Dashboard.html" onclick="onAnalyticsClick(event, this)">
       <div class="card-icon analytics-icon">📊</div>
@@ -1128,6 +1280,12 @@ const TABLES = {
   wave3: {
     scout:  'wave3_scout_reports',
     shift:  'wave3_reports',
+  },
+  battery: {
+    shift:  'battery_reports',
+  },
+  iq9: {
+    shift:  'iq9_reports',
   },
 };
 
@@ -1377,6 +1535,48 @@ function fireThemedTransition(area){
     fx.innerHTML = `
       <div class="fx-pot-pour"></div>
       <div class="fx-pot-drops">${drops}</div>`;
+  } else if(area === 'battery'){
+    // Jagged SVG lightning bolts crackling across the screen at staggered timings
+    // Each bolt is a zig-zag path that draws itself, flashes, then fades
+    const boltPaths = [
+      // Different zig-zag shapes — each ~viewBox 1200x600
+      'M-50,80  L200,140 L150,200 L380,260 L320,320 L560,380 L500,440 L760,500 L1250,540',
+      'M-50,180 L240,250 L190,310 L450,360 L400,420 L660,470 L600,520 L860,560 L1250,600',
+      'M-50,320 L180,260 L140,200 L400,140 L350,90  L620,140 L570,210 L840,260 L1250,300',
+    ];
+    let bolts = '';
+    boltPaths.forEach((d, i) => {
+      const delay = (i * 0.18).toFixed(2);
+      bolts += `
+        <svg class="fx-bolt fx-bolt-${i+1}" viewBox="0 0 1200 600" preserveAspectRatio="none" style="animation-delay:${delay}s;">
+          <path d="${d}" fill="none" stroke="#fff5b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#boltGlow${i})"/>
+          <path d="${d}" fill="none" stroke="#f5d937" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>
+          <defs>
+            <filter id="boltGlow${i}" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+        </svg>`;
+    });
+    fx.innerHTML = `
+      <div class="fx-bat-flash"></div>
+      <div class="fx-bat-glow"></div>
+      ${bolts}`;
+  } else if(area === 'iq9'){
+    // Multiple horizontal laser beams sweeping across the screen
+    let beams = '';
+    const positions = [22, 38, 54, 68, 80];  // distributed across vertical space
+    positions.forEach((top, i) => {
+      const delay = (i * 0.07).toFixed(2);
+      const dur = (0.85 + Math.random() * 0.3).toFixed(2);
+      beams += `<div class="fx-laser" style="top:${top}%;animation-delay:${delay}s;animation-duration:${dur}s;"></div>`;
+    });
+    // Pulsing emit point at the left edge
+    fx.innerHTML = `
+      <div class="fx-iq-glow"></div>
+      <div class="fx-laser-source"></div>
+      ${beams}`;
   } else if(area === 'analytics'){
     // Rising cyan bar chart + scrolling sparkline + ascending data digits
     let bars = '';
@@ -1438,6 +1638,8 @@ function fireParticles(areaEl){
   if(btn.classList.contains('purple')) color = '#a371f7';
   else if(btn.classList.contains('green')) color = '#3fb950';
   else if(btn.classList.contains('blue')) color = '#388bfd';
+  else if(btn.classList.contains('yellow')) color = '#f5d937';
+  else if(btn.classList.contains('orange')) color = '#ff8c42';
 
   // Particles emerge from the icon position
   const burst = document.createElement('div');
