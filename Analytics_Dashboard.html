@@ -80,6 +80,14 @@ input,select,textarea{font-size:16px !important;}
 .refresh-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;margin-left:auto;}
 .refresh-btn:hover{border-color:var(--amb);color:var(--amb);}
 
+.layout-toggle-btn{
+  background:transparent;border:1px solid var(--bdr2);color:var(--mut);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;
+  font-weight:600;letter-spacing:.04em;
+}
+.layout-toggle-btn:hover{border-color:var(--amb);color:var(--amb);background:rgba(var(--amb-rgb),.06);}
+
 /* ── LOADING ──────────────────────────────────────────────────────────────── */
 .loading{padding:60px 20px;text-align:center;color:var(--mut);font-size:14px;}
 .loading .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--bdr2);border-top-color:var(--amb);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px;vertical-align:middle;}
@@ -252,6 +260,125 @@ svg .bar-clickable:hover{opacity:.7;}
 /* ── DOWNTIME 2-UP ────────────────────────────────────────────────────────── */
 .dt-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
 .dt-causes{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:14px;max-height:260px;overflow-y:auto;}
+
+/* ═══ TIER SECTIONS ════════════════════════════════════════════════════ */
+.tier-section{margin-bottom:8px;}
+.tier-section + .tier-section{margin-top:24px;}
+.tier-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--mut2);
+  padding:0 4px 8px;
+  border-bottom:1px solid var(--bdr);
+  margin-bottom:14px;
+  display:flex;align-items:baseline;gap:8px;
+}
+.tier-section.tier-pinned .tier-label{color:var(--amb);border-bottom-color:rgba(var(--amb-rgb),.3);}
+
+/* Pin button on each panel head */
+.pin-btn{
+  background:transparent;border:none;
+  color:var(--mut2);
+  font-size:14px;
+  cursor:pointer;
+  padding:2px 7px;
+  border-radius:4px;
+  margin-left:4px;
+  transition:color .15s, transform .15s;
+  flex-shrink:0;
+}
+.pin-btn:hover{color:var(--amb);transform:scale(1.15);}
+.pin-btn.pin-on{color:var(--amb);}
+
+/* ═══ OEE SUMMARY PANEL ═══════════════════════════════════════════════ */
+.oee-strip{
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+@media(max-width:760px){.oee-strip{grid-template-columns:1fr 1fr;}}
+@media(max-width:420px){.oee-strip{grid-template-columns:1fr;}}
+.oee-card{
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:8px;
+  padding:14px 16px;
+}
+.oee-card.oee-headline{
+  background:linear-gradient(135deg, rgba(var(--amb-rgb),.05), rgba(var(--amb-rgb),.02));
+  border-color:rgba(var(--amb-rgb),.2);
+}
+.oee-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.oee-big{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;line-height:1;letter-spacing:-.02em;}
+.oee-num{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;line-height:1;color:var(--txt);}
+.oee-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:6px;}
+.oee-formula{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amb);margin-top:6px;letter-spacing:.06em;}
+.oee-area-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+  gap:8px;
+  margin-bottom:12px;
+}
+.oee-area-card{
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:6px;
+  padding:10px 12px;
+}
+.oee-area-name{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.oee-area-oee{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;line-height:1;margin:4px 0;}
+.oee-area-bd{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);display:flex;gap:8px;}
+.oee-area-sub{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);margin-top:4px;}
+.oee-formula-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);background:var(--bg);border:1px solid var(--bdr);border-radius:5px;padding:8px 11px;line-height:1.5;}
+.oee-formula-note strong{color:var(--mut);}
+
+/* ═══ PARETO PANEL ═══════════════════════════════════════════════════════ */
+.pareto-header,
+.pareto-row{
+  display:grid;
+  grid-template-columns:32px 1fr 130px 60px 50px;
+  gap:10px;
+  align-items:center;
+  padding:7px 10px;
+  font-size:11.5px;
+}
+.pareto-header{
+  background:var(--bg);
+  border-radius:6px 6px 0 0;
+  border:1px solid var(--bdr);
+  border-bottom:none;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--mut2);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.pareto-list{border:1px solid var(--bdr);border-radius:0 0 6px 6px;background:var(--sur2);}
+.pareto-row{border-bottom:1px solid var(--bdr);transition:background .15s;}
+.pareto-row:last-child{border-bottom:none;}
+.pareto-row:hover{background:rgba(var(--amb-rgb),.04);}
+.pareto-vital{background:rgba(var(--amb-rgb),.06);}
+.pareto-vital:hover{background:rgba(var(--amb-rgb),.1);}
+.pareto-rank{font-family:'IBM Plex Mono',monospace;color:var(--mut2);text-align:center;font-weight:600;}
+.pareto-vital .pareto-rank{color:var(--amb);}
+.pareto-label{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--txt);}
+.pareto-type{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:9px;}
+.pareto-meta{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);margin-left:4px;}
+.pareto-bar{height:8px;background:var(--bg);border:1px solid var(--bdr);border-radius:4px;overflow:hidden;}
+.pareto-bar-fill{height:100%;background:linear-gradient(90deg, var(--red), #ff8a3c);}
+.pareto-vital .pareto-bar-fill{background:linear-gradient(90deg, var(--amb), #ff8a3c);}
+.pareto-mins{font-family:'IBM Plex Mono',monospace;color:var(--red);font-weight:600;text-align:right;}
+.pareto-vital .pareto-mins{color:var(--amb);}
+.pareto-cum{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);text-align:right;}
+.pareto-footnote{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:10px;font-style:italic;}
+@media(max-width:560px){
+  .pareto-header,.pareto-row{grid-template-columns:24px 1fr 50px 40px;font-size:10.5px;}
+  .pareto-bar-h,.pareto-bar{display:none;}
+}
 
 /* ═══ CHANGEOVER PANEL ═══════════════════════════════════════════════ */
 .co-badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--amb);background:rgba(var(--amb-rgb), .1);border:1px solid rgba(var(--amb-rgb), .25);padding:3px 9px;border-radius:5px;}
@@ -736,6 +863,7 @@ svg .bar-clickable:hover{opacity:.7;}
       <button class="custom-range-apply" onclick="applyCustomRange()" data-i18n="analytics.custom.apply">Apply</button>
     </div>
     <div class="range-meta" id="rangeMeta"></div>
+    <button class="layout-toggle-btn" id="layoutToggleBtn" onclick="toggleLayout()" title="Switch between tiered (engineering) and flat (legacy) layouts">⊞ Tiered</button>
     <button class="refresh-btn" onclick="loadAll(true)">↻ Refresh</button>
   </div>
 
@@ -1412,6 +1540,252 @@ function recentFlags(rows){
 // - flag-resolution efficacy (resolved vs pending across the period)
 // - top 5 tasks that triggered "needs attention" most often
 // - latest submitted PM report per area (so we can spot lapsed maintenance)
+// ═══════════════════════════════════════════════════════════════════════════
+// OEE SUMMARY — Overall Equipment Effectiveness (Availability × Performance × Quality)
+// Industry-standard manufacturing metric. Computed approximately from shift reports.
+// Heuristic assumptions documented inline since we don't have explicit cycle-time targets.
+// ═══════════════════════════════════════════════════════════════════════════
+function buildOeeStats(rows){
+  const deduped = dedupShiftRows(rows.filter(r => r.src.kind === 'shift'));
+  const PLANNED_MINS_PER_SHIFT = 480;  // 8h shift baseline
+  const TARGET_UPH = 60;                // placeholder ideal cycle — adjust if you have a real spec
+  let plannedMins = 0, downtimeMins = 0, production = 0, scrap = 0, shiftCount = 0;
+  const byArea = {Carousel:{a:0,p:0,q:0,n:0}, Potting:{a:0,p:0,q:0,n:0}, 'Wave-3':{a:0,p:0,q:0,n:0}};
+  const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
+
+  deduped.forEach(r => {
+    shiftCount++;
+    let dt = 0;
+    (r.row.downtime_events || []).forEach(ev => {
+      const m = parseFloat(ev.mins);
+      if(!isNaN(m) && m > 0) dt += m;
+    });
+    const prod = parseFloat(r.row.production_total) || 0;
+    const sc = (parseFloat(r.row.scrap_qty) || 0)
+             + (parseFloat(r.row.this_overflow) || 0)
+             + (parseFloat(r.row.this_crashed) || 0)
+             + (parseFloat(r.row.this_mes) || 0)
+             + (parseFloat(r.row.this_other) || 0);
+
+    plannedMins += PLANNED_MINS_PER_SHIFT;
+    downtimeMins += dt;
+    production += prod;
+    scrap += sc;
+
+    const a = byArea[areaMap[r.src.key]];
+    if(a){
+      const runMins = Math.max(0, PLANNED_MINS_PER_SHIFT - dt);
+      const avail = PLANNED_MINS_PER_SHIFT > 0 ? runMins / PLANNED_MINS_PER_SHIFT : 0;
+      const goodOutput = Math.max(0, prod - sc);
+      const qual = prod > 0 ? goodOutput / prod : 1;
+      const theoretical = (runMins / 60) * TARGET_UPH;
+      const perf = theoretical > 0 ? Math.min(1, prod / theoretical) : 0;
+      a.a += avail; a.p += perf; a.q += qual; a.n += 1;
+    }
+  });
+
+  const runMins = Math.max(0, plannedMins - downtimeMins);
+  const availability = plannedMins > 0 ? runMins / plannedMins : 0;
+  const goodOutput = Math.max(0, production - scrap);
+  const quality = production > 0 ? goodOutput / production : 1;
+  const theoretical = (runMins / 60) * TARGET_UPH;
+  const performance = theoretical > 0 ? Math.min(1, production / theoretical) : 0;
+  const oee = availability * performance * quality;
+
+  return {
+    availability, performance, quality, oee,
+    runMins, plannedMins, downtimeMins,
+    production, scrap, goodOutput, shiftCount,
+    byArea: Object.fromEntries(Object.entries(byArea).map(([k,v]) => [k, {
+      availability: v.n > 0 ? v.a / v.n : 0,
+      performance:  v.n > 0 ? v.p / v.n : 0,
+      quality:      v.n > 0 ? v.q / v.n : 0,
+      oee:          v.n > 0 ? (v.a / v.n) * (v.p / v.n) * (v.q / v.n) : 0,
+      shifts: v.n,
+    }])),
+  };
+}
+
+function renderOee(s){
+  if(s.shiftCount === 0){
+    return `
+      <div class="panel" data-panel-key="oee">
+        <div class="panel-head">
+          <h2>OEE Summary — Availability × Performance × Quality</h2>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${renderPanelRangeBadge('oee')}
+            <span class="panel-meta">no shift data in range</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="empty"><div class="empty-icon">📊</div>No shift reports to compute OEE in this range.</div>
+        </div>
+      </div>`;
+  }
+  const fmt = v => Math.round(v * 100) + '%';
+  const c = v => v >= 0.85 ? 'var(--grn)' : v >= 0.6 ? 'var(--amb)' : 'var(--red)';
+  const areaCards = Object.entries(s.byArea).map(([area, a]) => {
+    if(a.shifts === 0) return '';
+    return `
+      <div class="oee-area-card">
+        <div class="oee-area-name">${escapeHtml(area)}</div>
+        <div class="oee-area-oee" style="color:${c(a.oee)}">${fmt(a.oee)}</div>
+        <div class="oee-area-bd">
+          <span title="Availability">A ${fmt(a.availability)}</span>
+          <span title="Performance">P ${fmt(a.performance)}</span>
+          <span title="Quality">Q ${fmt(a.quality)}</span>
+        </div>
+        <div class="oee-area-sub">${a.shifts} shift${a.shifts!==1?'s':''}</div>
+      </div>`;
+  }).filter(x => x).join('');
+
+  return `
+    <div class="panel" data-panel-key="oee">
+      <div class="panel-head">
+        <h2>OEE Summary — Availability × Performance × Quality</h2>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${renderPanelRangeBadge('oee')}
+          <span class="panel-meta">${s.shiftCount} shift${s.shiftCount!==1?'s':''} · target ${TARGET_OEE_NOTE}</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="oee-strip">
+          <div class="oee-card oee-headline">
+            <div class="oee-lbl">Overall OEE</div>
+            <div class="oee-big" style="color:${c(s.oee)}">${fmt(s.oee)}</div>
+            <div class="oee-formula">A × P × Q</div>
+          </div>
+          <div class="oee-card">
+            <div class="oee-lbl">Availability</div>
+            <div class="oee-num" style="color:${c(s.availability)}">${fmt(s.availability)}</div>
+            <div class="oee-sub">${Math.round(s.runMins).toLocaleString()} of ${Math.round(s.plannedMins).toLocaleString()} min</div>
+          </div>
+          <div class="oee-card">
+            <div class="oee-lbl">Performance</div>
+            <div class="oee-num" style="color:${c(s.performance)}">${fmt(s.performance)}</div>
+            <div class="oee-sub">${Math.round(s.production).toLocaleString()} units produced</div>
+          </div>
+          <div class="oee-card">
+            <div class="oee-lbl">Quality</div>
+            <div class="oee-num" style="color:${c(s.quality)}">${fmt(s.quality)}</div>
+            <div class="oee-sub">${Math.round(s.goodOutput).toLocaleString()} good · ${Math.round(s.scrap).toLocaleString()} scrap</div>
+          </div>
+        </div>
+        ${areaCards ? `<div class="oee-area-grid">${areaCards}</div>` : ''}
+        <div class="oee-formula-note">
+          <strong>Formula:</strong> Availability = run time ÷ planned time · Performance = actual output ÷ theoretical output (assumes ${TARGET_UPH_NOTE}) · Quality = good units ÷ total units
+        </div>
+      </div>
+    </div>`;
+}
+const TARGET_OEE_NOTE = '85%+ world-class';
+const TARGET_UPH_NOTE = '60 UPH ideal — adjust in code if you have a real cycle-time spec';
+const TARGET_UPH = 60;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PARETO ANALYSIS — top X causes contributing to Y% of downtime (80/20 rule)
+// Sorts downtime causes by impact and shows cumulative percentage curve.
+// Surfaces the few causes responsible for most of the loss — classic root-cause tool.
+// ═══════════════════════════════════════════════════════════════════════════
+function buildPareto(rows){
+  const deduped = dedupShiftRows(rows.filter(r => r.src.kind === 'shift'));
+  const groups = {};  // {key: {label, type, mins, count, areas: Set}}
+  deduped.forEach(r => {
+    const events = r.row.downtime_events;
+    if(!Array.isArray(events)) return;
+    events.forEach(ev => {
+      const mins = parseFloat(ev.mins);
+      if(isNaN(mins) || mins <= 0) return;
+      const type = ev.type || (ev.prob ? 'mech' : 'unknown');
+      const label = type === 'prod' ? (ev.cause || ev.prob || 'Unknown cause') : (ev.prob || 'Unknown problem');
+      const key = (type + '||' + label).toLowerCase().replace(/\s+/g, ' ').trim();
+      if(!groups[key]){
+        groups[key] = {label: label.trim(), type, mins:0, count:0, areas:new Set()};
+      }
+      groups[key].mins += mins;
+      groups[key].count += 1;
+      const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
+      const area = areaMap[r.src.key];
+      if(area) groups[key].areas.add(area);
+    });
+  });
+  const sorted = Object.values(groups)
+    .map(g => ({...g, areas: Array.from(g.areas)}))
+    .sort((a, b) => b.mins - a.mins);
+  const totalMins = sorted.reduce((s, g) => s + g.mins, 0);
+  let cumulative = 0;
+  sorted.forEach(g => {
+    cumulative += g.mins;
+    g.cumPct = totalMins > 0 ? (cumulative / totalMins) * 100 : 0;
+    g.pct = totalMins > 0 ? (g.mins / totalMins) * 100 : 0;
+  });
+  // Find the index that crosses 80% — the "vital few"
+  let vitalFewCt = 0;
+  for(const g of sorted){
+    vitalFewCt++;
+    if(g.cumPct >= 80) break;
+  }
+  return {causes: sorted.slice(0, 15), totalMins, vitalFewCt, totalCauses: sorted.length};
+}
+
+function renderPareto(p){
+  if(p.causes.length === 0){
+    return `
+      <div class="panel" data-panel-key="pareto">
+        <div class="panel-head">
+          <h2>Pareto — Vital Few Loss Drivers</h2>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${renderPanelRangeBadge('pareto')}
+            <span class="panel-meta">no losses in range</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="empty"><div class="empty-icon">📉</div>No downtime events to analyze.</div>
+        </div>
+      </div>`;
+  }
+  const max = Math.max(...p.causes.map(c => c.mins));
+  const rows = p.causes.map((c, i) => {
+    const widthPct = (c.mins / max) * 100;
+    const isVitalFew = i < p.vitalFewCt;
+    const pillCls = c.type === 'mech' ? 'dt-pill-mech' : c.type === 'prod' ? 'dt-pill-prod' : 'dt-pill-unk';
+    const pillTxt = c.type === 'mech' ? '⚙' : c.type === 'prod' ? '📦' : '—';
+    return `
+      <div class="pareto-row ${isVitalFew?'pareto-vital':''}">
+        <div class="pareto-rank">${i + 1}</div>
+        <div class="pareto-label">
+          <span class="pareto-type ${pillCls}">${pillTxt}</span>
+          ${escapeHtml(c.label)}
+          <span class="pareto-meta">${c.count}× · ${c.areas.join(', ') || '—'}</span>
+        </div>
+        <div class="pareto-bar"><div class="pareto-bar-fill" style="width:${widthPct}%"></div></div>
+        <div class="pareto-mins">${Math.round(c.mins)} min</div>
+        <div class="pareto-cum">${Math.round(c.cumPct)}%</div>
+      </div>`;
+  }).join('');
+  return `
+    <div class="panel" data-panel-key="pareto">
+      <div class="panel-head">
+        <h2>Pareto — Vital Few Loss Drivers</h2>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${renderPanelRangeBadge('pareto')}
+          <span class="panel-meta">${p.vitalFewCt} of ${p.totalCauses} causes drive 80% of loss · ${Math.round(p.totalMins)} total min</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="pareto-header">
+          <div class="pareto-rank-h">#</div>
+          <div class="pareto-label-h">Cause</div>
+          <div class="pareto-bar-h">Impact</div>
+          <div class="pareto-mins-h">Mins</div>
+          <div class="pareto-cum-h">Cum %</div>
+        </div>
+        <div class="pareto-list">${rows}</div>
+        <div class="pareto-footnote">Highlighted rows are the "vital few" — addressing these closes 80% of the gap (Pareto principle).</div>
+      </div>
+    </div>`;
+}
+
 function pmStats(rows){
   const pmRows = rows.filter(r => r.src.kind === 'pm');
   // Map area names → our internal short keys
@@ -1541,7 +1915,7 @@ function renderPmActivity(s){
       `).join('');
 
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="pm">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=pm" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.pm') || 'PM Activity — Weekly Maintenance'}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1692,7 +2066,7 @@ function renderChangeover(s){
       `).join('');
 
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="changeover">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=changeover" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.changeover') || 'Material Change'}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1798,7 +2172,7 @@ function renderShiftParticipation(stats){
     </div>` : '';
 
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="shifts">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=shifts" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.shifts') || 'Shift Participation — Reports per Shift'}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -1891,7 +2265,13 @@ function render(){
   const techs = techCounts(techRows);
   const feed = recentFeed(feedRows);
 
-  // Decide which panels to show based on typeFilter
+  // ── 4-TIER ENGINEERING LAYOUT ──────────────────────────────────────────
+  // T1 At-a-glance health: KPIs + Shift participation
+  // T2 Performance: production trend, UPH heatmap, WIP heatmap, OEE
+  // T3 Loss & quality: Pareto, downtime, material change, scout flags
+  // T4 Forensics: PM activity, tech leaderboard, recent submissions
+  // Each tier is a labeled section; user can pin any panel to a "Pinned" tier
+  // shown above all others.
   let panelsHtml = '';
   if(drillFilter){
     panelsHtml += `<div class="drill-active">
@@ -1899,30 +2279,79 @@ function render(){
       <button class="drill-active-clear" onclick="clearDrill()">${t('analytics.drill.clear')}</button>
     </div>`;
   }
-  panelsHtml += renderKPIs(k, computeKpisPrevPeriod());
 
-  // Shift Participation — high signal, show right after KPIs whenever shift data is included
-  if(typeFilter === 'all' || typeFilter === 'shift'){
-    panelsHtml += renderShiftParticipation(buildShiftStats(shiftRows));
-  }
+  // Build a registry: panel-key → rendered HTML. Lets us pin from any tier.
   const showShiftPanels = (typeFilter === 'all' || typeFilter === 'shift');
   const showScoutPanels = (typeFilter === 'all' || typeFilter === 'scout');
+  const showPmPanels    = (typeFilter === 'all' || typeFilter === 'pm');
+
+  const panelRegistry = {};
+  panelRegistry.kpis = renderKPIs(k, computeKpisPrevPeriod());
   if(showShiftPanels){
-    panelsHtml += renderProduction(prod);
-    panelsHtml += renderDowntime(dt, causes);
-    panelsHtml += renderWipBuckets(wip);
-    panelsHtml += renderUphBoard(uph);
-    panelsHtml += renderChangeover(buildChangeoverStats(coRows));
+    panelRegistry.shifts     = renderShiftParticipation(buildShiftStats(shiftRows));
+    panelRegistry.production = renderProduction(prod);
+    panelRegistry.uph        = renderUphBoard(uph);
+    panelRegistry.wip        = renderWipBuckets(wip);
+    panelRegistry.oee        = renderOee(buildOeeStats(rowsForPanel('oee', rows)));
+    panelRegistry.pareto     = renderPareto(buildPareto(rowsForPanel('pareto', rows)));
+    panelRegistry.downtime   = renderDowntime(dt, causes);
+    panelRegistry.changeover = renderChangeover(buildChangeoverStats(coRows));
   }
   if(showScoutPanels){
-    panelsHtml += renderScout(scout, flags);
+    panelRegistry.scout = renderScout(scout, flags);
   }
-  if(typeFilter === 'all' || typeFilter === 'pm'){
-    panelsHtml += renderPmActivity(pmStats(pmRows));
+  if(showPmPanels){
+    panelRegistry.pm = renderPmActivity(pmStats(pmRows));
   }
-  panelsHtml += renderTechs(techs);
-  panelsHtml += renderFeed(feed);
+  panelRegistry.techs = renderTechs(techs);
+  panelRegistry.feed  = renderFeed(feed);
+
+  // Tier organization. Each entry: [section_label, [panel_keys]]
+  const tiers = [
+    ['Health',           ['kpis', 'shifts']],
+    ['Performance',      ['oee', 'production', 'uph', 'wip']],
+    ['Loss & Quality',   ['pareto', 'downtime', 'changeover', 'scout']],
+    ['Forensics',        ['pm', 'techs', 'feed']],
+  ];
+
+  // Pull pinned panels to a top "Pinned" section (skipping tier section if empty)
+  const pinned = getPinnedSet();
+  const pinnedKeys = tiers.flatMap(([_, keys]) => keys).filter(k => pinned.has(k) && panelRegistry[k]);
+  if(pinnedKeys.length > 0){
+    panelsHtml += `<div class="tier-section tier-pinned"><div class="tier-label">📌 Pinned</div>`;
+    pinnedKeys.forEach(k => panelsHtml += panelRegistry[k]);
+    panelsHtml += `</div>`;
+  }
+
+  if(layoutMode === 'flat'){
+    // ── FLAT LEGACY LAYOUT ──
+    // Render panels in their original linear order without tier wrappers.
+    // Skip any panel already shown in the Pinned section.
+    const flatOrder = ['kpis','shifts','production','downtime','wip','uph','changeover','scout','pm','techs','feed','oee','pareto'];
+    flatOrder.forEach(k => {
+      if(panelRegistry[k] && !pinned.has(k)) panelsHtml += panelRegistry[k];
+    });
+  } else {
+    // ── TIERED ENGINEERING LAYOUT ──
+    // Render each tier with its label; skip empty tiers (e.g. when typeFilter
+    // hides whole groups). Skip panels already shown in Pinned.
+    tiers.forEach(([label, keys]) => {
+      const tierPanels = keys
+        .filter(k => panelRegistry[k] && !pinned.has(k))
+        .map(k => panelRegistry[k]).join('');
+      if(!tierPanels) return;
+      panelsHtml += `
+        <div class="tier-section" data-tier="${escapeHtml(label.toLowerCase())}">
+          <div class="tier-label">${escapeHtml(label)}</div>
+          ${tierPanels}
+        </div>`;
+    });
+  }
+
   document.getElementById('content').innerHTML = panelsHtml;
+
+  // Inject pin buttons into every panel head (after innerHTML write)
+  injectPinButtons();
 
   // Restore previously collapsed panels
   applyCollapsedState();
@@ -2028,7 +2457,7 @@ function raceNumber(card){
 function renderProduction(prod){
   const hasData = prod.days.length>0;
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="production">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=production" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.production')}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2156,7 +2585,7 @@ function renderDowntime(dt, causes){
     `<button class="dt-range-pill ${dtRangeHours===r.h?'active':''}" onclick="setDtRange(${r.h}); event.stopPropagation();">${r.label}</button>`
   ).join('');
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="downtime">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=downtime" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.downtime')}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="event.stopPropagation()">
@@ -2395,7 +2824,7 @@ function renderWipBuckets(wip){
   }
 
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="wip">
       <div class="panel-head">
         ${renderPanelRangeBadge('wip')}<h2 style="margin-right:auto"><a class="panel-head-link" href="Analytics_Detail.html?subject=wip" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.wip')}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;gap:6px;align-items:center">
@@ -2421,7 +2850,7 @@ function renderWipBuckets(wip){
 function renderUphBoard(uph){
   if(uph.rows.length === 0){
     return `
-      <div class="panel">
+      <div class="panel" data-panel-key="uph">
         <div class="panel-head"><h2><a class="panel-head-link" href="Analytics_Detail.html?subject=uph" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.uph')}<span class="panel-head-arrow">→</span></a></h2></div>
         <div class="panel-body">
           <div class="empty"><div class="empty-icon">📊</div>${t('analytics.empty.uph')}</div>
@@ -2472,7 +2901,7 @@ function renderUphBoard(uph){
   });
 
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="kpis">
       <div class="panel-head">
         <h2>${t('analytics.panel.uph')}</h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2523,7 +2952,7 @@ function renderScout(scout, flags){
 
   const totalFlags = flags.length;
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="scout">
       <div class="panel-head">
         ${renderPanelRangeBadge('scout')}<h2 style="margin-right:auto"><a class="panel-head-link" href="Analytics_Detail.html?subject=scout" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.scout')}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px">
@@ -2547,7 +2976,7 @@ function renderScout(scout, flags){
 function renderTechs(techs){
   if(techs.length===0){
     return `
-      <div class="panel">
+      <div class="panel" data-panel-key="techs">
         <div class="panel-head">
           <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=techs" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.techs')}<span class="panel-head-arrow">→</span></a></h2>
           <div class="panel-meta">ranked by submission count</div>
@@ -2630,7 +3059,7 @@ function renderTechs(techs){
 // ── Recent feed ─────────────────────────────────────────────────────────────
 function renderFeed(feed){
   return `
-    <div class="panel">
+    <div class="panel" data-panel-key="feed">
       <div class="panel-head">
         <h2><a class="panel-head-link" href="Analytics_Detail.html?subject=feed" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.feed')}<span class="panel-head-arrow">→</span></a></h2>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -2910,6 +3339,71 @@ window.addEventListener('resize', () => {
 });
 
 // ──────────────────────────────────────────────────────────────────
+// LAYOUT MODE — let user swap between tiered (new) and flat (legacy) layouts
+// ──────────────────────────────────────────────────────────────────
+const LAYOUT_KEY = 'salcomp_layout_mode';
+let layoutMode = (() => {
+  try { return localStorage.getItem(LAYOUT_KEY) || 'tiered'; } catch(e){ return 'tiered'; }
+})();
+
+function syncLayoutBtn(){
+  const btn = document.getElementById('layoutToggleBtn');
+  if(!btn) return;
+  if(layoutMode === 'tiered'){
+    btn.textContent = '⊞ Tiered';
+    btn.title = 'Currently in Tiered (engineering) view — click to switch to Flat (legacy) view';
+  } else {
+    btn.textContent = '☰ Flat';
+    btn.title = 'Currently in Flat (legacy) view — click to switch to Tiered (engineering) view';
+  }
+}
+
+window.toggleLayout = function(){
+  layoutMode = (layoutMode === 'tiered') ? 'flat' : 'tiered';
+  try { localStorage.setItem(LAYOUT_KEY, layoutMode); } catch(e){}
+  syncLayoutBtn();
+  render();
+};
+
+// ──────────────────────────────────────────────────────────────────
+// PINNED PANELS — let engineers star their most-watched panels to top
+// ──────────────────────────────────────────────────────────────────
+const PINNED_KEY = 'salcomp_pinned_panels';
+function getPinnedSet(){
+  try {
+    const raw = localStorage.getItem(PINNED_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch(e){ return new Set(); }
+}
+function savePinnedSet(set){
+  try { localStorage.setItem(PINNED_KEY, JSON.stringify([...set])); } catch(e){}
+}
+function togglePin(panelKey){
+  const set = getPinnedSet();
+  if(set.has(panelKey)) set.delete(panelKey); else set.add(panelKey);
+  savePinnedSet(set);
+  render();
+}
+// After rendering, inject a small pin button into each panel's head
+function injectPinButtons(){
+  const pinned = getPinnedSet();
+  document.querySelectorAll('.panel[data-panel-key]').forEach(p => {
+    const key = p.dataset.panelKey;
+    const head = p.querySelector('.panel-head');
+    if(!head || head.querySelector('.pin-btn')) return;
+    const btn = document.createElement('button');
+    btn.className = 'pin-btn' + (pinned.has(key) ? ' pin-on' : '');
+    btn.textContent = pinned.has(key) ? '★' : '☆';
+    btn.title = pinned.has(key) ? 'Unpin from top' : 'Pin to top';
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePin(key);
+    });
+    head.appendChild(btn);
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────
 // COLLAPSIBLE PANELS — click any panel head to fold/unfold the body
 // State persisted by panel title (matches across renders + reloads)
 // ──────────────────────────────────────────────────────────────────
@@ -2965,6 +3459,7 @@ document.addEventListener('click', e => {
 document.getElementById('hdrDate').textContent =
   new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 
+syncLayoutBtn();
 loadAll();
 startAutoRefresh();
 
