@@ -777,7 +777,15 @@ body::after{
 @keyframes expandIn{from{opacity:0;transform:translateY(-12px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 
 /* ANALYTICS CARD ROW — full width below the grid */
-.analytics-row{margin-bottom:24px;animation:fadeUp .6s .4s ease both;}
+.analytics-row{
+  margin-bottom:24px;animation:fadeUp .6s .4s ease both;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media(max-width:760px){
+  .analytics-row{grid-template-columns:1fr;}
+}
 .card-wide{padding:26px 28px;}
 .card-wide .card-icon{width:58px;height:58px;font-size:28px;}
 .card-wide .card-title{font-size:23px;}
@@ -794,6 +802,29 @@ body::after{
   border-color:rgba(57,197,207,.5);
   box-shadow:0 8px 28px rgba(57,197,207,.18);
   transform:translateY(-3px);
+}
+
+/* New Lines analytics card — yellow→orange gradient matching Battery + IQ9 colors */
+.card-newlines{
+  background:linear-gradient(135deg, rgba(245,217,55,.06) 0%, rgba(255,140,66,.04) 60%, var(--sur) 100%);
+  border:1px solid rgba(255,140,66,.25);
+  box-shadow:0 4px 18px rgba(255,140,66,.08);
+  position:relative;
+}
+.card-newlines:hover{
+  border-color:rgba(255,140,66,.5);
+  box-shadow:0 8px 28px rgba(255,140,66,.18);
+  transform:translateY(-3px);
+}
+.card-newlines .card-title{
+  background:linear-gradient(90deg, #f5d937 0%, #ff8c42 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.newlines-icon{
+  background:linear-gradient(135deg, rgba(245,217,55,.18), rgba(255,140,66,.10));
+  border:1px solid rgba(255,140,66,.25);
 }
 .analytics-icon{
   position:relative;
@@ -1224,12 +1255,21 @@ body::after{
       <div class="card-body">
         <div class="card-label" data-i18n="card.analytics.label">Live Data</div>
         <div class="card-title" data-i18n="card.analytics.title">Analytics Dashboard</div>
-        <div class="card-desc" data-i18n="card.analytics.desc">Production trends · Downtime · Scout flags · Recent activity across all reports</div>
+        <div class="card-desc" data-i18n="card.analytics.desc">Carousel · Potting · Wave-3 — production trends, downtime, scout flags</div>
       </div>
       <div class="card-analytics-spark">
         <svg viewBox="0 0 60 22" preserveAspectRatio="none" id="analyticsSpark">
           <polyline points="0,18 10,15 20,17 30,10 40,12 50,6 60,8" fill="none" stroke="var(--cyn)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
         </svg>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+    <a class="card card-wide card-newlines" href="Analytics_NewLines.html">
+      <div class="card-icon newlines-icon">🆕</div>
+      <div class="card-body">
+        <div class="card-label" data-i18n="card.newlines.label">Segregated</div>
+        <div class="card-title" data-i18n="card.newlines.title">New Lines Analytics</div>
+        <div class="card-desc" data-i18n="card.newlines.desc">🔋 Battery 1/2 + 🔦 IQ9 Commercial — separate from traditional lines</div>
       </div>
       <div class="card-arrow">→</div>
     </a>
@@ -1765,7 +1805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.cp-swatch').forEach(s => s.style.background = cur);
 });
 </script>
-<script src="theme.js"></script>
-<script src="translations.js"></script>
+<script src="theme.js?v=2"></script>
+<script src="translations.js?v=2"></script>
 </body>
 </html>

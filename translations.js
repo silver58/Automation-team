@@ -13,6 +13,8 @@ window.SALCOMP_I18N = {
   'area.carousel':         { en: 'Carousel',         es: 'Carrusel',     vi: 'Carousel' },
   'area.potting':          { en: 'Potting',          es: 'Encapsulado',  vi: 'Đổ Keo' },
   'area.wave3':            { en: 'Wave-3',           es: 'Wave-3',       vi: 'Wave-3' },
+  'area.battery':          { en: 'Battery 1/2',       es: 'Batería 1/2',  vi: 'Pin 1/2' },
+  'area.iq9':              { en: 'IQ9 Commercial',    es: 'IQ9 Comercial',vi: 'IQ9 Thương Mại' },
   'app.col.pm':            { en: 'Weekly PM',       es: 'MP Semanal',    vi: 'Bảo Trì Hàng Tuần' },
   'app.col.shift':         { en: 'Shift Reports',  es: 'Reportes de Turno', vi: 'Báo Cáo Ca' },
 
@@ -46,11 +48,38 @@ window.SALCOMP_I18N = {
   'card.carousel.shift.title':  { en: 'Carousel Tech Shift Report', es: 'Reporte de Turno Carrusel', vi: 'Báo Cáo Ca Kỹ Thuật Carousel' },
   'card.carousel.shift.desc':   { en: 'FT production · 8 C/O items · Scrap by type', es: 'Producción FT · 8 ítems C/O · Desperdicio por tipo', vi: 'Sản xuất FT · 8 mục đổi · Phế phẩm theo loại' },
 
+  // ── BATTERY 1/2 CARDS ──────────────────────────────────────────────
+  'card.battery.shift.label':   { en: 'Shift Report', es: 'Reporte de Turno', vi: 'Báo Cáo Ca' },
+  'card.battery.shift.title':   { en: 'Battery 1/2 Shift Report', es: 'Reporte de Turno Batería 1/2', vi: 'Báo Cáo Ca Pin 1/2' },
+  'card.battery.shift.desc':    { en: 'Hr by hr · Downtime · NG parts · Sign off', es: 'Hora a hora · Tiempo muerto · Piezas NG · Firma', vi: 'Theo giờ · Thời gian dừng · Linh kiện NG · Ký xác nhận' },
+  'card.battery.scout.label':   { en: 'Scout Check', es: 'Inspección Scout', vi: 'Kiểm Tra Scout' },
+  'card.battery.scout.title':   { en: 'Battery 1/2 Scout Check', es: 'Inspección Scout Batería 1/2', vi: 'Kiểm Tra Scout Pin 1/2' },
+  'card.battery.scout.desc':    { en: 'Visual inspection & functional checks', es: 'Inspección visual y chequeos funcionales', vi: 'Kiểm tra thị giác và chức năng' },
+  'card.battery.pm.label':      { en: 'Weekly PM', es: 'MP Semanal', vi: 'Bảo Trì Hàng Tuần' },
+  'card.battery.pm.title':      { en: 'Battery 1/2 Weekly PM', es: 'MP Semanal Batería 1/2', vi: 'Bảo Trì Hàng Tuần Pin 1/2' },
+  'card.battery.pm.desc':       { en: 'Weekly tasks + pending flags', es: 'Tareas semanales + banderas pendientes', vi: 'Nhiệm vụ hàng tuần + cờ chờ xử lý' },
+
+  // ── IQ9 COMMERCIAL CARDS ───────────────────────────────────────────
+  'card.iq9.shift.label':       { en: 'Shift Report', es: 'Reporte de Turno', vi: 'Báo Cáo Ca' },
+  'card.iq9.shift.title':       { en: 'IQ9 Commercial Shift Report', es: 'Reporte de Turno IQ9 Comercial', vi: 'Báo Cáo Ca IQ9 Thương Mại' },
+  'card.iq9.shift.desc':        { en: 'Hr by hr · Downtime · NG parts · Sign off', es: 'Hora a hora · Tiempo muerto · Piezas NG · Firma', vi: 'Theo giờ · Thời gian dừng · Linh kiện NG · Ký xác nhận' },
+  'card.iq9.scout.label':       { en: 'Scout Check', es: 'Inspección Scout', vi: 'Kiểm Tra Scout' },
+  'card.iq9.scout.title':       { en: 'IQ9 Commercial Scout Check', es: 'Inspección Scout IQ9 Comercial', vi: 'Kiểm Tra Scout IQ9 Thương Mại' },
+  'card.iq9.scout.desc':        { en: 'Visual inspection & functional checks', es: 'Inspección visual y chequeos funcionales', vi: 'Kiểm tra thị giác và chức năng' },
+  'card.iq9.pm.label':          { en: 'Weekly PM', es: 'MP Semanal', vi: 'Bảo Trì Hàng Tuần' },
+  'card.iq9.pm.title':          { en: 'IQ9 Commercial Weekly PM', es: 'MP Semanal IQ9 Comercial', vi: 'Bảo Trì Hàng Tuần IQ9 Thương Mại' },
+  'card.iq9.pm.desc':           { en: 'Weekly tasks + pending flags', es: 'Tareas semanales + banderas pendientes', vi: 'Nhiệm vụ hàng tuần + cờ chờ xử lý' },
+
   'card.analytics.label':       { en: 'Live Data', es: 'Datos en Vivo', vi: 'Dữ Liệu Trực Tiếp' },
   'card.analytics.title':       { en: 'Analytics Dashboard', es: 'Panel de Analítica', vi: 'Bảng Điều Khiển Phân Tích' },
-  'card.analytics.desc':        { en: 'Production trends · Downtime · Scout flags · Recent activity across all reports',
-                                  es: 'Tendencias de producción · Tiempo muerto · Banderas Scout · Actividad reciente de todos los reportes',
-                                  vi: 'Xu hướng sản xuất · Thời gian dừng · Cờ Scout · Hoạt động gần đây trong tất cả báo cáo' },
+  'card.analytics.desc':        { en: 'Carousel · Potting · Wave-3 — production trends, downtime, scout flags',
+                                  es: 'Carrusel · Encapsulado · Wave-3 — tendencias de producción, tiempo muerto, banderas Scout',
+                                  vi: 'Carousel · Đổ Keo · Wave-3 — xu hướng sản xuất, thời gian dừng, cờ Scout' },
+  'card.newlines.label':        { en: 'Segregated', es: 'Segregado', vi: 'Tách Biệt' },
+  'card.newlines.title':        { en: 'New Lines Analytics', es: 'Analítica Líneas Nuevas', vi: 'Phân Tích Dây Chuyền Mới' },
+  'card.newlines.desc':         { en: '🔋 Battery 1/2 + 🔦 IQ9 Commercial — separate from traditional lines',
+                                  es: '🔋 Batería 1/2 + 🔦 IQ9 Comercial — separadas de las líneas tradicionales',
+                                  vi: '🔋 Pin 1/2 + 🔦 IQ9 Thương Mại — tách biệt với dây chuyền truyền thống' },
 
   // ── COMMON UI ──────────────────────────────────────────────────────────
   'common.back':           { en: '← Back', es: '← Atrás', vi: '← Quay lại' },
@@ -509,6 +538,11 @@ window.t = function(key, fallback) {
 window.applyTranslations = function() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
+    // If the key isn't in the dictionary, leave the existing HTML text alone
+    // rather than overwriting it with the literal key string. This makes the
+    // page graceful against stale-cached translations.js or new keys not yet
+    // translated.
+    if (!window.SALCOMP_I18N[key]) return;
     const txt = window.t(key);
     if (el.children.length === 0) {
       el.textContent = txt;
@@ -523,10 +557,14 @@ window.applyTranslations = function() {
     }
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = window.t(el.getAttribute('data-i18n-placeholder'));
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (!window.SALCOMP_I18N[key]) return;
+    el.placeholder = window.t(key);
   });
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    el.title = window.t(el.getAttribute('data-i18n-title'));
+    const key = el.getAttribute('data-i18n-title');
+    if (!window.SALCOMP_I18N[key]) return;
+    el.title = window.t(key);
   });
 };
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salcomp — New Lines Analytics (Battery & IQ9)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;
+  --amb2:#ffd166;--grn:#3fb950;--red:#f85149;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
+  --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
+  --battery:#f5d937;--iq9:#ff8c42;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+button{touch-action:manipulation;}
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
+
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.site-header a.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.site-header a.back:hover{border-color:var(--amb);color:var(--amb);}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.lang-toggle{display:inline-flex;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;user-select:none;flex-shrink:0;}
+.lang-toggle span{padding:4px 9px;border-radius:4px;color:var(--mut2);transition:all .15s;}
+.lang-toggle span.active{background:rgba(var(--amb-rgb), .18);color:var(--amb);}
+
+.main{max-width:1200px;margin:0 auto;padding:24px 28px;}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:20px;}
+.segregation-badge{
+  display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--amb);
+  background:rgba(var(--amb-rgb),.1);border:1px solid rgba(var(--amb-rgb),.25);padding:3px 9px;border-radius:5px;margin-left:10px;
+}
+
+.controls{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.range-pills{display:inline-flex;background:var(--bg);border:1px solid var(--bdr);border-radius:6px;padding:2px;}
+.rpill{background:transparent;border:none;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;padding:5px 11px;border-radius:4px;cursor:pointer;transition:all .15s;}
+.rpill:hover{color:var(--txt);}
+.rpill.active{background:rgba(var(--amb-rgb), .15);color:var(--amb);font-weight:600;}
+.refresh-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .15s;margin-left:auto;}
+.refresh-btn:hover{border-color:var(--amb);color:var(--amb);}
+
+.area-tab-bar{display:flex;gap:8px;margin-bottom:16px;}
+.area-tab{
+  flex:1;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;
+  padding:14px 18px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;
+  text-align:left;color:var(--txt);font-family:'IBM Plex Sans',sans-serif;
+}
+.area-tab:hover{transform:translateY(-1px);}
+.area-tab.tab-bat{border-left:4px solid var(--battery);}
+.area-tab.tab-iq9{border-left:4px solid var(--iq9);}
+.area-tab.active.tab-bat{background:rgba(245,217,55,.06);border-color:var(--battery);}
+.area-tab.active.tab-iq9{background:rgba(255,140,66,.06);border-color:var(--iq9);}
+.area-tab-icon{font-size:24px;flex-shrink:0;}
+.area-tab-name{font-size:14px;font-weight:600;}
+.area-tab-meta{font-size:11px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:10px;margin-bottom:20px;}
+.kpi-card{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:12px 16px;}
+.kpi-card-lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.kpi-card-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;line-height:1;color:var(--amb);}
+.kpi-card.bat .kpi-card-val{color:var(--battery);}
+.kpi-card.iq9 .kpi-card-val{color:var(--iq9);}
+
+.panel{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.panel-head{padding:13px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.panel-head h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);}
+.panel-head .panel-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);}
+.panel-body{padding:18px 20px;}
+
+.report-card{background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:13px 15px;margin-bottom:8px;}
+.report-card-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--bdr);padding-bottom:6px;margin-bottom:8px;}
+.report-card-title{font-size:13px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.report-card-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);}
+.report-card-body{display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:10px 16px;}
+.r-field-lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;}
+.r-field-val{font-size:13px;color:var(--txt);font-weight:500;margin-top:2px;}
+
+.r-shift{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amb);background:rgba(var(--amb-rgb),.12);padding:2px 7px;border-radius:9px;font-weight:600;letter-spacing:.04em;}
+.r-area-bat{background:rgba(245,217,55,.15);color:var(--battery);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:9px;}
+.r-area-iq9{background:rgba(255,140,66,.15);color:var(--iq9);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:9px;}
+
+.empty{text-align:center;padding:60px 20px;color:var(--mut2);}
+.empty-icon{font-size:42px;margin-bottom:10px;}
+.loading{text-align:center;padding:80px 20px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+
+@media(max-width:600px){
+  .main{padding:16px;}
+  .area-tab-bar{flex-direction:column;}
+}
+</style>
+<script src="theme.js?v=2"></script>
+<script src="translations.js?v=2"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back" href="index.html">← Home</a>
+  <div class="logo">SALCOMP — NEW LINES</div>
+  <div class="hdr-right">
+    <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language · Cambiar idioma · Đổi ngôn ngữ">
+      <span class="lang-en active">EN</span><span class="lang-es">ES</span>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">
+    🆕 New Lines Analytics
+    <span class="segregation-badge">Segregated from Carousel/Potting/Wave-3</span>
+  </div>
+  <div class="page-sub">
+    Standalone analytics for Battery 1/2 and IQ9 Commercial. These lines have separate Supabase tables and don't mix with the traditional area data.
+  </div>
+
+  <div class="area-tab-bar">
+    <button class="area-tab tab-bat active" data-area="battery" onclick="setActiveArea('battery')">
+      <div class="area-tab-icon">🔋</div>
+      <div>
+        <div class="area-tab-name">Battery 1/2</div>
+        <div class="area-tab-meta" id="batMeta">— reports</div>
+      </div>
+    </button>
+    <button class="area-tab tab-iq9" data-area="iq9" onclick="setActiveArea('iq9')">
+      <div class="area-tab-icon">🔦</div>
+      <div>
+        <div class="area-tab-name">IQ9 Commercial</div>
+        <div class="area-tab-meta" id="iq9Meta">— reports</div>
+      </div>
+    </button>
+  </div>
+
+  <div class="controls">
+    <div class="range-pills" id="rangePills">
+      <button class="rpill active" data-days="1">24 hr</button>
+      <button class="rpill" data-days="7">7 day</button>
+      <button class="rpill" data-days="30">30 day</button>
+      <button class="rpill" data-days="90">90 day</button>
+      <button class="rpill" data-days="0">All time</button>
+    </div>
+    <button class="refresh-btn" onclick="loadAll(true)">↻ Refresh</button>
+  </div>
+
+  <div class="kpi-strip" id="kpiStrip"></div>
+  <div id="content"><div class="loading">Loading…</div></div>
+</main>
+
+<script>
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+const sbHeaders = () => ({'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY});
+
+const SOURCES = {
+  battery: {table:'battery_reports', label:'Battery 1/2', icon:'🔋', cls:'bat', areaPill:'r-area-bat'},
+  iq9:     {table:'iq9_reports',     label:'IQ9 Commercial', icon:'🔦', cls:'iq9', areaPill:'r-area-iq9'},
+};
+
+let activeArea = 'battery';
+let rangeDays = 1;
+let allRows = {battery: [], iq9: []};
+
+async function fetchArea(areaKey){
+  const src = SOURCES[areaKey];
+  try {
+    const url = `${SB_URL}/rest/v1/${src.table}?order=submitted_at.desc&limit=2000`;
+    const res = await fetch(url, {headers: sbHeaders()});
+    if(!res.ok) return [];
+    return await res.json();
+  } catch(e){
+    return [];
+  }
+}
+
+async function loadAll(){
+  document.getElementById('content').innerHTML = '<div class="loading">Loading…</div>';
+  const [batRows, iq9Rows] = await Promise.all([fetchArea('battery'), fetchArea('iq9')]);
+  allRows.battery = batRows;
+  allRows.iq9 = iq9Rows;
+  // Update tab counts (rolling 24h indicator)
+  const cutoff24 = Date.now() - 86400000;
+  const cnt = key => allRows[key].filter(r => new Date(r.submitted_at).getTime() >= cutoff24).length;
+  document.getElementById('batMeta').textContent = `${cnt('battery')} in last 24h · ${allRows.battery.length} total`;
+  document.getElementById('iq9Meta').textContent = `${cnt('iq9')} in last 24h · ${allRows.iq9.length} total`;
+  render();
+}
+
+function setActiveArea(area){
+  activeArea = area;
+  document.querySelectorAll('.area-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.area === area);
+  });
+  render();
+}
+
+function withinRange(when){
+  if(rangeDays === 0) return true;
+  const t = new Date(when).getTime();
+  if(isNaN(t)) return false;
+  return t >= Date.now() - rangeDays * 86400000;
+}
+
+function render(){
+  const src = SOURCES[activeArea];
+  const rows = allRows[activeArea].filter(r => withinRange(r.submitted_at));
+
+  // KPI strip
+  let totalProduction = 0, totalDowntime = 0, totalEvents = 0;
+  rows.forEach(r => {
+    totalProduction += parseFloat(r.production_total) || 0;
+    (r.downtime_events || []).forEach(ev => {
+      const m = parseFloat(ev.mins);
+      if(!isNaN(m) && m > 0){ totalDowntime += m; totalEvents++; }
+    });
+  });
+  const techs = new Set(rows.map(r => (r.tech_name||'').trim()).filter(x => x));
+
+  const kpis = [
+    {lbl:'Reports', val:rows.length},
+    {lbl:'Production', val:Math.round(totalProduction).toLocaleString()},
+    {lbl:'Downtime (min)', val:Math.round(totalDowntime).toLocaleString()},
+    {lbl:'Events', val:totalEvents},
+    {lbl:'Active Techs', val:techs.size},
+  ];
+  document.getElementById('kpiStrip').innerHTML = kpis.map(k => `
+    <div class="kpi-card ${src.cls}">
+      <div class="kpi-card-lbl">${escape(k.lbl)}</div>
+      <div class="kpi-card-val">${k.val}</div>
+    </div>`).join('');
+
+  // Report list
+  if(rows.length === 0){
+    document.getElementById('content').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">${src.icon}</div>
+        <div>No ${escape(src.label)} reports in this range.</div>
+        <div style="font-size:11px;margin-top:8px;color:var(--mut2);">Try a wider date range or submit a new report.</div>
+      </div>`;
+    return;
+  }
+
+  let html = `
+    <div class="panel">
+      <div class="panel-head">
+        <h2>${escape(src.label)} — Recent Submissions</h2>
+        <span class="panel-meta">${rows.length} report${rows.length!==1?'s':''}</span>
+      </div>
+      <div class="panel-body">`;
+  rows.forEach(r => {
+    const events = r.downtime_events || [];
+    const dtTotal = events.reduce((s, e) => s + (parseFloat(e.mins) || 0), 0);
+    html += `
+      <div class="report-card">
+        <div class="report-card-hd">
+          <div class="report-card-title">
+            <span class="${src.areaPill}">${escape(src.label)}</span>
+            ${r.shift ? `<span class="r-shift">Shift ${escape(r.shift)}</span>` : ''}
+            <span style="margin-left:6px">${escape(r.tech_name || 'Unknown')}</span>
+          </div>
+          <div class="report-card-meta">${escape(r.date || '')} · ${relTime(r.submitted_at)}</div>
+        </div>
+        <div class="report-card-body">
+          <div><div class="r-field-lbl">Line</div><div class="r-field-val">${escape(r.line || '—')}</div></div>
+          <div><div class="r-field-lbl">Production</div><div class="r-field-val" style="color:var(--grn)">${escape(r.production_total || '—')}</div></div>
+          <div><div class="r-field-lbl">Downtime</div><div class="r-field-val" style="color:var(--red)">${Math.round(dtTotal)} min</div></div>
+          <div><div class="r-field-lbl">Events</div><div class="r-field-val">${events.length}</div></div>
+          ${r.change_over ? `<div><div class="r-field-lbl">Changeover</div><div class="r-field-val">${escape(r.change_over)}</div></div>` : ''}
+        </div>
+      </div>`;
+  });
+  html += `</div></div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function escape(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function relTime(iso){
+  if(!iso) return '—';
+  const t = new Date(iso).getTime();
+  if(isNaN(t)) return '—';
+  const s = Math.round((Date.now() - t) / 1000);
+  if(s < 60) return `${s}s ago`;
+  if(s < 3600) return `${Math.round(s/60)}m ago`;
+  if(s < 86400) return `${Math.round(s/3600)}h ago`;
+  return `${Math.round(s/86400)}d ago`;
+}
+
+document.querySelectorAll('.rpill').forEach(b => {
+  b.addEventListener('click', () => {
+    rangeDays = parseInt(b.dataset.days);
+    document.querySelectorAll('.rpill').forEach(x => x.classList.toggle('active', x === b));
+    render();
+  });
+});
+
+loadAll();
+window.onLangChange = function(){ render(); };
+</script>
+
+</body>
+</html>
