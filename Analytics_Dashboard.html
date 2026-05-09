@@ -414,6 +414,80 @@ svg .bar-clickable:hover{opacity:.7;}
 .pareto-vital .pareto-mins{color:var(--amb);}
 .pareto-cum{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut);text-align:right;}
 .pareto-footnote{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:10px;font-style:italic;}
+
+/* View toggle (☰ Table / 📊 Chart) sits in panel head */
+.pareto-view-toggle{
+  display:inline-flex;
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:6px;
+  padding:2px;
+  gap:1px;
+}
+.pview-btn{
+  background:transparent;
+  border:none;
+  color:var(--mut2);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  font-weight:500;
+  padding:4px 10px;
+  border-radius:4px;
+  cursor:pointer;
+  transition:all .15s;
+  letter-spacing:.04em;
+}
+.pview-btn:hover{color:var(--txt);}
+.pview-btn.active{
+  background:rgba(var(--amb-rgb), .15);
+  color:var(--amb);
+  font-weight:600;
+}
+
+/* Chart view */
+.pareto-chart-wrap{
+  background:var(--sur2);
+  border:1px solid var(--bdr);
+  border-radius:7px;
+  padding:14px 8px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.pareto-chart{
+  width:100%;
+  min-width:560px;
+  height:auto;
+  display:block;
+}
+.pareto-chart-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  padding:10px 8px 0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  color:var(--mut);
+}
+.pareto-chart-legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend-sw{
+  display:inline-block;
+  width:14px;height:9px;
+  border-radius:2px;
+}
+.legend-sw.legend-line{
+  height:0;
+  border-top:2px solid var(--cyn);
+  border-radius:0;
+  position:relative;
+  width:18px;
+}
+.legend-sw.legend-line::before{
+  content:'';
+  position:absolute;
+  top:-3px;left:6px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--cyn);
+}
 @media(max-width:560px){
   .pareto-header,.pareto-row{grid-template-columns:24px 1fr 50px 40px;font-size:10.5px;}
   .pareto-bar-h,.pareto-bar{display:none;}
@@ -1816,8 +1890,12 @@ function renderPareto(p){
         </div>
       </div>`;
   }
+  // Read view preference from localStorage so it persists across renders
+  const view = (localStorage.getItem('salcomp_pareto_view') || 'table');
   const max = Math.max(...p.causes.map(c => c.mins));
-  const rows = p.causes.map((c, i) => {
+
+  // ── TABLE VIEW (info-dense) ────────────────────────────────────────────
+  const tableRows = p.causes.map((c, i) => {
     const widthPct = (c.mins / max) * 100;
     const isVitalFew = i < p.vitalFewCt;
     const pillCls = c.type === 'mech' ? 'dt-pill-mech' : c.type === 'prod' ? 'dt-pill-prod' : 'dt-pill-unk';
@@ -1835,6 +1913,116 @@ function renderPareto(p){
         <div class="pareto-cum">${Math.round(c.cumPct)}%</div>
       </div>`;
   }).join('');
+  const tableHtml = `
+    <div class="pareto-header">
+      <div class="pareto-rank-h">#</div>
+      <div class="pareto-label-h">Cause</div>
+      <div class="pareto-bar-h">Impact</div>
+      <div class="pareto-mins-h">Mins</div>
+      <div class="pareto-cum-h">Cum %</div>
+    </div>
+    <div class="pareto-list">${tableRows}</div>`;
+
+  // ── CHART VIEW (classic Pareto: bars + cumulative line) ────────────────
+  // SVG dimensions
+  const chartCauses = p.causes;  // already top 15
+  const N = chartCauses.length;
+  const w = Math.max(560, N * 56);   // grow horizontally for many bars
+  const h = 360;
+  const padL = 50, padR = 50, padT = 20, padB = 110;
+  const plotW = w - padL - padR;
+  const plotH = h - padT - padB;
+  const barGap = 8;
+  const barW = (plotW / N) - barGap;
+
+  // Bars (mins)
+  const bars = chartCauses.map((c, i) => {
+    const x = padL + i * (plotW / N) + barGap/2;
+    const barH = (c.mins / max) * plotH;
+    const y = padT + (plotH - barH);
+    const isVital = i < p.vitalFewCt;
+    const fill = isVital ? 'var(--amb)' : 'var(--red)';
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="3"
+          fill="${fill}" fill-opacity="${isVital ? 0.85 : 0.6}"
+          stroke="${fill}" stroke-width="1">
+          <title>${escapeHtml(c.label)} — ${Math.round(c.mins)} min (${Math.round(c.pct)}%)</title>
+        </rect>
+        <text x="${x + barW/2}" y="${y - 4}" text-anchor="middle"
+          fill="var(--mut)" font-family="'IBM Plex Mono', monospace" font-size="9.5">${Math.round(c.mins)}</text>
+      </g>`;
+  }).join('');
+
+  // Cumulative % line (right-axis)
+  const linePoints = chartCauses.map((c, i) => {
+    const x = padL + i * (plotW / N) + (plotW / N) / 2;
+    const y = padT + plotH - (c.cumPct / 100) * plotH;
+    return `${x},${y}`;
+  }).join(' ');
+  const lineDots = chartCauses.map((c, i) => {
+    const x = padL + i * (plotW / N) + (plotW / N) / 2;
+    const y = padT + plotH - (c.cumPct / 100) * plotH;
+    return `<circle cx="${x}" cy="${y}" r="3" fill="var(--cyn)" stroke="var(--bg)" stroke-width="1.5">
+      <title>Cumulative ${Math.round(c.cumPct)}%</title></circle>`;
+  }).join('');
+
+  // 80% reference line
+  const eightyY = padT + plotH - (80 / 100) * plotH;
+
+  // X-axis labels (rotated, truncated)
+  const xLabels = chartCauses.map((c, i) => {
+    const x = padL + i * (plotW / N) + (plotW / N) / 2;
+    const label = c.label.length > 18 ? c.label.slice(0, 16) + '…' : c.label;
+    const isVital = i < p.vitalFewCt;
+    return `<text x="${x}" y="${padT + plotH + 12}" text-anchor="end"
+      transform="rotate(-45 ${x} ${padT + plotH + 12})"
+      fill="${isVital ? 'var(--amb)' : 'var(--mut2)'}"
+      font-family="'IBM Plex Sans', sans-serif" font-size="10"
+      font-weight="${isVital ? 600 : 400}">${escapeHtml(label)}</text>`;
+  }).join('');
+
+  // Y-axis ticks (left = mins, right = %)
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => {
+    const y = padT + plotH - t * plotH;
+    return `
+      <line x1="${padL}" y1="${y}" x2="${padL + plotW}" y2="${y}"
+        stroke="var(--bdr)" stroke-width="1" stroke-dasharray="${t === 0 ? '' : '2,3'}"/>
+      <text x="${padL - 6}" y="${y + 3}" text-anchor="end"
+        fill="var(--mut2)" font-family="'IBM Plex Mono', monospace" font-size="9">${Math.round(max * t)}</text>
+      <text x="${padL + plotW + 6}" y="${y + 3}" text-anchor="start"
+        fill="var(--mut2)" font-family="'IBM Plex Mono', monospace" font-size="9">${Math.round(t * 100)}%</text>`;
+  }).join('');
+
+  const chartHtml = `
+    <div class="pareto-chart-wrap">
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" class="pareto-chart">
+        ${yTicks}
+        ${bars}
+        <line x1="${padL}" y1="${eightyY}" x2="${padL + plotW}" y2="${eightyY}"
+          stroke="var(--amb)" stroke-width="1" stroke-dasharray="4,4" opacity=".6"/>
+        <text x="${padL + plotW + 4}" y="${eightyY - 4}" fill="var(--amb)"
+          font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="600">80%</text>
+        <polyline points="${linePoints}" fill="none" stroke="var(--cyn)"
+          stroke-width="2" stroke-linejoin="round"/>
+        ${lineDots}
+        ${xLabels}
+        <text x="${padL - 38}" y="${padT + plotH/2}" text-anchor="middle"
+          transform="rotate(-90 ${padL - 38} ${padT + plotH/2})"
+          fill="var(--mut)" font-family="'IBM Plex Mono', monospace" font-size="10"
+          letter-spacing=".06em" text-transform="uppercase">Minutes Lost</text>
+        <text x="${padL + plotW + 30}" y="${padT + plotH/2}" text-anchor="middle"
+          transform="rotate(90 ${padL + plotW + 30} ${padT + plotH/2})"
+          fill="var(--mut)" font-family="'IBM Plex Mono', monospace" font-size="10"
+          letter-spacing=".06em" text-transform="uppercase">Cumulative %</text>
+      </svg>
+      <div class="pareto-chart-legend">
+        <span><i class="legend-sw" style="background:var(--amb);"></i> Vital few (causes ≥80% of loss)</span>
+        <span><i class="legend-sw" style="background:var(--red);opacity:.6;"></i> Trivial many</span>
+        <span><i class="legend-sw legend-line"></i> Cumulative %</span>
+      </div>
+    </div>`;
+
   return `
     <div class="panel" data-panel-key="pareto">
       <div class="panel-head">
@@ -1842,21 +2030,26 @@ function renderPareto(p){
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           ${renderPanelRangeBadge('pareto')}
           <span class="panel-meta">${p.vitalFewCt} of ${p.totalCauses} causes drive 80% of loss · ${Math.round(p.totalMins)} total min</span>
+          <div class="pareto-view-toggle">
+            <button class="pview-btn ${view==='table'?'active':''}" onclick="setParetoView('table')" title="Table view">☰ Table</button>
+            <button class="pview-btn ${view==='chart'?'active':''}" onclick="setParetoView('chart')" title="Pareto chart view">📊 Chart</button>
+          </div>
         </div>
       </div>
       <div class="panel-body">
-        <div class="pareto-header">
-          <div class="pareto-rank-h">#</div>
-          <div class="pareto-label-h">Cause</div>
-          <div class="pareto-bar-h">Impact</div>
-          <div class="pareto-mins-h">Mins</div>
-          <div class="pareto-cum-h">Cum %</div>
-        </div>
-        <div class="pareto-list">${rows}</div>
-        <div class="pareto-footnote">Highlighted rows are the "vital few" — addressing these closes 80% of the gap (Pareto principle).</div>
+        ${view === 'chart' ? chartHtml : tableHtml}
+        <div class="pareto-footnote">${view === 'chart'
+          ? 'Bars = minutes lost per cause. Line = cumulative % of total loss. Bars left of where the line crosses 80% are the vital few — fix those first.'
+          : 'Highlighted rows are the "vital few" — addressing these closes 80% of the gap (Pareto principle).'
+        }</div>
       </div>
     </div>`;
 }
+
+window.setParetoView = function(view){
+  try { localStorage.setItem('salcomp_pareto_view', view); } catch(e){}
+  if(typeof render === 'function') render();
+};
 
 function pmStats(rows){
   const pmRows = rows.filter(r => r.src.kind === 'pm');
