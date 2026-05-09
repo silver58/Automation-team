@@ -388,7 +388,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
           </select>
         </div>
         <div class="field"><label data-i18n="field.line">Line</label><input type="number" id="fLine" inputmode="numeric" min="1" step="1" placeholder="e.g. 3"></div>
-        <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" placeholder="e.g. Battery"></div>
+        <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" value="Battery" placeholder="e.g. Battery"></div>
       </div>
       <div class="fg fg-2">
         <div class="field"><label data-i18n="field.running_model">Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ80-BAT-DOW"></div>
@@ -436,7 +436,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
   
   <!-- WIP & SCRAP -->
   <div class="card">
-    <div class="card-head"><h2 data-i18n="shift.section.wip.valves">WIP / Scrap / Valves</h2></div>
+    <div class="card-head"><h2>WIP / Scrap / Glue</h2></div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
       <div>
         <div class="sdiv"><span data-i18n="wip.timeline.cart">WIP Remaining (Cart count)</span></div>
@@ -465,11 +465,11 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
         </div>
       </div>
       <div>
-        <div class="sdiv"><span>Valves S/R (Qty)</span></div>
+        <div class="sdiv"><span>Glue Change (Qty)</span></div>
         <div class="fg fg-3">
-          <div class="field"><label>Swapped</label><input type="text" id="valvesSwapped" placeholder="Qty"></div>
-          <div class="field"><label>Seals Replaced</label><input type="text" id="sealsReplaced" placeholder="Qty"></div>
-          <div class="field"><label>Left for Next Shift</label><input type="text" id="valvesNext" placeholder="Qty"></div>
+          <div class="field"><label>TIM Glue Changed</label><input type="text" id="glueTim" placeholder="Qty"></div>
+          <div class="field"><label>Gasket Changed</label><input type="text" id="glueGasket" placeholder="Qty"></div>
+          <div class="field"><label>Left for Next Shift</label><input type="text" id="glueNext" placeholder="Qty"></div>
         </div>
       </div>
     </div>
@@ -684,7 +684,9 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <script src="theme.js?v=2"></script>
 <script src="translations.js?v=2"></script>
+<script>window.SALCOMP_LINES_OVERRIDE = ['4', '5'];</script>
 <script src="techs.js?v=2"></script>
+<script src="shift_form_speedup.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -833,9 +835,9 @@ function collectData(){
     })(),
     scrap_qty:       document.getElementById('scrapQty').value,
     scrap_source:    document.getElementById('scrapSource').value,
-    valves_swapped:  document.getElementById('valvesSwapped').value,
-    seals_replaced:  document.getElementById('sealsReplaced').value,
-    valves_next:     document.getElementById('valvesNext').value,
+    glue_tim:        document.getElementById('glueTim').value,
+    glue_gasket:     document.getElementById('glueGasket').value,
+    glue_next:       document.getElementById('glueNext').value,
     ng_found_on_line:ynState['ng-found']||null,
     trash_on_line:   ynState['trash']||null,
     prev_overflow:   document.getElementById('prev-overflow').value,
@@ -1197,7 +1199,7 @@ function renderRepDetails(r){
     'co_1d_label':'CO 1D Label','co_1d_ribbon':'CO 1D Ribbon',
     'ng_found_on_line':'NG on Line','trash_on_line':'Trash on Line','main_label_trash':'Main Label Trash',
     'spillage_of_glue':'Glue Spillage','parts_inside_machine':'Parts in Machine',
-    'valves_swapped':'Valves Swapped','seals_replaced':'Seals Replaced','valves_next':'Valves Next',
+    'glue_tim':'TIM Glue Changed','glue_gasket':'Gasket Changed','glue_next':'Glue Left for Next Shift',
     'prev_mainl':'Prev MainL','prev_bs':'Prev B/S','prev_mes':'Prev MES','prev_other':'Prev Other',
     'prev_1d_label':'Prev 1D Label','prev_overflow':'Prev Overflow','prev_crashed':'Prev Crashed',
     'this_mainl':'This MainL','this_bs':'This B/S','this_mes':'This MES','this_other':'This Other',
@@ -1285,7 +1287,7 @@ function printReport(id){
     'co_1d_label':'CO 1D Label','co_1d_ribbon':'CO 1D Ribbon',
     'ng_found_on_line':'NG on Line','trash_on_line':'Trash on Line','main_label_trash':'Main Label Trash',
     'spillage_of_glue':'Glue Spillage','parts_inside_machine':'Parts in Machine',
-    'valves_swapped':'Valves Swapped','seals_replaced':'Seals Replaced','valves_next':'Valves Next',
+    'glue_tim':'TIM Glue Changed','glue_gasket':'Gasket Changed','glue_next':'Glue Left for Next Shift',
     'prev_mainl':'Prev MainL','prev_bs':'Prev B/S','prev_mes':'Prev MES','prev_other':'Prev Other',
     'prev_1d_label':'Prev 1D Label','prev_overflow':'Prev Overflow','prev_crashed':'Prev Crashed',
     'this_mainl':'This MainL','this_bs':'This B/S','this_mes':'This MES','this_other':'This Other',
@@ -1353,7 +1355,7 @@ ${body}
 // ═══ DELETE ═════════════════════════════════════════════════════════
 // ═══ EDIT MODE ═════════════════════════════════════════════════════════
 let editingReportId = null;
-const FIELD_MAP = {"fDate": "date", "fShift": "shift", "fLine": "line", "fMachine": "machine", "fModel": "running_model", "prod-total": "production_total", "dt-total": "downtime_total", "fHoursOverTarget": "hours_over_target", "techName": "tech_name", "techSig": "tech_sig", "scrapQty": "scrap_qty", "scrapSource": "scrap_source", "valvesSwapped": "valves_swapped", "sealsReplaced": "seals_replaced", "valvesNext": "valves_next", "prev-overflow": "prev_overflow", "prev-crashed": "prev_crashed", "prev-mes": "prev_mes", "prev-other": "prev_other", "this-overflow": "this_overflow", "this-crashed": "this_crashed", "this-mes": "this_mes", "this-other": "this_other"};
+const FIELD_MAP = {"fDate": "date", "fShift": "shift", "fLine": "line", "fMachine": "machine", "fModel": "running_model", "prod-total": "production_total", "dt-total": "downtime_total", "fHoursOverTarget": "hours_over_target", "techName": "tech_name", "techSig": "tech_sig", "scrapQty": "scrap_qty", "scrapSource": "scrap_source", "glueTim": "glue_tim", "glueGasket": "glue_gasket", "glueNext": "glue_next", "prev-overflow": "prev_overflow", "prev-crashed": "prev_crashed", "prev-mes": "prev_mes", "prev-other": "prev_other", "this-overflow": "this_overflow", "this-crashed": "this_crashed", "this-mes": "this_mes", "this-other": "this_other"};
 const YN_MAP = {"co": "change_over", "ng-found": "ng_found_on_line", "trash": "trash_on_line"};
 
 async function editReport(id){

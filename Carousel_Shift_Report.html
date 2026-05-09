@@ -27,7 +27,7 @@ button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
   --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
-  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);--amb2:var(--amb2);--grn:#3fb950;--red:#f85149;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
   --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;--blu:#388bfd;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -346,7 +346,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
           </select>
         </div>
         <div class="field"><label data-i18n="field.line">Line</label><input type="number" id="fLine" inputmode="numeric" min="1" step="1" placeholder="e.g. 1"></div>
-        <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" placeholder="e.g. Carousel"></div>
+        <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" value="Carousel" placeholder="e.g. Carousel"></div>
       </div>
       <div class="fg fg-3">
         <div class="field"><label data-i18n="field.running_model">Running Model</label><input type="text" id="fModel" placeholder="e.g. IQ8HC-DOM"></div>
@@ -715,9 +715,10 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js"></script>
-<script src="translations.js"></script>
-<script src="techs.js"></script>
+<script src="theme.js?v=2"></script>
+<script src="translations.js?v=2"></script>
+<script src="techs.js?v=2"></script>
+<script src="shift_form_speedup.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
