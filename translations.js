@@ -13,7 +13,7 @@ window.SALCOMP_I18N = {
   'area.carousel':         { en: 'Carousel',         es: 'Carrusel',     vi: 'Carousel' },
   'area.potting':          { en: 'Potting',          es: 'Encapsulado',  vi: 'Đổ Keo' },
   'area.wave3':            { en: 'Wave-3',           es: 'Wave-3',       vi: 'Wave-3' },
-  'area.battery':          { en: 'Battery 1/2',       es: 'Batería 1/2',  vi: 'Pin 1/2' },
+  'area.battery':          { en: 'Battery',           es: 'Batería',      vi: 'Pin' },
   'area.iq9':              { en: 'IQ9 Commercial',    es: 'IQ9 Comercial',vi: 'IQ9 Thương Mại' },
   'app.col.pm':            { en: 'Weekly PM',       es: 'MP Semanal',    vi: 'Bảo Trì Hàng Tuần' },
   'app.col.shift':         { en: 'Shift Reports',  es: 'Reportes de Turno', vi: 'Báo Cáo Ca' },
@@ -50,7 +50,7 @@ window.SALCOMP_I18N = {
 
   // ── BATTERY 1/2 CARDS ──────────────────────────────────────────────
   'card.battery.shift.label':   { en: 'Shift Report', es: 'Reporte de Turno', vi: 'Báo Cáo Ca' },
-  'card.battery.shift.title':   { en: 'Battery 1/2 Shift Report', es: 'Reporte de Turno Batería 1/2', vi: 'Báo Cáo Ca Pin 1/2' },
+  'card.battery.shift.title':   { en: 'Battery Shift Report', es: 'Reporte de Turno Batería', vi: 'Báo Cáo Ca Pin' },
   'card.battery.shift.desc':    { en: 'Hr by hr · Downtime · NG parts · Sign off', es: 'Hora a hora · Tiempo muerto · Piezas NG · Firma', vi: 'Theo giờ · Thời gian dừng · Linh kiện NG · Ký xác nhận' },
   'card.battery.scout.label':   { en: 'Scout Check', es: 'Inspección Scout', vi: 'Kiểm Tra Scout' },
   'card.battery.scout.title':   { en: 'Battery 1/2 Scout Check', es: 'Inspección Scout Batería 1/2', vi: 'Kiểm Tra Scout Pin 1/2' },
@@ -77,9 +77,9 @@ window.SALCOMP_I18N = {
                                   vi: 'Carousel · Đổ Keo · Wave-3 — xu hướng sản xuất, thời gian dừng, cờ Scout' },
   'card.newlines.label':        { en: 'Segregated', es: 'Segregado', vi: 'Tách Biệt' },
   'card.newlines.title':        { en: 'New Lines Analytics', es: 'Analítica Líneas Nuevas', vi: 'Phân Tích Dây Chuyền Mới' },
-  'card.newlines.desc':         { en: '🔋 Battery 1/2 + 🔦 IQ9 Commercial — separate from traditional lines',
-                                  es: '🔋 Batería 1/2 + 🔦 IQ9 Comercial — separadas de las líneas tradicionales',
-                                  vi: '🔋 Pin 1/2 + 🔦 IQ9 Thương Mại — tách biệt với dây chuyền truyền thống' },
+  'card.newlines.desc':         { en: '🔋 Battery + 🔦 IQ9 Commercial — separate from traditional lines',
+                                  es: '🔋 Batería + 🔦 IQ9 Comercial — separadas de las líneas tradicionales',
+                                  vi: '🔋 Pin + 🔦 IQ9 Thương Mại — tách biệt với dây chuyền truyền thống' },
 
   // ── COMMON UI ──────────────────────────────────────────────────────────
   'common.back':           { en: '← Back', es: '← Atrás', vi: '← Quay lại' },

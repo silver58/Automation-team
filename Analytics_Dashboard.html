@@ -294,6 +294,45 @@ svg .bar-clickable:hover{opacity:.7;}
 .pin-btn.pin-on{color:var(--amb);}
 
 /* ═══ OEE SUMMARY PANEL ═══════════════════════════════════════════════ */
+.oee-target-row{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:7px;
+  padding:10px 14px;
+  margin-bottom:12px;
+}
+.oee-target-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--mut);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  flex-shrink:0;
+}
+.oee-target-input{
+  background:var(--sur);
+  border:1px solid var(--bdr2);
+  border-radius:5px;
+  padding:6px 10px;
+  color:var(--amb);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:14px;
+  font-weight:600;
+  width:80px;
+  outline:none;
+  transition:border-color .15s;
+}
+.oee-target-input:focus{border-color:var(--amb);}
+.oee-target-hint{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--mut2);
+  font-style:italic;
+  flex:1;
+  min-width:160px;
+}
 .oee-strip{
   display:grid;
   grid-template-columns:1.4fr 1fr 1fr 1fr;
@@ -875,8 +914,8 @@ svg .bar-clickable:hover{opacity:.7;}
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js"></script>
-<script src="translations.js"></script>
+<script src="theme.js?v=2"></script>
+<script src="translations.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -1545,10 +1584,38 @@ function recentFlags(rows){
 // Industry-standard manufacturing metric. Computed approximately from shift reports.
 // Heuristic assumptions documented inline since we don't have explicit cycle-time targets.
 // ═══════════════════════════════════════════════════════════════════════════
+
+// Target UPH (ideal output per hour). Stored per-browser so production planners
+// can adjust expectations without touching code. Default 60.
+const OEE_TARGET_KEY = 'salcomp_oee_target_uph';
+function getTargetUph(){
+  try {
+    const raw = localStorage.getItem(OEE_TARGET_KEY);
+    const n = parseFloat(raw);
+    if(!isNaN(n) && n > 0) return n;
+  } catch(e){}
+  return 60;
+}
+function setTargetUph(n){
+  try { localStorage.setItem(OEE_TARGET_KEY, String(n)); } catch(e){}
+}
+window.applyOeeTarget = function(){
+  const input = document.getElementById('oeeTargetInput');
+  if(!input) return;
+  const n = parseFloat(input.value);
+  if(isNaN(n) || n <= 0){
+    input.value = getTargetUph();
+    return;
+  }
+  setTargetUph(n);
+  // Re-render so the OEE recomputes with the new target
+  if(typeof render === 'function') render();
+};
+
 function buildOeeStats(rows){
   const deduped = dedupShiftRows(rows.filter(r => r.src.kind === 'shift'));
   const PLANNED_MINS_PER_SHIFT = 480;  // 8h shift baseline
-  const TARGET_UPH = 600;                // placeholder ideal cycle — adjust if you have a real spec
+  const TARGET_UPH = getTargetUph();   // editable from the OEE panel UI
   let plannedMins = 0, downtimeMins = 0, production = 0, scrap = 0, shiftCount = 0;
   const byArea = {Carousel:{a:0,p:0,q:0,n:0}, Potting:{a:0,p:0,q:0,n:0}, 'Wave-3':{a:0,p:0,q:0,n:0}};
   const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
@@ -1649,6 +1716,13 @@ function renderOee(s){
         </div>
       </div>
       <div class="panel-body">
+        <div class="oee-target-row">
+          <label class="oee-target-label" for="oeeTargetInput">Ideal Output (UPH)</label>
+          <input type="number" id="oeeTargetInput" class="oee-target-input"
+            min="1" step="1" value="${getTargetUph()}"
+            onchange="applyOeeTarget()" onkeydown="if(event.key==='Enter')applyOeeTarget()">
+          <span class="oee-target-hint">Adjust if production expectations change. Used for the Performance % calculation.</span>
+        </div>
         <div class="oee-strip">
           <div class="oee-card oee-headline">
             <div class="oee-lbl">Overall OEE</div>
@@ -1673,14 +1747,12 @@ function renderOee(s){
         </div>
         ${areaCards ? `<div class="oee-area-grid">${areaCards}</div>` : ''}
         <div class="oee-formula-note">
-          <strong>Formula:</strong> Availability = run time ÷ planned time · Performance = actual output ÷ theoretical output (assumes ${TARGET_UPH_NOTE}) · Quality = good units ÷ total units
+          <strong>Formula:</strong> Availability = run time ÷ planned time · Performance = actual output ÷ theoretical output (at ${getTargetUph()} UPH) · Quality = good units ÷ total units
         </div>
       </div>
     </div>`;
 }
 const TARGET_OEE_NOTE = '85%+ world-class';
-const TARGET_UPH_NOTE = '600 UPH ideal — adjust in code if you have a real cycle-time spec';
-const TARGET_UPH = 600;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PARETO ANALYSIS — top X causes contributing to Y% of downtime (80/20 rule)

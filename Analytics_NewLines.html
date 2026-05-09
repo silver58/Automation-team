@@ -132,14 +132,14 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
     <span class="segregation-badge">Segregated from Carousel/Potting/Wave-3</span>
   </div>
   <div class="page-sub">
-    Standalone analytics for Battery 1/2 and IQ9 Commercial. These lines have separate Supabase tables and don't mix with the traditional area data.
+    Standalone analytics for Battery and IQ9 Commercial. These lines have separate Supabase tables and don't mix with the traditional area data.
   </div>
 
   <div class="area-tab-bar">
     <button class="area-tab tab-bat active" data-area="battery" onclick="setActiveArea('battery')">
       <div class="area-tab-icon">🔋</div>
       <div>
-        <div class="area-tab-name">Battery 1/2</div>
+        <div class="area-tab-name">Battery</div>
         <div class="area-tab-meta" id="batMeta">— reports</div>
       </div>
     </button>
@@ -173,7 +173,7 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sbHeaders = () => ({'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY});
 
 const SOURCES = {
-  battery: {table:'battery_reports', label:'Battery 1/2', icon:'🔋', cls:'bat', areaPill:'r-area-bat'},
+  battery: {table:'battery_reports', label:'Battery', icon:'🔋', cls:'bat', areaPill:'r-area-bat'},
   iq9:     {table:'iq9_reports',     label:'IQ9 Commercial', icon:'🔦', cls:'iq9', areaPill:'r-area-iq9'},
 };
 
