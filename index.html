@@ -330,38 +330,100 @@ body::after{
   100% { transform:translateX(100%); opacity:0; }
 }
 
-/* ── CAROUSEL ── */
-.fx-gear-stage{
+/* ── CAROUSEL (orbital carousel + confetti spiral) ── */
+.fx-carousel-stage{
   position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;gap:6vw;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
 }
-.fx-gear{
-  width:clamp(80px, 14vw, 200px);
-  aspect-ratio:1;
+/* Outer light ring that sweeps outward */
+.fx-carousel-ring{
+  position:absolute;
+  width:80px;height:80px;
+  border-radius:50%;
+  border:3px solid rgba(163,113,247,.6);
+  box-shadow:0 0 20px rgba(163,113,247,.5), inset 0 0 20px rgba(163,113,247,.3);
   opacity:0;
-  transform:scale(.3);
-  animation:fxGearPop 1.2s cubic-bezier(.34,1.56,.64,1) forwards;
-  filter:drop-shadow(0 0 20px rgba(163,113,247,.4));
+  animation:fxRingSweep 1.4s cubic-bezier(.4,0,.2,1) forwards;
 }
-.fx-gear-1{animation-delay:.0s;}
-.fx-gear-2{animation-delay:.12s; transform:scale(.3) translateY(-30px);}
-.fx-gear-3{animation-delay:.24s;}
-@keyframes fxGearPop{
-  0%   { opacity:0; transform:scale(.2); }
-  40%  { opacity:1; transform:scale(1.05); }
-  60%  { transform:scale(.95); }
-  80%  { transform:scale(1); opacity:1; }
-  100% { opacity:0; transform:scale(.85); }
+@keyframes fxRingSweep{
+  0%   { width:40px;  height:40px; opacity:0; border-width:3px; }
+  20%  { opacity:1; }
+  100% { width:min(90vw, 700px); height:min(90vw, 700px); opacity:0; border-width:1px; }
 }
-/* Continuous spin nested inside the pop animation — gears rotate while popping */
-.fx-gear-spin{
+
+/* Container that rotates — children orbit around the center */
+.fx-carousel-orbit{
+  position:relative;
+  width:clamp(280px, 50vw, 480px);
+  height:clamp(280px, 50vw, 480px);
+  animation:fxOrbitSpin 1.6s cubic-bezier(.34,1.1,.64,1) forwards;
+}
+@keyframes fxOrbitSpin{
+  0%   { transform:rotate(0deg)   scale(.4); opacity:0; }
+  18%  { opacity:1; }
+  100% { transform:rotate(540deg) scale(1.05); opacity:0; }
+}
+
+/* Each tile orbits around the center */
+.fx-orbit-tile{
+  position:absolute;
+  top:50%;left:50%;
+  width:clamp(48px, 8vw, 78px);
+  height:clamp(48px, 8vw, 78px);
+  border-radius:14px;
+  /* Rotate by i*45deg around center, then translate outward, then counter-rotate
+     so the tile face stays "upright" relative to its orbital position. */
+  transform:translate(-50%,-50%) rotate(calc(var(--i) * 45deg)) translateY(calc(-1 * clamp(110px, 20vw, 190px))) rotate(calc(var(--i) * -45deg));
+  box-shadow:0 4px 14px rgba(163,113,247,.5), inset 0 0 8px rgba(255,255,255,.2);
+  animation:fxTilePulse 1.6s ease-in-out forwards;
+}
+@keyframes fxTilePulse{
+  0%   { opacity:0; }
+  20%  { opacity:1; }
+  60%  { box-shadow:0 4px 14px rgba(163,113,247,.7), inset 0 0 12px rgba(255,255,255,.3); }
+  100% { opacity:0; }
+}
+
+/* Central hub — pulsing core that spins independently */
+.fx-carousel-hub{
+  position:absolute;
+  top:50%;left:50%;
+  width:clamp(60px, 10vw, 100px);
+  height:clamp(60px, 10vw, 100px);
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 16px rgba(163,113,247,.6));
+}
+.fx-hub-spin{
+  width:100%;height:100%;
+  animation:fxHubPulse 1.4s ease-in-out forwards;
   transform-origin:50% 50%;
-  transform-box:fill-box;
-  animation:fxGearRotate 2s linear infinite;
 }
-.fx-gear-spin-rev{animation-direction:reverse;}
-@keyframes fxGearRotate{
-  to{transform:rotate(360deg);}
+@keyframes fxHubPulse{
+  0%   { transform:scale(.3); opacity:0; }
+  25%  { transform:scale(1.2); opacity:1; }
+  50%  { transform:scale(.9); }
+  75%  { transform:scale(1.1); opacity:1; }
+  100% { transform:scale(1.4); opacity:0; }
+}
+
+/* Confetti — small colorful particles bursting upward in a spiral pattern */
+.fx-confetti-burst{
+  position:absolute;inset:0;
+  pointer-events:none;
+}
+.fx-confetti{
+  position:absolute;
+  bottom:50%;
+  opacity:0;
+  animation:fxConfettiFly 1.3s cubic-bezier(.36,.01,.32,1) forwards;
+  box-shadow:0 0 6px currentColor;
+}
+@keyframes fxConfettiFly{
+  0%   { bottom:50%; opacity:0; transform:scale(.4) rotate(0deg); }
+  15%  { opacity:1; transform:scale(1) rotate(calc(var(--rot) * .3)); }
+  85%  { opacity:1; }
+  100% { bottom:110vh; opacity:0; transform:scale(.6) rotate(var(--rot)); }
 }
 
 /* ── POTTING ── */
@@ -569,9 +631,8 @@ body::after{
 }
 
 @media(max-width:600px){
-  .fx-gear-stage{gap:4vw;}
-  .fx-gear{width:clamp(60px, 22vw, 130px);}
   .fx-wave{height:40vh;}
+  .fx-orbit-tile{border-radius:10px;}
 }
 
 .wrap{position:relative;z-index:1;width:100%;max-width:860px;}
@@ -1555,13 +1616,44 @@ function fireThemedTransition(area){
         <path class="fx-wave-path fx-wave-3" d="M-200,140 C-100,80 100,200 300,140 C500,80 700,200 900,140 C1100,80 1300,200 1500,140 L1500,200 L-200,200 Z" fill="url(#waveGrad)" opacity=".4"/>
       </svg>`;
   } else if(area === 'carousel'){
-    // 3 large purple gears popping up at different positions, spinning
+    // True "carousel" theme — 8 colored tiles orbit around a central spinning hub,
+    // a bright ring sweeps outward, and purple confetti shoots up in a spiral.
+    let tiles = '';
+    const tileShades = ['#a371f7','#b88aff','#8a5fdc','#c9a4ff','#9c6cf2','#7a4fd0','#d4b3ff','#a371f7'];
+    for(let i = 0; i < 8; i++){
+      // Each tile placed at rotation offset i*45deg, then translated outward
+      tiles += `<div class="fx-orbit-tile" style="--i:${i};background:linear-gradient(135deg, ${tileShades[i]}, ${tileShades[(i+4)%8]});"></div>`;
+    }
+    // Confetti: small triangles + circles bursting upward and spiraling
+    let confetti = '';
+    const confColors = ['#a371f7','#ffd166','#39c5cf','#3fb950','#ff8a3c','#f5d937','#c89cff'];
+    for(let i = 0; i < 24; i++){
+      const left = 50 + (Math.random() * 60 - 30);
+      const delay = (Math.random() * 0.5).toFixed(2);
+      const dur = (1 + Math.random() * 0.5).toFixed(2);
+      const rot = Math.floor(Math.random() * 720 - 360);
+      const size = 6 + Math.random() * 6;
+      const color = confColors[i % confColors.length];
+      const shape = Math.random() > 0.5 ? '50%' : '2px';
+      confetti += `<div class="fx-confetti" style="left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape};animation-delay:${delay}s;animation-duration:${dur}s;--rot:${rot}deg;"></div>`;
+    }
     fx.innerHTML = `
-      <div class="fx-gear-stage">
-        <svg class="fx-gear fx-gear-1" viewBox="0 0 100 100"><g class="fx-gear-spin"><path fill="#a371f7" fill-opacity=".75" d="M50,12 l4,9 l9,-2 l-2,9 l9,4 l-4,9 l5,8 l-9,4 l-2,9 l-9,-2 l-4,9 l-4,-9 l-9,2 l-2,-9 l-9,-4 l5,-8 l-4,-9 l9,-4 l-2,-9 l9,2 z M50,32 a18,18 0 1,0 0.001,0 z"/></g></svg>
-        <svg class="fx-gear fx-gear-2" viewBox="0 0 100 100"><g class="fx-gear-spin fx-gear-spin-rev"><path fill="#a371f7" fill-opacity=".55" d="M50,12 l4,9 l9,-2 l-2,9 l9,4 l-4,9 l5,8 l-9,4 l-2,9 l-9,-2 l-4,9 l-4,-9 l-9,2 l-2,-9 l-9,-4 l5,-8 l-4,-9 l9,-4 l-2,-9 l9,2 z M50,32 a18,18 0 1,0 0.001,0 z"/></g></svg>
-        <svg class="fx-gear fx-gear-3" viewBox="0 0 100 100"><g class="fx-gear-spin"><path fill="#a371f7" fill-opacity=".4" d="M50,12 l4,9 l9,-2 l-2,9 l9,4 l-4,9 l5,8 l-9,4 l-2,9 l-9,-2 l-4,9 l-4,-9 l-9,2 l-2,-9 l-9,-4 l5,-8 l-4,-9 l9,-4 l-2,-9 l9,2 z M50,32 a18,18 0 1,0 0.001,0 z"/></g></svg>
-      </div>`;
+      <div class="fx-carousel-stage">
+        <div class="fx-carousel-ring"></div>
+        <div class="fx-carousel-orbit">
+          ${tiles}
+          <div class="fx-carousel-hub">
+            <svg viewBox="0 0 100 100" class="fx-hub-spin">
+              <g>
+                <circle cx="50" cy="50" r="20" fill="rgba(163,113,247,.85)"/>
+                <circle cx="50" cy="50" r="10" fill="#fff"/>
+                <circle cx="50" cy="50" r="3" fill="#a371f7"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="fx-confetti-burst">${confetti}</div>`;
   } else if(area === 'potting'){
     // Streams of green droplets falling from above + a soft pour gradient
     let drops = '';
