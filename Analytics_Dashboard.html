@@ -20,6 +20,10 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="favicon.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Analytics Dashboard</title>
 <style>
@@ -1117,9 +1121,12 @@ function relTime(iso){
 }
 
 // ── DATA FETCH ─────────────────────────────────────────────────────────────────
-async function fetchTable(src){
+async function fetchTable(src, sinceIso){
   try {
-    const url = `${SB_URL}/rest/v1/${src.table}?order=submitted_at.desc&limit=500`;
+    // Incremental: when sinceIso is provided, only fetch rows newer than it.
+    // This makes the 60s auto-refresh nearly free even with thousands of reports.
+    let url = `${SB_URL}/rest/v1/${src.table}?order=submitted_at.desc&limit=500`;
+    if(sinceIso) url += `&submitted_at=gt.${encodeURIComponent(sinceIso)}`;
     const res = await fetch(url, {headers: sbHeaders()});
     if(!res.ok){
       console.warn(`Failed ${src.table}: ${res.status}`);
@@ -1132,18 +1139,75 @@ async function fetchTable(src){
   }
 }
 
+// Track most-recent submitted_at per table for incremental refresh
+let _incrementalCursors = {};
+
+function recomputeCursors(){
+  _incrementalCursors = {};
+  SOURCES.forEach(s => {
+    const rows = allData[s.key] || [];
+    if(rows.length === 0) return;
+    // Rows already sorted desc by submitted_at — first row is newest
+    _incrementalCursors[s.key] = rows[0].submitted_at;
+  });
+}
+
+function mergeIncremental(srcKey, newRows){
+  if(!Array.isArray(newRows) || newRows.length === 0) return false;
+  const existing = allData[srcKey] || [];
+  const existingIds = new Set(existing.map(r => r.id));
+  // Add rows that aren't already present (defensive against re-fetched cursor row)
+  const fresh = newRows.filter(r => !existingIds.has(r.id));
+  if(fresh.length === 0) return false;
+  // Prepend fresh rows; data stays sorted desc by submitted_at
+  allData[srcKey] = fresh.concat(existing);
+  return true;
+}
+
 async function loadAll(showToastMsg){
   const content = document.getElementById('content');
-  // Don't show full-screen loading on silent refreshes — keep current view
-  if(showToastMsg !== false){
-    content.innerHTML = '<div class="loading"><span class="spin"></span>Loading data from all sources…</div>';
+  const isInitialOrManual = showToastMsg !== false;
+  const haveData = Object.keys(allData).length > 0 && Object.values(allData).some(v => v.length > 0);
+
+  if(isInitialOrManual){
+    // Manual refresh or first load — fetch everything
+    if(showToastMsg !== false){
+      content.innerHTML = '<div class="loading"><span class="spin"></span>Loading data from all sources…</div>';
+    }
+    const results = await Promise.all(SOURCES.map(s => fetchTable(s)));
+    allData = {};
+    SOURCES.forEach((s,i) => { allData[s.key] = results[i] || []; });
+    recomputeCursors();
+    _lastFetchTime = Date.now();
+    if(showToastMsg === true) showToast('✓ Refreshed — all sources','t-ok');
+    render();
+    return;
   }
-  const results = await Promise.all(SOURCES.map(s => fetchTable(s)));
-  allData = {};
-  SOURCES.forEach((s,i) => { allData[s.key] = results[i] || []; });
+
+  // Silent auto-refresh — incremental fetch only
+  if(!haveData){
+    // Edge case: no baseline yet, do a full fetch instead
+    const results = await Promise.all(SOURCES.map(s => fetchTable(s)));
+    allData = {};
+    SOURCES.forEach((s,i) => { allData[s.key] = results[i] || []; });
+    recomputeCursors();
+    _lastFetchTime = Date.now();
+    render();
+    return;
+  }
+
+  const results = await Promise.all(
+    SOURCES.map(s => fetchTable(s, _incrementalCursors[s.key]))
+  );
+  let anyNew = false;
+  SOURCES.forEach((s, i) => {
+    if(mergeIncremental(s.key, results[i])) anyNew = true;
+  });
+  if(anyNew){
+    recomputeCursors();
+    render();
+  }
   _lastFetchTime = Date.now();
-  if(showToastMsg === true) showToast('✓ Refreshed — all sources','t-ok');
-  render();
 }
 
 // ── ROW NORMALIZATION ──────────────────────────────────────────────────────────
