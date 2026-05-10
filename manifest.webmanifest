@@ -1,0 +1,26 @@
+{
+  "name": "Salcomp Automation Team",
+  "short_name": "Salcomp",
+  "description": "Manufacturing line check sheets, shift reports, and analytics for the Salcomp Automation Team.",
+  "start_url": "index.html",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1117",
+  "theme_color": "#d90f27",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "salcomp-logo.png",
+      "sizes": "224x60",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"]
+}

@@ -117,25 +117,75 @@
   }
 })();
 
-// Apply saved theme immediately to avoid flash
+// Apply saved theme immediately to avoid flash. Three modes:
+//   'dark'  → always dark (no class)
+//   'light' → always light (.light-theme on body)
+//   'auto'  → follow OS preference (prefers-color-scheme media query)
 (function applyInitialTheme(){
   let theme = 'dark';
   try { theme = localStorage.getItem('salcomp_theme') || 'dark'; } catch(e){}
-  if(theme === 'light'){
-    if(document.body) document.body.classList.add('light-theme');
-    else document.addEventListener('DOMContentLoaded', () => document.body.classList.add('light-theme'));
-  }
+  applyThemeMode(theme);
 })();
 
-window.toggleTheme = function(){
-  const isLight = document.body.classList.toggle('light-theme');
-  try { localStorage.setItem('salcomp_theme', isLight ? 'light' : 'dark'); } catch(e){}
-  // Update all theme toggle buttons
-  document.querySelectorAll('.theme-toggle').forEach(btn => {
-    btn.textContent = isLight ? '☀' : '🌙';
-    btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+function effectiveTheme(mode){
+  if(mode === 'auto'){
+    if(typeof window.matchMedia === 'function'){
+      return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+    return 'dark';
+  }
+  return mode;
+}
+
+function applyThemeMode(mode){
+  const eff = effectiveTheme(mode);
+  const setLight = () => {
+    if(document.body) document.body.classList.add('light-theme');
+    else document.addEventListener('DOMContentLoaded', () => document.body.classList.add('light-theme'));
+  };
+  const setDark = () => {
+    if(document.body) document.body.classList.remove('light-theme');
+    else document.addEventListener('DOMContentLoaded', () => document.body.classList.remove('light-theme'));
+  };
+  if(eff === 'light') setLight(); else setDark();
+}
+
+// Listen for OS theme changes when in auto mode — re-apply on the fly
+if(typeof window.matchMedia === 'function'){
+  const mq = window.matchMedia('(prefers-color-scheme: light)');
+  mq.addEventListener('change', () => {
+    let mode = 'dark';
+    try { mode = localStorage.getItem('salcomp_theme') || 'dark'; } catch(e){}
+    if(mode === 'auto') applyThemeMode('auto');
   });
+}
+
+// Three-state cycle: dark → light → auto → dark …
+window.toggleTheme = function(){
+  let mode = 'dark';
+  try { mode = localStorage.getItem('salcomp_theme') || 'dark'; } catch(e){}
+  const next = mode === 'dark' ? 'light' : mode === 'light' ? 'auto' : 'dark';
+  try { localStorage.setItem('salcomp_theme', next); } catch(e){}
+  applyThemeMode(next);
+  // Update all toggle buttons to reflect the new mode
+  document.querySelectorAll('.theme-toggle').forEach(btn => syncToggleBtn(btn, next));
 };
+
+function syncToggleBtn(btn, mode){
+  if(!mode){
+    try { mode = localStorage.getItem('salcomp_theme') || 'dark'; } catch(e){ mode = 'dark'; }
+  }
+  if(mode === 'light'){
+    btn.textContent = '☀';
+    btn.title = 'Light mode (click for auto/system)';
+  } else if(mode === 'auto'){
+    btn.textContent = '🌗';
+    btn.title = 'Auto / follows system (click for dark)';
+  } else {
+    btn.textContent = '🌙';
+    btn.title = 'Dark mode (click for light)';
+  }
+}
 
 // Inject the toggle button next to the language toggle on every page
 function injectThemeToggle(){
@@ -144,9 +194,7 @@ function injectThemeToggle(){
   if(!langToggle) return;
   const btn = document.createElement('button');
   btn.className = 'theme-toggle';
-  const isLight = document.body.classList.contains('light-theme');
-  btn.textContent = isLight ? '☀' : '🌙';
-  btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+  syncToggleBtn(btn);
   btn.onclick = window.toggleTheme;
   // Insert immediately before the language toggle for visual consistency
   langToggle.parentNode.insertBefore(btn, langToggle);
