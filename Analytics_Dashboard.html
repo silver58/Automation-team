@@ -2427,7 +2427,41 @@ function renderChangeover(s){
 // SHIFT PARTICIPATION PANEL — counts shift reports per shift (A/B/C)
 // Target: each shift submits 15 reports per period (operational expectation)
 // ═══════════════════════════════════════════════════════════════════════════
-const SHIFT_TARGET = 15;
+// Per-shift target scales with the active date range:
+//   24hr  → 15 reports/shift (the baseline)
+//   7 day → 105 reports/shift
+//   30 day → 450, 90 day → 1350, etc.
+// For "All time" we fall back to the actual span of the rows in view, so the
+// number stays meaningful instead of inflating to absurd values.
+const SHIFT_TARGET_PER_DAY = 15;
+
+function getShiftEffectiveDays(rowsInView){
+  // Prefer the explicit panel range if set
+  const panelDays = getPanelRange('shifts');
+  if(panelDays > 0) return panelDays;
+  // Else follow the global range
+  if(rangeDays && rangeDays !== 'custom' && rangeDays > 0) return rangeDays;
+  // Custom range: figure out days between customFrom and customTo
+  if(rangeDays === 'custom' && typeof customFrom === 'string' && typeof customTo === 'string'){
+    const a = new Date(customFrom).getTime();
+    const b = new Date(customTo).getTime();
+    if(!isNaN(a) && !isNaN(b) && b > a){
+      return Math.max(1, Math.round((b - a) / 86400000));
+    }
+  }
+  // "All time" — use the actual data span. Floor at 1 day so the target isn't 0.
+  if(!Array.isArray(rowsInView) || rowsInView.length === 0) return 1;
+  let minT = Infinity, maxT = -Infinity;
+  rowsInView.forEach(r => {
+    const t = new Date(r.when).getTime();
+    if(!isNaN(t)){
+      if(t < minT) minT = t;
+      if(t > maxT) maxT = t;
+    }
+  });
+  if(!isFinite(minT) || !isFinite(maxT)) return 1;
+  return Math.max(1, Math.ceil((maxT - minT) / 86400000));
+}
 
 function buildShiftStats(rows){
   const deduped = dedupShiftRows(rows);
@@ -2451,17 +2485,32 @@ function buildShiftStats(rows){
       bucket.lastSubmit = r.when;
     }
   });
+  // Stash the effective days + computed target on the stats object so the
+  // renderer can use it without re-querying global state
+  const effectiveDays = getShiftEffectiveDays(deduped);
+  out.__effectiveDays = effectiveDays;
+  out.__targetPerShift = SHIFT_TARGET_PER_DAY * effectiveDays;
   return out;
 }
 
 function renderShiftParticipation(stats){
+  const SHIFT_TARGET = stats.__targetPerShift;
+  const effectiveDays = stats.__effectiveDays;
   const total = stats.A.total + stats.B.total + stats.C.total + stats.Other.total;
-  const totalTarget = SHIFT_TARGET * 3;  // 15 × 3 shifts
+  const totalTarget = SHIFT_TARGET * 3;  // target × 3 shifts
   const overallPct = totalTarget > 0 ? Math.round((total/totalTarget)*100) : 0;
+
+  // Friendly description of the scaling logic for the panel-meta line
+  const rangeLabel = effectiveDays === 1 ? '24 hr'
+                   : effectiveDays === 7 ? '7 days'
+                   : effectiveDays === 30 ? '30 days'
+                   : effectiveDays === 90 ? '90 days'
+                   : `${effectiveDays} days`;
+  const targetExplanation = `${SHIFT_TARGET_PER_DAY} reports/shift/day × ${effectiveDays} ${effectiveDays === 1 ? 'day' : 'days'} = ${SHIFT_TARGET}`;
 
   const renderShiftCard = (key, label, hours) => {
     const s = stats[key];
-    const pct = Math.round((s.total/SHIFT_TARGET)*100);
+    const pct = SHIFT_TARGET > 0 ? Math.round((s.total/SHIFT_TARGET)*100) : 0;
     const barWidth = Math.min(100, pct);
     let healthClass = 'shift-low';
     if(pct >= 100) healthClass = 'shift-good';
@@ -2507,7 +2556,7 @@ function renderShiftParticipation(stats){
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           ${renderPanelRangeBadge('shifts')}
           <span class="shift-overall ${overallPct>=100?'shift-overall-good':overallPct>=66?'shift-overall-mid':'shift-overall-low'}">${t('shift.part.overall')} ${overallPct}% (${total}/${totalTarget})</span>
-          <span class="panel-meta">${t('shift.part.target').replace('{n}', SHIFT_TARGET)}</span>
+          <span class="panel-meta" title="${targetExplanation}">Target: ${SHIFT_TARGET}/shift over ${rangeLabel}</span>
         </div>
       </div>
       <div class="panel-body">
