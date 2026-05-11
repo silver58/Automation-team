@@ -154,13 +154,23 @@ window.setTechName = function(name){
 };
 
 /**
- * Convert <input id="fLine"> into a <select> with lines 1, 2, 3, 6, 7.
+ * Convert <input id="fLine"> into a <select> with the lines configured for this page.
+ * Each page can set window.SALCOMP_LINES_OVERRIDE = ['7.5','8'] before techs.js runs
+ * to restrict the choices for that form. Falls back to the global default list.
+ *
  * Preserves any inline event handler (like oninput="onLineChange()") so
  * downstream form logic still fires.
  */
 window.populateLineDropdown = function(){
   const input = document.getElementById('fLine');
   if(!input || input.tagName === 'SELECT') return;
+  // Hidden inputs are forms where the area only has one line and the value is
+  // pre-set in HTML (e.g. IQ9 Commercial → always 7.5). Don't replace.
+  if(input.type === 'hidden') return;
+
+  const lines = (Array.isArray(window.SALCOMP_LINES_OVERRIDE) && window.SALCOMP_LINES_OVERRIDE.length)
+    ? window.SALCOMP_LINES_OVERRIDE
+    : window.SALCOMP_LINES;
 
   const select = document.createElement('select');
   select.id = 'fLine';
@@ -177,7 +187,7 @@ window.populateLineDropdown = function(){
   blank.selected = true;
   select.appendChild(blank);
 
-  window.SALCOMP_LINES.forEach(n => {
+  lines.forEach(n => {
     const opt = document.createElement('option');
     opt.value = n;
     opt.textContent = 'Line ' + n;
@@ -185,7 +195,7 @@ window.populateLineDropdown = function(){
   });
 
   // Preserve existing value (edit-mode)
-  if(input.value && window.SALCOMP_LINES.includes(String(input.value))){
+  if(input.value && lines.includes(String(input.value))){
     select.value = String(input.value);
   }
 

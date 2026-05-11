@@ -20,6 +20,13 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IQ9 Commercial TECH Shift Report</title>
 <style>
@@ -387,7 +394,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
             <option value="C">C Shift</option>
           </select>
         </div>
-        <div class="field"><label data-i18n="field.line">Line</label><input type="number" id="fLine" inputmode="numeric" min="1" step="1" placeholder="e.g. 3"></div>
+        <input type="hidden" id="fLine" value="7.5">
         <div class="field"><label data-i18n="field.machine">Machine</label><input type="text" id="fMachine" value="IQ9" placeholder="e.g. IQ9"></div>
       </div>
       <div class="fg fg-2">
@@ -682,10 +689,10 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js?v=2"></script>
+<script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
-<script>window.SALCOMP_LINES_OVERRIDE = ['7.5', '8'];</script>
-<script src="techs.js?v=2"></script>
+<script>/* IQ9 has only one line (7.5) — the line field is hidden in markup. */</script>
+<script src="techs.js?v=3"></script>
 <script src="shift_form_speedup.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────

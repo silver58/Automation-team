@@ -20,6 +20,13 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Potting TECH Shift Report</title>
 <style>
@@ -682,9 +689,10 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js?v=2"></script>
+<script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
-<script src="techs.js?v=2"></script>
+<script>window.SALCOMP_LINES_OVERRIDE = ['1', '2', '3', '6', '7', '7.5'];</script>
+<script src="techs.js?v=3"></script>
 <script src="shift_form_speedup.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
