@@ -722,6 +722,84 @@ svg .bar-clickable:hover{opacity:.7;}
 .pm-areas{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 @media(max-width:560px){.pm-areas{grid-template-columns:1fr;}}
 .pm-area-card{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:11px 12px;display:flex;flex-direction:column;gap:8px;}
+
+/* ═══ MACHINE COVERAGE (PM + Scout) ═══════════════════════════════════ */
+.pm-cov-badge{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+  font-weight:600;
+  padding:3px 9px;
+  border-radius:5px;
+  border:1px solid;
+}
+.pm-cov-badge-good{color:var(--grn); background:rgba(63,185,80,.1);  border-color:rgba(63,185,80,.3);}
+.pm-cov-badge-mid {color:var(--amb); background:rgba(var(--amb-rgb),.1); border-color:rgba(var(--amb-rgb),.3);}
+.pm-cov-badge-low {color:var(--red); background:rgba(248,81,73,.1); border-color:rgba(248,81,73,.3);}
+
+.pm-coverage, .scout-coverage{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:6px 0;
+}
+.pm-cov-bar{
+  height:5px;
+  background:rgba(255,255,255,.05);
+  border-radius:3px;
+  overflow:hidden;
+}
+.pm-cov-fill{
+  height:100%;
+  transition:width .4s ease;
+}
+.pm-cov-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;
+}
+.pm-cov-pct{font-weight:600;}
+.pm-cov-meta{color:var(--mut2);}
+.pm-cov-missing{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:2px;
+}
+.pm-cov-missing-lbl{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;
+  color:var(--mut2);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-right:4px;
+}
+.pm-cov-chip{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;
+  font-weight:600;
+  padding:2px 6px;
+  border-radius:9px;
+  letter-spacing:.02em;
+}
+.pm-cov-chip-done{
+  background:rgba(63,185,80,.12);
+  color:var(--grn);
+  border:1px solid rgba(63,185,80,.25);
+}
+.pm-cov-chip-missing{
+  background:rgba(248,81,73,.1);
+  color:var(--red);
+  border:1px solid rgba(248,81,73,.25);
+}
+/* In scout cards (anchor tags) the coverage row needs slight spacing */
+.scout-card .scout-coverage{
+  width:100%;
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px solid var(--bdr);
+}
 .pm-area-card.pm-empty{justify-content:center;align-items:flex-start;min-height:140px;}
 .pm-empty-text{color:var(--mut2);font-size:11px;font-style:italic;}
 .pm-area-hd{display:flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--txt);font-weight:600;letter-spacing:.04em;}
@@ -1747,15 +1825,29 @@ function buildUphBoard(rows){
 
 
 function scoutSummary(rows){
-  const summary = {};  // {sourceKey: {reports, attnTotal}}
-  ['scout-car','scout-wav','scout-pott'].forEach(k => summary[k] = {reports:0, attnTotal:0});
+  const summary = {};  // {sourceKey: {reports, attnTotal, covered:Set}}
+  ['scout-car','scout-wav','scout-pott'].forEach(k => summary[k] = {reports:0, attnTotal:0, covered:new Set()});
+  // Map scout-* source keys → MACHINE_INVENTORY area keys for coverage lookup
+  const scoutToArea = {'scout-car':'car', 'scout-wav':'wav', 'scout-pott':'pott'};
   rows.forEach(r => {
     if(r.src.kind!=='scout') return;
     const s = summary[r.src.key];
     if(!s) return;
     s.reports++;
     s.attnTotal += scoutAttnLive(r.row);  // live recompute, handles edited reports
+    // Track unique lines covered for coverage statistics
+    const areaKey = scoutToArea[r.src.key];
+    const ln = normalizeLine(r.row.line);
+    if(ln && areaKey && MACHINE_INVENTORY[areaKey]?.lines.includes(ln)){
+      s.covered.add(ln);
+    }
   });
+  // Stash inventory lookup on the summary for the renderer
+  summary.__inventoryFor = {
+    'scout-car':  MACHINE_INVENTORY.car,
+    'scout-pott': MACHINE_INVENTORY.pott,
+    'scout-wav':  MACHINE_INVENTORY.wav,
+  };
   return summary;
 }
 
@@ -2261,6 +2353,24 @@ window.setParetoView = function(view){
   if(typeof render === 'function') render();
 };
 
+// ── MACHINE INVENTORY ─────────────────────────────────────────────────────────
+// The plant has 16 production machines that need weekly PM + scout checks.
+// Coverage = how many of these unique machines have been PM'd/scouted in the
+// selected period. Helps engineers see which lines still need attention.
+const MACHINE_INVENTORY = {
+  car:  { label:'Carousel', lines:['1','2','3','6','7']           },  // 5 machines
+  pott: { label:'Potting',  lines:['1','2','3','6','7','7.5']     },  // 6 machines
+  wav:  { label:'Wave-3',   lines:['1','2','3','6','7']           },  // 5 machines
+};
+const TOTAL_MACHINES = Object.values(MACHINE_INVENTORY)
+  .reduce((sum, a) => sum + a.lines.length, 0);  // = 16
+
+// Normalize line strings for comparison (e.g. "7.5", " 7.5 ", "Line 7.5", 7.5)
+function normalizeLine(raw){
+  if(raw == null) return '';
+  return String(raw).replace(/line\s*/i, '').trim();
+}
+
 function pmStats(rows){
   const pmRows = rows.filter(r => r.src.kind === 'pm');
   // Map area names → our internal short keys
@@ -2281,6 +2391,7 @@ function pmStats(rows){
     byArea: {car:null, pott:null, wav:null},
     topAttn: {},   // {taskText: count}
     latestByArea: {car:null, pott:null, wav:null},
+    coveredByArea: {car:new Set(), pott:new Set(), wav:new Set()},
   };
 
   pmRows.forEach(r => {
@@ -2290,6 +2401,11 @@ function pmStats(rows){
     }
     const a = stats.byArea[ak];
     a.count++;
+    // Track which line this PM covered for coverage stats
+    const ln = normalizeLine(r.row.line);
+    if(ln && stats.coveredByArea[ak] && MACHINE_INVENTORY[ak]?.lines.includes(ln)){
+      stats.coveredByArea[ak].add(ln);
+    }
     const tasks = Array.isArray(r.row.weekly_tasks) ? r.row.weekly_tasks : [];
     tasks.forEach(t => {
       if(t.state === 'ok')   { a.ok++;   stats.okAll++; }
@@ -2312,6 +2428,16 @@ function pmStats(rows){
     }
   });
 
+  // Coverage summary across all areas
+  const coveredTotal = stats.coveredByArea.car.size
+                     + stats.coveredByArea.pott.size
+                     + stats.coveredByArea.wav.size;
+  stats.coverage = {
+    covered: coveredTotal,
+    total: TOTAL_MACHINES,
+    pct: TOTAL_MACHINES > 0 ? Math.round((coveredTotal / TOTAL_MACHINES) * 100) : 0,
+  };
+
   // Top 5 attn tasks sorted by count
   stats.topAttnList = Object.entries(stats.topAttn)
     .map(([text, count]) => ({text, count}))
@@ -2333,14 +2459,30 @@ function renderPmActivity(s){
 
   const areaCards = ['car','pott','wav'].map(ak => {
     const a = s.byArea[ak];
-    const label = {car:'Carousel', pott:'Potting', wav:'Wave-3'}[ak];
+    const inv = MACHINE_INVENTORY[ak];
+    const label = inv.label;
     const color = {car:'#a371f7', pott:'#3fb950', wav:'#388bfd'}[ak];
     const latest = s.latestByArea[ak];
+    const covered = s.coveredByArea[ak];
+    const missing = inv.lines.filter(ln => !covered.has(ln));
+    const coveragePct = Math.round((covered.size / inv.lines.length) * 100);
+    const covColor = coveragePct === 100 ? 'var(--grn)' : coveragePct >= 50 ? 'var(--amb)' : 'var(--red)';
+
     if(!a){
       return `
         <div class="pm-area-card pm-empty">
           <div class="pm-area-hd"><span class="pm-area-dot" style="background:${color}"></span>${label}</div>
-          <div class="pm-empty-text">${t('pm.no_in_range')}</div>
+          <div class="pm-coverage pm-coverage-empty">
+            <div class="pm-cov-bar"><div class="pm-cov-fill" style="width:0%;background:var(--red)"></div></div>
+            <div class="pm-cov-row">
+              <span class="pm-cov-pct" style="color:var(--red)">0 / ${inv.lines.length}</span>
+              <span class="pm-cov-meta">${t('pm.no_in_range')}</span>
+            </div>
+            <div class="pm-cov-missing">
+              <span class="pm-cov-missing-lbl">Pending:</span>
+              ${inv.lines.map(ln => `<span class="pm-cov-chip pm-cov-chip-missing">Line ${escapeHtml(ln)}</span>`).join('')}
+            </div>
+          </div>
         </div>`;
     }
     const aTotal = a.ok + a.attn + a.na;
@@ -2355,6 +2497,19 @@ function renderPmActivity(s){
           <span class="pm-area-dot" style="background:${color}"></span>
           <span>${label}</span>
           <span class="pm-area-count">${a.count} ${a.count===1?t('pm.report'):t('pm.reports')}</span>
+        </div>
+        <div class="pm-coverage">
+          <div class="pm-cov-bar"><div class="pm-cov-fill" style="width:${coveragePct}%;background:${covColor}"></div></div>
+          <div class="pm-cov-row">
+            <span class="pm-cov-pct" style="color:${covColor}">${covered.size} / ${inv.lines.length} machines PM'd</span>
+            <span class="pm-cov-meta">${coveragePct}% coverage</span>
+          </div>
+          <div class="pm-cov-missing">
+            ${inv.lines.map(ln => {
+              const done = covered.has(ln);
+              return `<span class="pm-cov-chip ${done?'pm-cov-chip-done':'pm-cov-chip-missing'}" title="Line ${escapeHtml(ln)} — ${done?'PM submitted in range':'No PM yet'}">${done?'✓':'○'} ${escapeHtml(ln)}</span>`;
+            }).join('')}
+          </div>
         </div>
         <div class="pm-bar">
           <div class="pm-bar-seg pm-seg-ok"   style="width:${aPctOk}%"  title="${a.ok} OK (${aPctOk}%)"></div>
@@ -2396,6 +2551,11 @@ function renderPmActivity(s){
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           ${renderPanelRangeBadge('pm')}
           <span class="panel-meta">${s.total} PM ${s.total===1?t('pm.report'):t('pm.reports')}</span>
+          ${(() => {
+            const cov = s.coverage;
+            const cls = cov.pct === 100 ? 'pm-cov-badge-good' : cov.pct >= 50 ? 'pm-cov-badge-mid' : 'pm-cov-badge-low';
+            return `<span class="pm-cov-badge ${cls}" title="${cov.covered} of ${cov.total} machines PM'd in this period">${cov.covered}/${cov.total} machines covered · ${cov.pct}%</span>`;
+          })()}
           ${resolutionRate != null ? `<span class="pm-resolution-badge">${t('pm.flag_resolution')} ${resolutionRate}% (${s.resolvedAll}/${s.pendingAll})</span>` : ''}
         </div>
       </div>
@@ -3648,22 +3808,49 @@ function uphColor(value, max){
 function renderScout(scout, flags){
   const card = (key, label) => {
     const s = scout[key];
+    const inv = scout.__inventoryFor?.[key];
     const cls = s.attnTotal>0 ? 'has-attn' : (s.reports>0 ? 'clean' : '');
     const meta = s.reports===0 ? 'no reports yet' : `from ${s.reports} report${s.reports!==1?'s':''}`;
+    // Coverage row: which machines have been scouted
+    let coverageHtml = '';
+    if(inv){
+      const covered = s.covered;
+      const pct = Math.round((covered.size / inv.lines.length) * 100);
+      const covColor = pct === 100 ? 'var(--grn)' : pct >= 50 ? 'var(--amb)' : 'var(--red)';
+      const chipsHtml = inv.lines.map(ln => {
+        const done = covered.has(ln);
+        return `<span class="pm-cov-chip ${done?'pm-cov-chip-done':'pm-cov-chip-missing'}" title="Line ${escapeHtml(ln)} — ${done?'Scouted in range':'Not scouted yet'}">${done?'✓':'○'} ${escapeHtml(ln)}</span>`;
+      }).join('');
+      coverageHtml = `
+        <div class="scout-coverage">
+          <div class="pm-cov-bar"><div class="pm-cov-fill" style="width:${pct}%;background:${covColor}"></div></div>
+          <div class="pm-cov-row">
+            <span class="pm-cov-pct" style="color:${covColor}">${covered.size} / ${inv.lines.length} scouted</span>
+            <span class="pm-cov-meta">${pct}%</span>
+          </div>
+          <div class="pm-cov-missing">${chipsHtml}</div>
+        </div>`;
+    }
     return `
       <a class="scout-card ${cls}" href="Scout_Flags.html">
         <div class="scout-card-name">${label}</div>
         <div class="scout-card-num">${s.attnTotal}</div>
         <div class="scout-card-meta">${meta}</div>
+        ${coverageHtml}
       </a>`;
   };
 
   const totalFlags = flags.length;
+  // Overall scout coverage across all 3 areas
+  const overallCovered = ['scout-car','scout-pott','scout-wav'].reduce((sum, k) => sum + (scout[k]?.covered.size || 0), 0);
+  const overallCovBadge = `<span class="pm-cov-badge ${overallCovered===TOTAL_MACHINES?'pm-cov-badge-good':overallCovered>=TOTAL_MACHINES/2?'pm-cov-badge-mid':'pm-cov-badge-low'}" title="${overallCovered} of ${TOTAL_MACHINES} machines scouted in this period">${overallCovered}/${TOTAL_MACHINES} machines scouted</span>`;
+
   return `
     <div class="panel" data-panel-key="scout">
       <div class="panel-head">
         ${renderPanelRangeBadge('scout')}<h2 style="margin-right:auto"><a class="panel-head-link" href="Analytics_Detail.html?subject=scout" onclick="event.stopPropagation()" title="Open detail page">${t('analytics.panel.scout')}<span class="panel-head-arrow">→</span></a></h2>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          ${overallCovBadge}
           <a class="flags-review-btn" href="Scout_Flags.html">${t('analytics.flags.button')}</a>
           <div class="panel-meta">${totalFlags} item${totalFlags!==1?'s':''} needing attention</div>
         </div>
