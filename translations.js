@@ -80,6 +80,11 @@ window.SALCOMP_I18N = {
   'card.newlines.desc':         { en: '🔋 Battery + 🔦 IQ9 Commercial — separate from traditional lines',
                                   es: '🔋 Batería + 🔦 IQ9 Comercial — separadas de las líneas tradicionales',
                                   vi: '🔋 Pin + 🔦 IQ9 Thương Mại — tách biệt với dây chuyền truyền thống' },
+  'card.resources.label':       { en: 'Document Library', es: 'Biblioteca de Documentos', vi: 'Thư Viện Tài Liệu' },
+  'card.resources.title':       { en: 'Resources & Documents', es: 'Recursos y Documentos', vi: 'Tài Nguyên & Tài Liệu' },
+  'card.resources.desc':        { en: 'SOPs · Changeover guides · Safety docs · Training materials',
+                                  es: 'SOPs · Guías de cambio · Documentos de seguridad · Materiales de capacitación',
+                                  vi: 'SOP · Hướng dẫn chuyển đổi · Tài liệu an toàn · Tài liệu đào tạo' },
 
   // ── COMMON UI ──────────────────────────────────────────────────────────
   'common.back':           { en: '← Back', es: '← Atrás', vi: '← Quay lại' },

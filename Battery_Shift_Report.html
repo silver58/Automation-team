@@ -20,6 +20,13 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Battery 1/2 TECH Shift Report</title>
 <style>
@@ -682,10 +689,11 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js?v=2"></script>
+<script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
 <script>window.SALCOMP_LINES_OVERRIDE = ['4', '5'];</script>
-<script src="techs.js?v=2"></script>
+<script src="techs.js?v=3"></script>
+<script src="form_image_upload.js?v=1"></script>
 <script src="shift_form_speedup.js?v=2"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
@@ -888,6 +896,11 @@ async function submitReport(){
   try {
     if(!REPORT_PW_HASH) REPORT_PW_HASH = await sha256('7012');
     data.pw_hash = REPORT_PW_HASH;
+    // Upload any attached photos, attach resulting URLs to the payload
+    if(typeof window.uploadPendingImages === 'function' && window.getPendingImageCount() > 0){
+      btn.textContent = 'Uploading photos…';
+      data.photos = await window.uploadPendingImages();
+    }
     let res;
     if(editingReportId){
       // EDIT: PATCH the existing report — strip immutable fields first
@@ -953,6 +966,8 @@ function resetForm(){
   });
   // Reset tech dropdown + clear free-text fallback
   if(typeof window.setTechName === 'function') window.setTechName('');
+  // Clear any attached photos
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
   Object.keys(ynState).forEach(k=>delete ynState[k]);
   document.querySelectorAll('.yn-btn').forEach(b=>b.className='yn-btn');
   setYN('co','no');
@@ -1372,6 +1387,12 @@ async function editReport(id){
 
   // Show edit banner above the form
   showEditBanner(r);
+
+  // Pre-load any photos that were attached to this report
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
+  if(Array.isArray(r.photos) && typeof window.loadExistingImages === 'function'){
+    window.loadExistingImages(r.photos);
+  }
 
   // Populate text/select/number fields
   Object.entries(FIELD_MAP).forEach(([elemId, propName]) => {

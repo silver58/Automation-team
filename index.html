@@ -880,6 +880,29 @@ body::after{
   background:linear-gradient(135deg, rgba(245,217,55,.18), rgba(255,140,66,.10));
   border:1px solid rgba(255,140,66,.25);
 }
+
+/* Resources / Document Library card — cyan-blue accent */
+.card-resources{
+  background:linear-gradient(135deg, rgba(56,139,253,.06) 0%, rgba(57,197,207,.04) 60%, var(--sur) 100%);
+  border:1px solid rgba(56,139,253,.25);
+  box-shadow:0 4px 18px rgba(56,139,253,.08);
+  position:relative;
+}
+.card-resources:hover{
+  border-color:rgba(56,139,253,.5);
+  box-shadow:0 8px 28px rgba(56,139,253,.18);
+  transform:translateY(-3px);
+}
+.card-resources .card-title{
+  background:linear-gradient(90deg, #5fb1ff 0%, #39c5cf 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.resources-icon{
+  background:linear-gradient(135deg, rgba(56,139,253,.18), rgba(57,197,207,.10));
+  border:1px solid rgba(56,139,253,.25);
+}
 .analytics-icon{
   position:relative;
 }
@@ -1324,6 +1347,18 @@ body::after{
         <div class="card-label" data-i18n="card.newlines.label">Segregated</div>
         <div class="card-title" data-i18n="card.newlines.title">New Lines Analytics</div>
         <div class="card-desc" data-i18n="card.newlines.desc">🔋 Battery + 🔦 IQ9 Commercial — separate from traditional lines</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+  </div>
+
+  <div class="analytics-row">
+    <a class="card card-wide card-resources" href="Resources.html">
+      <div class="card-icon resources-icon">📚</div>
+      <div class="card-body">
+        <div class="card-label" data-i18n="card.resources.label">Document Library</div>
+        <div class="card-title" data-i18n="card.resources.title">Resources &amp; Documents</div>
+        <div class="card-desc" data-i18n="card.resources.desc">SOPs · Changeover guides · Safety docs · Training materials</div>
       </div>
       <div class="card-arrow">→</div>
     </a>

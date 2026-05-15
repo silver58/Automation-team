@@ -19,6 +19,13 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salcomp — Wave-3 PM Report</title>
 <style>
@@ -567,9 +574,10 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js"></script>
-<script src="translations.js"></script>
-<script src="techs.js"></script>
+<script src="theme.js?v=3"></script>
+<script src="translations.js?v=2"></script>
+<script src="techs.js?v=3"></script>
+<script src="form_image_upload.js?v=1"></script>
 <script>
 // ═══ CONFIG ═══════════════════════════════════════════════════════════
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -857,6 +865,10 @@ async function submitReport(){
   try {
     if(!REPORT_PW_HASH) REPORT_PW_HASH = await sha256('7012');
     pmReport.pw_hash = REPORT_PW_HASH;
+    // Upload attached photos, attach URLs to the PM report payload
+    if(typeof window.uploadPendingImages === 'function' && window.getPendingImageCount() > 0){
+      pmReport.photos = await window.uploadPendingImages();
+    }
 
     let pmReportId;
     if(editingPmReportId){
@@ -940,6 +952,7 @@ function submitAnother(){
 }
 
 function resetForm(){
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
   if(!confirm('Reset all fields?')) return;
   document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('fShift').value = '';
@@ -1148,6 +1161,9 @@ async function editPmReport(id){
   setIf('fDate', r.date);
   setIf('fShift', r.shift);
   if(typeof window.setTechName === 'function') window.setTechName(r.tech_name || ''); else setIf('techName', r.tech_name);
+  // Pre-load photos attached to this PM report
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
+  if(Array.isArray(r.photos) && typeof window.loadExistingImages === 'function') window.loadExistingImages(r.photos);
   setIf('techSig', r.tech_sig);
   setIf('generalNotes', r.notes);
 

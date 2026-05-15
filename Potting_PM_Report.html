@@ -584,6 +584,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 <script src="translations.js?v=2"></script>
 <script>window.SALCOMP_LINES_OVERRIDE = ['1', '2', '3', '6', '7', '7.5'];</script>
 <script src="techs.js?v=3"></script>
+<script src="form_image_upload.js?v=1"></script>
 <script>
 // ═══ CONFIG ═══════════════════════════════════════════════════════════
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -871,6 +872,10 @@ async function submitReport(){
   try {
     if(!REPORT_PW_HASH) REPORT_PW_HASH = await sha256('7012');
     pmReport.pw_hash = REPORT_PW_HASH;
+    // Upload attached photos, attach URLs to the PM report payload
+    if(typeof window.uploadPendingImages === 'function' && window.getPendingImageCount() > 0){
+      pmReport.photos = await window.uploadPendingImages();
+    }
 
     let pmReportId;
     if(editingPmReportId){
@@ -954,6 +959,7 @@ function submitAnother(){
 }
 
 function resetForm(){
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
   if(!confirm('Reset all fields?')) return;
   document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('fShift').value = '';
@@ -1162,6 +1168,9 @@ async function editPmReport(id){
   setIf('fDate', r.date);
   setIf('fShift', r.shift);
   if(typeof window.setTechName === 'function') window.setTechName(r.tech_name || ''); else setIf('techName', r.tech_name);
+  // Pre-load photos attached to this PM report
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
+  if(Array.isArray(r.photos) && typeof window.loadExistingImages === 'function') window.loadExistingImages(r.photos);
   setIf('techSig', r.tech_sig);
   setIf('generalNotes', r.notes);
 

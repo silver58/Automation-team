@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salcomp — Resources & Documents</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;--amb2:#ffd166;
+  --grn:#3fb950;--red:#f85149;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
+  --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+button{touch-action:manipulation;}
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
+
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.site-header a.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.site-header a.back:hover{border-color:var(--amb);color:var(--amb);}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+
+.main{max-width:1100px;margin:0 auto;padding:24px 28px;}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:22px;}
+
+/* Upload card */
+.upload-card{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;padding:18px 20px;margin-bottom:24px;}
+.upload-card h2{font-family:'IBM Plex Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:14px;}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:620px){.upload-grid{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut2);}
+.field input, .field select{background:var(--bg);border:1px solid var(--bdr2);border-radius:6px;padding:8px 11px;color:var(--txt);font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s;}
+.field input:focus, .field select:focus{border-color:var(--amb);}
+.dropzone{
+  border:2px dashed var(--bdr2);border-radius:8px;padding:26px 18px;text-align:center;
+  cursor:pointer;transition:all .15s;background:var(--bg);
+}
+.dropzone:hover, .dropzone.drag{border-color:var(--amb);background:rgba(var(--amb-rgb),.04);}
+.dropzone-icon{font-size:30px;margin-bottom:8px;}
+.dropzone-text{font-size:13px;color:var(--mut);}
+.dropzone-hint{font-size:11px;color:var(--mut2);margin-top:4px;font-family:'IBM Plex Mono',monospace;}
+.dropzone-file{font-size:12px;color:var(--amb);margin-top:8px;font-family:'IBM Plex Mono',monospace;}
+.btn{background:var(--amb);color:#000;border:none;padding:9px 18px;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn:hover{background:var(--amb-hover);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--mut);}
+.btn-ghost:hover{border-color:var(--amb);color:var(--amb);background:transparent;}
+
+/* Category filter */
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.cat-pill{background:var(--sur);border:1px solid var(--bdr);color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;}
+.cat-pill:hover{color:var(--txt);}
+.cat-pill.active{background:rgba(var(--amb-rgb),.15);color:var(--amb);border-color:rgba(var(--amb-rgb),.3);font-weight:600;}
+
+/* Resource list */
+.res-search{width:100%;background:var(--sur);border:1px solid var(--bdr2);border-radius:7px;padding:9px 13px;color:var(--txt);font-size:13px;outline:none;margin-bottom:16px;font-family:'IBM Plex Sans',sans-serif;}
+.res-search:focus{border-color:var(--amb);}
+.res-list{display:flex;flex-direction:column;gap:8px;}
+.res-item{
+  background:var(--sur);border:1px solid var(--bdr);border-radius:9px;padding:14px 16px;
+  display:flex;align-items:center;gap:14px;transition:all .15s;
+}
+.res-item:hover{border-color:var(--bdr2);}
+.res-icon{font-size:26px;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:8px;}
+.res-body{flex:1;min-width:0;}
+.res-title{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:2px;word-break:break-word;}
+.res-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);display:flex;gap:10px;flex-wrap:wrap;}
+.res-cat{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:2px 7px;border-radius:9px;}
+.res-cat-sop{background:rgba(56,139,253,.15);color:#5fb1ff;}
+.res-cat-changeover{background:rgba(163,113,247,.15);color:#c89cff;}
+.res-cat-safety{background:rgba(248,81,73,.15);color:var(--red);}
+.res-cat-training{background:rgba(63,185,80,.15);color:var(--grn);}
+.res-cat-other{background:rgba(110,118,129,.15);color:var(--mut2);}
+.res-actions{display:flex;gap:8px;flex-shrink:0;}
+.res-btn{background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 11px;border-radius:5px;cursor:pointer;text-decoration:none;transition:all .15s;}
+.res-btn:hover{border-color:var(--amb);color:var(--amb);}
+.res-btn-del:hover{border-color:var(--red);color:var(--red);}
+
+.empty{text-align:center;padding:50px 20px;color:var(--mut2);}
+.empty-icon{font-size:40px;margin-bottom:10px;}
+.loading{text-align:center;padding:60px 20px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+
+.notice{
+  background:rgba(var(--amb-rgb),.08);border:1px solid rgba(var(--amb-rgb),.25);
+  border-radius:8px;padding:12px 15px;margin-bottom:20px;font-size:12.5px;color:var(--mut);
+  line-height:1.5;
+}
+.notice strong{color:var(--amb);}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sur);border:1px solid var(--bdr2);padding:11px 20px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:9999;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.t-ok{border-color:var(--grn);color:var(--grn);}
+.toast.t-err{border-color:var(--red);color:var(--red);}
+
+@media(max-width:600px){
+  .main{padding:16px;}
+  .res-item{flex-wrap:wrap;}
+  .res-actions{width:100%;}
+}
+</style>
+<script src="theme.js?v=3"></script>
+<script src="translations.js?v=2"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back" href="index.html">← Home</a>
+  <div class="logo">SALCOMP — RESOURCES</div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button class="lang-toggle" onclick="toggleLanguage()" title="Switch language" style="display:inline-flex;align-items:center;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:6px;padding:2px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;cursor:pointer;">
+      <span class="lang-en active" style="padding:4px 9px;border-radius:4px;">EN</span><span class="lang-es" style="padding:4px 9px;border-radius:4px;color:var(--mut2);">ES</span>
+    </button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page-title">📚 Resources & Documents</div>
+  <div class="page-sub">Shared library for SOPs, changeover guides, safety docs, and training materials. Engineers upload — everyone can view.</div>
+
+  <div class="notice" id="storageNotice" style="display:none;">
+    <strong>⚠ Storage not configured.</strong> The document library needs a Supabase Storage bucket named <code>resources</code>.
+    See the setup instructions in <code>supabase_migration_resources.sql</code>. Until then, uploads are disabled but you can still see this page.
+  </div>
+
+  <!-- UPLOAD CARD -->
+  <div class="upload-card" id="uploadCard">
+    <h2>⬆ Upload a Document</h2>
+    <div class="upload-grid">
+      <div class="field">
+        <label for="docTitle">Document Title</label>
+        <input type="text" id="docTitle" placeholder="e.g. Carousel Line 3 Changeover SOP" maxlength="120">
+      </div>
+      <div class="field">
+        <label for="docCategory">Category</label>
+        <select id="docCategory">
+          <option value="sop">SOP — Standard Operating Procedure</option>
+          <option value="changeover">Changeover Document</option>
+          <option value="safety">Safety</option>
+          <option value="training">Training</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+      <div class="dropzone-icon">📄</div>
+      <div class="dropzone-text">Tap to choose a file, or drag &amp; drop here</div>
+      <div class="dropzone-hint">PDF, Word, Excel, images — up to 25 MB</div>
+      <div class="dropzone-file" id="dropzoneFile"></div>
+    </div>
+    <input type="file" id="fileInput" style="display:none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.txt,.csv">
+    <div style="margin-top:14px;display:flex;gap:10px;align-items:center;">
+      <button class="btn" id="uploadBtn" onclick="doUpload()" disabled>Upload Document</button>
+      <button class="btn btn-ghost" onclick="clearUploadForm()">Clear</button>
+      <span id="uploadStatus" style="font-size:12px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;"></span>
+    </div>
+  </div>
+
+  <!-- CATEGORY FILTER -->
+  <div class="cat-filter" id="catFilter">
+    <button class="cat-pill active" data-cat="all" onclick="setCategory('all')">All</button>
+    <button class="cat-pill" data-cat="sop" onclick="setCategory('sop')">SOPs</button>
+    <button class="cat-pill" data-cat="changeover" onclick="setCategory('changeover')">Changeover</button>
+    <button class="cat-pill" data-cat="safety" onclick="setCategory('safety')">Safety</button>
+    <button class="cat-pill" data-cat="training" onclick="setCategory('training')">Training</button>
+    <button class="cat-pill" data-cat="other" onclick="setCategory('other')">Other</button>
+  </div>
+
+  <input type="text" class="res-search" id="resSearch" placeholder="Search by title or uploader…" oninput="renderList()">
+
+  <div id="content"><div class="loading">Loading documents…</div></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+const sbHeaders = () => ({'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY});
+
+const BUCKET = 'resources';
+const TABLE = 'resources';
+const MAX_BYTES = 25 * 1024 * 1024;  // 25 MB
+
+let allResources = [];
+let activeCategory = 'all';
+let selectedFile = null;
+let storageAvailable = true;
+
+// ── FILE TYPE → ICON ──────────────────────────────────────────────
+function fileIcon(filename){
+  const ext = (filename || '').split('.').pop().toLowerCase();
+  if(['pdf'].includes(ext)) return '📕';
+  if(['doc','docx'].includes(ext)) return '📘';
+  if(['xls','xlsx','csv'].includes(ext)) return '📗';
+  if(['ppt','pptx'].includes(ext)) return '📙';
+  if(['png','jpg','jpeg','gif','webp'].includes(ext)) return '🖼️';
+  if(['txt'].includes(ext)) return '📄';
+  return '📎';
+}
+function catLabel(cat){
+  return ({sop:'SOP', changeover:'Changeover', safety:'Safety', training:'Training', other:'Other'})[cat] || 'Other';
+}
+function fmtBytes(b){
+  if(b == null) return '';
+  if(b < 1024) return b + ' B';
+  if(b < 1048576) return (b/1024).toFixed(0) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+// ── LOAD ───────────────────────────────────────────────────────────
+async function loadResources(){
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/${TABLE}?order=uploaded_at.desc&limit=500`, {headers: sbHeaders()});
+    if(res.status === 404 || res.status === 400){
+      // Table doesn't exist yet
+      storageAvailable = false;
+      document.getElementById('storageNotice').style.display = 'block';
+      document.getElementById('uploadBtn').disabled = true;
+      allResources = [];
+      renderList();
+      return;
+    }
+    if(!res.ok){ throw new Error('HTTP ' + res.status); }
+    allResources = await res.json();
+    renderList();
+  } catch(e){
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><div class="empty-icon">⚠</div>Could not load resources.<div style="font-size:11px;margin-top:6px;color:var(--mut2)">${escapeHtml(e.message)}</div></div>`;
+  }
+}
+
+// ── FILE SELECTION ─────────────────────────────────────────────────
+const fileInput = document.getElementById('fileInput');
+const dropzone = document.getElementById('dropzone');
+
+fileInput.addEventListener('change', e => {
+  if(e.target.files.length) handleFileSelect(e.target.files[0]);
+});
+['dragover','dragenter'].forEach(ev => dropzone.addEventListener(ev, e => {
+  e.preventDefault(); dropzone.classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+}));
+dropzone.addEventListener('drop', e => {
+  if(e.dataTransfer.files.length) handleFileSelect(e.dataTransfer.files[0]);
+});
+
+function handleFileSelect(file){
+  if(file.size > MAX_BYTES){
+    showToast('File too large — 25 MB max.', 't-err');
+    return;
+  }
+  selectedFile = file;
+  document.getElementById('dropzoneFile').textContent = `✓ ${file.name} (${fmtBytes(file.size)})`;
+  refreshUploadBtn();
+}
+
+function refreshUploadBtn(){
+  const hasTitle = document.getElementById('docTitle').value.trim().length > 0;
+  document.getElementById('uploadBtn').disabled = !(storageAvailable && selectedFile && hasTitle);
+}
+document.getElementById('docTitle').addEventListener('input', refreshUploadBtn);
+
+function clearUploadForm(){
+  selectedFile = null;
+  fileInput.value = '';
+  document.getElementById('docTitle').value = '';
+  document.getElementById('docCategory').value = 'sop';
+  document.getElementById('dropzoneFile').textContent = '';
+  document.getElementById('uploadStatus').textContent = '';
+  refreshUploadBtn();
+}
+
+// ── UPLOAD ─────────────────────────────────────────────────────────
+async function doUpload(){
+  if(!selectedFile || !storageAvailable) return;
+  const title = document.getElementById('docTitle').value.trim();
+  const category = document.getElementById('docCategory').value;
+  if(!title){ showToast('Enter a document title.', 't-err'); return; }
+
+  const btn = document.getElementById('uploadBtn');
+  const status = document.getElementById('uploadStatus');
+  btn.disabled = true;
+  status.textContent = 'Uploading…';
+
+  // Generate a unique storage path: timestamp + sanitized filename
+  const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const storagePath = `${Date.now()}_${safeName}`;
+
+  try {
+    // 1. Upload the binary to Supabase Storage
+    const upRes = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${storagePath}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': selectedFile.type || 'application/octet-stream',
+        'x-upsert': 'false',
+      },
+      body: selectedFile,
+    });
+    if(!upRes.ok){
+      const txt = await upRes.text();
+      throw new Error('Storage upload failed: ' + upRes.status + ' ' + txt.slice(0,120));
+    }
+
+    // 2. Record metadata row in the resources table
+    const publicUrl = `${SB_URL}/storage/v1/object/public/${BUCKET}/${storagePath}`;
+    const metaRes = await fetch(`${SB_URL}/rest/v1/${TABLE}`, {
+      method: 'POST',
+      headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'return=minimal'},
+      body: JSON.stringify({
+        title: title,
+        category: category,
+        file_name: selectedFile.name,
+        file_size: selectedFile.size,
+        file_path: storagePath,
+        public_url: publicUrl,
+        uploaded_by: getUploaderName(),
+      }),
+    });
+    if(!metaRes.ok){
+      const txt = await metaRes.text();
+      throw new Error('Metadata save failed: ' + metaRes.status + ' ' + txt.slice(0,120));
+    }
+
+    status.textContent = '';
+    showToast('✓ Document uploaded', 't-ok');
+    clearUploadForm();
+    loadResources();
+  } catch(e){
+    status.textContent = '';
+    showToast(e.message, 't-err');
+    btn.disabled = false;
+  }
+}
+
+// Ask once for the uploader's name, remember it locally
+function getUploaderName(){
+  let name = '';
+  try { name = localStorage.getItem('salcomp_uploader_name') || ''; } catch(e){}
+  if(!name){
+    name = (prompt('Your name (shown as the uploader):') || '').trim() || 'Unknown';
+    try { localStorage.setItem('salcomp_uploader_name', name); } catch(e){}
+  }
+  return name;
+}
+
+// ── DELETE ─────────────────────────────────────────────────────────
+async function deleteResource(id, path, title){
+  if(!confirm(`Delete "${title}"?\n\nThis removes the file permanently.`)) return;
+  try {
+    // Remove storage object
+    await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${path}`, {
+      method: 'DELETE',
+      headers: {'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY},
+    });
+    // Remove metadata row
+    await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: sbHeaders(),
+    });
+    showToast('Document deleted', 't-ok');
+    loadResources();
+  } catch(e){
+    showToast('Delete failed: ' + e.message, 't-err');
+  }
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────
+function setCategory(cat){
+  activeCategory = cat;
+  document.querySelectorAll('.cat-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.cat === cat);
+  });
+  renderList();
+}
+
+function renderList(){
+  const search = document.getElementById('resSearch').value.trim().toLowerCase();
+  let list = allResources.slice();
+  if(activeCategory !== 'all'){
+    list = list.filter(r => r.category === activeCategory);
+  }
+  if(search){
+    list = list.filter(r =>
+      (r.title||'').toLowerCase().includes(search) ||
+      (r.uploaded_by||'').toLowerCase().includes(search) ||
+      (r.file_name||'').toLowerCase().includes(search)
+    );
+  }
+
+  if(list.length === 0){
+    const msg = allResources.length === 0
+      ? 'No documents uploaded yet. Be the first — use the upload box above.'
+      : 'No documents match the current filter.';
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><div class="empty-icon">📭</div>${msg}</div>`;
+    return;
+  }
+
+  document.getElementById('content').innerHTML =
+    `<div class="res-list">${list.map(renderResItem).join('')}</div>`;
+}
+
+function renderResItem(r){
+  const cat = r.category || 'other';
+  return `
+    <div class="res-item">
+      <div class="res-icon">${fileIcon(r.file_name)}</div>
+      <div class="res-body">
+        <div class="res-title">${escapeHtml(r.title || r.file_name || 'Untitled')}</div>
+        <div class="res-meta">
+          <span class="res-cat res-cat-${cat}">${catLabel(cat)}</span>
+          <span>${escapeHtml(r.file_name || '')}</span>
+          <span>${fmtBytes(r.file_size)}</span>
+          <span>${escapeHtml(r.uploaded_by || 'Unknown')}</span>
+          <span>${relTime(r.uploaded_at)}</span>
+        </div>
+      </div>
+      <div class="res-actions">
+        <a class="res-btn" href="${escapeHtml(r.public_url)}" target="_blank" rel="noopener">↓ Open</a>
+        <button class="res-btn res-btn-del" onclick="deleteResource('${r.id}', '${escapeHtml(r.file_path)}', '${escapeHtml((r.title||'').replace(/'/g,"\\'"))}')">✕</button>
+      </div>
+    </div>`;
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────
+function escapeHtml(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function relTime(iso){
+  if(!iso) return '—';
+  const t = new Date(iso).getTime();
+  if(isNaN(t)) return '—';
+  const s = Math.round((Date.now() - t) / 1000);
+  if(s < 60) return 'just now';
+  if(s < 3600) return Math.round(s/60) + 'm ago';
+  if(s < 86400) return Math.round(s/3600) + 'h ago';
+  if(s < 2592000) return Math.round(s/86400) + 'd ago';
+  return new Date(iso).toLocaleDateString();
+}
+let _toastTimer = null;
+function showToast(msg, cls){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (cls || '');
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = 'toast ' + (cls||''); }, 3500);
+}
+
+loadResources();
+</script>
+
+</body>
+</html>

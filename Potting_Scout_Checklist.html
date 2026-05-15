@@ -592,6 +592,7 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 <script src="translations.js?v=2"></script>
 <script>window.SALCOMP_LINES_OVERRIDE = ['1', '2', '3', '6', '7', '7.5'];</script>
 <script src="techs.js?v=3"></script>
+<script src="form_image_upload.js?v=1"></script>
 <script>
 const DATA = [
   {id:'s01',num:'01',grp:'auto',
@@ -1184,8 +1185,14 @@ async function loadReports() {
 }
 
 async function saveReport(report) {
+  // Upload attached photos first, include URLs in the row
+  let _photoUrls = [];
+  if(typeof window.uploadPendingImages === 'function' && window.getPendingImageCount() > 0){
+    _photoUrls = await window.uploadPendingImages();
+  }
   const row = {
     submitted_at: report.submittedAt,
+    photos:       _photoUrls,
     tech:         report.tech,
     line:         report.line,
     date:         report.date,
@@ -1296,7 +1303,9 @@ async function submitForm(){
       showToast(`⚠ Saved & locked — ${attn} items flagged`,'t-warn');
     } else {
       btn.className='btn btn-ok'; btn.textContent='✓ Scout Report Submitted';
-      if(window.autosaveClearDraft) window.autosaveClearDraft(); showToast('✓ Report saved & locked','t-ok');
+      if(window.autosaveClearDraft) window.autosaveClearDraft();
+      if(window.clearPendingImages) window.clearPendingImages();
+      showToast('✓ Report saved & locked','t-ok');
     if(editingScoutId){
       const banner = document.getElementById('editBanner');
       if(banner) banner.remove();
@@ -1665,6 +1674,10 @@ async function editScout(id){
   setIfExists('fShift', r.shift);
   setIfExists('fWO', r.wo);
 
+  // Pre-load photos attached to this scout report
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
+  if(Array.isArray(r.photos) && typeof window.loadExistingImages === 'function') window.loadExistingImages(r.photos);
+
   // Clear status maps
   Object.keys(status).forEach(k => delete status[k]);
   Object.keys(notes).forEach(k => delete notes[k]);
@@ -1751,6 +1764,7 @@ function showEditBanner(r){
 function cancelScoutEdit(){
   if(!confirm('Cancel editing? Any changes will be lost.')) return;
   editingScoutId = null;
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
   const banner = document.getElementById('editBanner');
   if(banner) banner.remove();
   const btn = document.getElementById('subBtn');

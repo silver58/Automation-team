@@ -20,6 +20,13 @@
 })();
 </script>
 <meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wave-3 – Scout Check Sheet</title>
 <style>
@@ -27,7 +34,7 @@ button{touch-action:manipulation;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 :root{
   --bg:#0d1117;--sur:#161b22;--bdr:#21262d;--bdr2:#30363d;
-  --amb:var(--amb);--amb-rgb:240,165,0;--amb-hover:var(--amb-hover);--amb-deep:var(--amb-deep);--amb-light:var(--amb-light);--amb2:var(--amb2);--grn:#3fb950;--red:#f85149;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;--amb2:#ffd166;--grn:#3fb950;--red:#f85149;
   --yel:#e3b341;--blu:#388bfd;--txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
   --pur:#a371f7;
 }
@@ -579,9 +586,10 @@ input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0
 
 <div class="toast" id="toast"></div>
 
-<script src="theme.js"></script>
-<script src="translations.js"></script>
-<script src="techs.js"></script>
+<script src="theme.js?v=3"></script>
+<script src="translations.js?v=2"></script>
+<script src="techs.js?v=3"></script>
+<script src="form_image_upload.js?v=1"></script>
 <script>
 const DATA = [
   {id:'s01',num:'01',grp:'wave3',
@@ -1180,8 +1188,14 @@ async function loadReports() {
 }
 
 async function saveReport(report) {
+  // Upload attached photos first, include URLs in the row
+  let _photoUrls = [];
+  if(typeof window.uploadPendingImages === 'function' && window.getPendingImageCount() > 0){
+    _photoUrls = await window.uploadPendingImages();
+  }
   const row = {
     submitted_at: report.submittedAt,
+    photos:       _photoUrls,
     tech:         report.tech,
     line:         report.line,
     date:         report.date,
@@ -1292,7 +1306,9 @@ async function submitForm(){
       showToast(`⚠ Saved & locked — ${attn} items flagged`,'t-warn');
     } else {
       btn.className='btn btn-ok'; btn.textContent='✓ Scout Report Submitted';
-      if(window.autosaveClearDraft) window.autosaveClearDraft(); showToast('✓ Report saved & locked','t-ok');
+      if(window.autosaveClearDraft) window.autosaveClearDraft();
+      if(window.clearPendingImages) window.clearPendingImages();
+      showToast('✓ Report saved & locked','t-ok');
     if(editingScoutId){
       const banner = document.getElementById('editBanner');
       if(banner) banner.remove();
@@ -1661,6 +1677,10 @@ async function editScout(id){
   setIfExists('fShift', r.shift);
   setIfExists('fWO', r.wo);
 
+  // Pre-load photos attached to this scout report
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
+  if(Array.isArray(r.photos) && typeof window.loadExistingImages === 'function') window.loadExistingImages(r.photos);
+
   // Clear status maps
   Object.keys(status).forEach(k => delete status[k]);
   Object.keys(notes).forEach(k => delete notes[k]);
@@ -1747,6 +1767,7 @@ function showEditBanner(r){
 function cancelScoutEdit(){
   if(!confirm('Cancel editing? Any changes will be lost.')) return;
   editingScoutId = null;
+  if(typeof window.clearPendingImages === 'function') window.clearPendingImages();
   const banner = document.getElementById('editBanner');
   if(banner) banner.remove();
   const btn = document.getElementById('subBtn');

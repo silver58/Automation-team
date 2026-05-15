@@ -12,17 +12,18 @@ window.SALCOMP_TECHS = {
   'A Shift': [
     'Joseph Vu', 'Nicki Vu', 'Sang Ngo', 'Ethan Burgess', 'Joel Gallegos',
     'Demond Wells', 'Tay Vong', 'Yessica', 'Minh Nguyen', 'Trinh',
-    'David Le', 'Arllian',
+    'David Le', 'Arllian', 'Leo',
   ],
   'B Shift': [
     'Evin Graterol', 'Phi Pham', 'Ernesto Estrada', 'Truong Bui',
     'Howard Brooks', 'Miguel Manzo', 'Mak Dieu Merci', 'Robert Phan',
     'Jesus Carrillo', 'Juan Gonzalez', 'Anjanidevi Arumilli', 'Joseph Mendoza',
+    'Edwin', 'Brian',
   ],
   'C Shift': [
     'Jason Howard', 'Jesmarg Carrillo', 'Jose Aguilar', 'Bryan Martinez',
     'Dariel Bustamante', 'Daniel Avelino', 'Marcus Thompson', 'Alex Phong',
-    'Kito Hill', 'Edgar Garcia', 'Pancho', 'David Harell',
+    'Kito Hill', 'Edgar Garcia', 'Pancho', 'David Harell', 'Tony', 'Q',
   ],
   'Engineers': [
     'Sentilkumar', 'Rolando Muniz', 'Manuel Hernandez', 'Erick Barrera',

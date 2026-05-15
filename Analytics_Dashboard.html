@@ -301,45 +301,69 @@ svg .bar-clickable:hover{opacity:.7;}
 .pin-btn.pin-on{color:var(--amb);}
 
 /* ═══ OEE SUMMARY PANEL ═══════════════════════════════════════════════ */
-.oee-target-row{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+.oee-uph-row{
   background:var(--bg);
   border:1px solid var(--bdr);
   border-radius:7px;
-  padding:10px 14px;
+  padding:11px 14px;
   margin-bottom:12px;
 }
-.oee-target-label{
+.oee-uph-row-label{
   font-family:'IBM Plex Mono',monospace;
   font-size:10.5px;
   font-weight:600;
   color:var(--mut);
   text-transform:uppercase;
   letter-spacing:.06em;
-  flex-shrink:0;
+  margin-bottom:10px;
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
 }
-.oee-target-input{
+.oee-uph-hint{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;
+  color:var(--mut2);
+  font-style:italic;
+  font-weight:400;
+  text-transform:none;
+  letter-spacing:0;
+}
+.oee-uph-grid{
+  display:grid;
+  grid-template-columns:repeat(5, 1fr);
+  gap:8px;
+}
+@media(max-width:560px){
+  .oee-uph-grid{grid-template-columns:repeat(3, 1fr);}
+}
+.oee-uph-cell{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.oee-uph-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;
+  color:var(--mut2);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.oee-uph-input{
   background:var(--sur);
   border:1px solid var(--bdr2);
   border-radius:5px;
-  padding:6px 10px;
+  padding:6px 8px;
   color:var(--amb);
   font-family:'IBM Plex Mono',monospace;
   font-size:14px;
   font-weight:600;
-  width:80px;
+  width:100%;
   outline:none;
   transition:border-color .15s;
 }
-.oee-target-input:focus{border-color:var(--amb);}
-.oee-target-hint{
-  font-family:'IBM Plex Mono',monospace;
-  font-size:10px;
-  color:var(--mut2);
-  font-style:italic;
-  flex:1;
-  min-width:160px;
-}
+.oee-uph-input:focus{border-color:var(--amb);}
 .oee-strip{
   display:grid;
   grid-template-columns:1.4fr 1fr 1fr 1fr;
@@ -636,6 +660,8 @@ svg .bar-clickable:hover{opacity:.7;}
 .shift-area-car {background:rgba(163,113,247,.15);color:#c89cff;}
 .shift-area-pott{background:rgba(63,185,80,.15);color:var(--grn);}
 .shift-area-wav {background:rgba(56,139,253,.15);color:#5fb1ff;}
+.shift-area-bat {background:rgba(245,217,55,.15);color:#f5d937;}
+.shift-area-iq9 {background:rgba(255,140,66,.15);color:#ff8c42;}
 .shift-area-empty{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);font-style:italic;}
 
 /* Mech vs Production summary cards on downtime panel */
@@ -1151,6 +1177,16 @@ svg .bar-clickable:hover{opacity:.7;}
     </div>
   </div>
 
+  <!-- AREA FILTER — isolate traditional lines vs Battery/IQ9 commercial lines -->
+  <div class="type-filter-row">
+    <span class="type-filter-label">Area:</span>
+    <div class="type-pills" id="areaPills">
+      <button class="tpill apill active" data-area="all"><span>All Areas</span></button>
+      <button class="tpill apill" data-area="traditional"><span>Carousel · Potting · Wave-3</span></button>
+      <button class="tpill apill" data-area="commercial">🔋🔦 <span>Battery · IQ9</span></button>
+    </div>
+  </div>
+
   <!-- DATE RANGE -->
   <div class="range-row">
     <div class="range-pills" id="rangePills">
@@ -1200,8 +1236,41 @@ const SOURCES = [
   {key:'shift-pott',table:'shift_reports',          label:'Shift — Potting',   kind:'shift',  link:'Potting_Shift_Report.html',  line:'pott'},
   {key:'shift-wav', table:'wave3_reports',          label:'Shift — Wave-3',    kind:'shift',  link:'Wave3_Shift_Report.html',    line:'wav'},
   {key:'shift-car', table:'carousel_reports',       label:'Shift — Carousel',  kind:'shift',  link:'Carousel_Shift_Report.html', line:'car'},
+  // Battery + IQ9 are the newer "commercial" lines. They share the shift-report
+  // shape but run a much lower UPH because the product is larger / more costly,
+  // so they carry their own per-area UPH target (see AREA_UPH_DEFAULTS below).
+  {key:'shift-bat', table:'battery_reports',        label:'Shift — Battery',   kind:'shift',  link:'Battery_Shift_Report.html',  line:'bat'},
+  {key:'shift-iq9', table:'iq9_reports',            label:'Shift — IQ9',       kind:'shift',  link:'IQ9_Shift_Report.html',      line:'iq9'},
   {key:'pm-all',    table:'pm_reports',             label:'PM Reports',         kind:'pm',     link:null},
 ];
+
+// Per-area UPH targets. Traditional lines use the editable global target;
+// Battery/IQ9 default to a much lower number because the product is bigger and
+// pricier — fewer units per hour is normal/expected, not a performance problem.
+const AREA_UPH_DEFAULTS = { car:60, pott:60, wav:60, bat:12, iq9:18 };
+const AREA_UPH_KEY = 'salcomp_area_uph_targets';
+function getAreaUphTargets(){
+  try {
+    const raw = localStorage.getItem(AREA_UPH_KEY);
+    if(raw) return {...AREA_UPH_DEFAULTS, ...JSON.parse(raw)};
+  } catch(e){}
+  return {...AREA_UPH_DEFAULTS};
+}
+function setAreaUphTarget(area, value){
+  const cur = getAreaUphTargets();
+  cur[area] = value;
+  try { localStorage.setItem(AREA_UPH_KEY, JSON.stringify(cur)); } catch(e){}
+}
+// Map a shift source key → its area short code for UPH lookups
+const SHIFT_KEY_TO_AREA = {
+  'shift-car':'car', 'shift-pott':'pott', 'shift-wav':'wav',
+  'shift-bat':'bat', 'shift-iq9':'iq9',
+};
+// Map a shift source key → its human area label (used across panels for grouping)
+const SHIFT_KEY_TO_LABEL = {
+  'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel',
+  'shift-bat':'Battery', 'shift-iq9':'IQ9',
+};
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
 let allData = {};      // {sourceKey: rows[]}
@@ -1272,6 +1341,7 @@ function renderPanelRangeBadge(panelKey){
 let wipLineFilter = 'all';  // 'all'|'pott'|'wav'|'car'
 let scoutFilter = 'all';    // 'all' | 'scout-car' | 'scout-pott' | 'scout-wav'
 let typeFilter = 'all';     // 'all' | 'shift' | 'pm' | 'scout'
+let areaFilter = 'all';     // 'all' | 'traditional' | 'commercial'
 
 // ── DATE HELPERS ───────────────────────────────────────────────────────────────
 function withinRange(rowDate){
@@ -1470,10 +1540,38 @@ function scoutAttnLive(row){
   return n;
 }
 
+// Returns true if a row belongs to the currently-selected area group.
+// 'traditional' = Carousel/Potting/Wave-3, 'commercial' = Battery/IQ9.
+// Non-shift rows (PM, scout) only have area context for scouts; PM rows are
+// area-tagged via their row.area field. Anything we can't classify stays
+// visible under 'all' and is hidden under a specific area filter only if we
+// can positively place it in the *other* group.
+function inAreaFilter(r){
+  if(areaFilter === 'all') return true;
+  const COMMERCIAL_SHIFT = new Set(['shift-bat','shift-iq9']);
+  const TRADITIONAL_SHIFT = new Set(['shift-car','shift-pott','shift-wav']);
+  if(r.src.kind === 'shift'){
+    if(areaFilter === 'commercial')  return COMMERCIAL_SHIFT.has(r.src.key);
+    if(areaFilter === 'traditional') return TRADITIONAL_SHIFT.has(r.src.key);
+  }
+  if(r.src.kind === 'scout'){
+    // All current scout sheets are traditional-area
+    return areaFilter === 'traditional';
+  }
+  if(r.src.kind === 'pm'){
+    // PM rows carry an `area` text field
+    const a = String(r.row.area || '').toLowerCase();
+    const isCommercial = a.includes('battery') || a.includes('iq9');
+    return areaFilter === 'commercial' ? isCommercial : !isCommercial;
+  }
+  return true;
+}
+
 function filteredRows(){
   return normalizedRows().filter(r => {
     if(!withinRange(r.when)) return false;
     if(typeFilter !== 'all' && r.src.kind !== typeFilter) return false;
+    if(!inAreaFilter(r)) return false;
     return true;
   });
 }
@@ -1520,9 +1618,10 @@ function computeKpisPrevPeriod(){
     prevEnd   = curStart - 1;
     prevStart = prevEnd - rangeDays*86400000;
   }
-  // Filter rows in the prev window, applying the active type filter
+  // Filter rows in the prev window, applying the active type + area filters
   const prevRows = allNorm.filter(r => {
     if(typeFilter !== 'all' && r.src.kind !== typeFilter) return false;
+    if(!inAreaFilter(r)) return false;
     if(!r.when) return false;
     const t = new Date(r.when).getTime();
     return t >= prevStart && t <= prevEnd;
@@ -1678,7 +1777,7 @@ function buildWipBuckets(rows, lineFilter){
   // RULE: only keep the most recent report per (area + line + shift) to avoid
   // double-counting corrected/duplicate submissions.
   const cutoff = Date.now() - 24*60*60*1000;
-  const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
+  const areaMap = SHIFT_KEY_TO_LABEL;
 
   // Step 1: filter + dedupe (rows are pre-sorted DESC by submitted_at)
   const seen = new Set();
@@ -1771,7 +1870,7 @@ function buildUphBoard(rows){
     if(isNaN(submitted) || submitted < cutoff) return;
     if(!Array.isArray(r.row.production_hrs)) return;
     if(shiftStartHour(r.row.shift) === null) return;
-    const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
+    const areaMap = SHIFT_KEY_TO_LABEL;
     const area = areaMap[r.src.key];
     if(!area) return;
     const line = (String(r.row.line || '').trim()) || '—';
@@ -1961,40 +2060,22 @@ function recentFlags(rows){
 // Heuristic assumptions documented inline since we don't have explicit cycle-time targets.
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Target UPH (ideal output per hour). Stored per-browser so production planners
-// can adjust expectations without touching code. Default 60.
-const OEE_TARGET_KEY = 'salcomp_oee_target_uph';
-function getTargetUph(){
-  try {
-    const raw = localStorage.getItem(OEE_TARGET_KEY);
-    const n = parseFloat(raw);
-    if(!isNaN(n) && n > 0) return n;
-  } catch(e){}
-  return 60;
-}
-function setTargetUph(n){
-  try { localStorage.setItem(OEE_TARGET_KEY, String(n)); } catch(e){}
-}
-window.applyOeeTarget = function(){
-  const input = document.getElementById('oeeTargetInput');
-  if(!input) return;
-  const n = parseFloat(input.value);
-  if(isNaN(n) || n <= 0){
-    input.value = getTargetUph();
-    return;
-  }
-  setTargetUph(n);
-  // Re-render so the OEE recomputes with the new target
-  if(typeof render === 'function') render();
-};
-
 function buildOeeStats(rows){
   const deduped = dedupShiftRows(rows.filter(r => r.src.kind === 'shift'));
   const PLANNED_MINS_PER_SHIFT = 480;  // 8h shift baseline
-  const TARGET_UPH = getTargetUph();   // editable from the OEE panel UI
+  const areaUph = getAreaUphTargets();  // {car, pott, wav, bat, iq9} — per-area targets
   let plannedMins = 0, downtimeMins = 0, production = 0, scrap = 0, shiftCount = 0;
-  const byArea = {Carousel:{a:0,p:0,q:0,n:0}, Potting:{a:0,p:0,q:0,n:0}, 'Wave-3':{a:0,p:0,q:0,n:0}};
-  const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
+  // Theoretical output is summed per-row using that row's area target, since
+  // Battery/IQ9 run a much lower UPH than the traditional lines.
+  let theoreticalTotal = 0;
+  const byArea = {
+    Carousel:{a:0,p:0,q:0,n:0}, Potting:{a:0,p:0,q:0,n:0}, 'Wave-3':{a:0,p:0,q:0,n:0},
+    Battery:{a:0,p:0,q:0,n:0}, IQ9:{a:0,p:0,q:0,n:0},
+  };
+  const areaMap = {
+    'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel',
+    'shift-bat':'Battery','shift-iq9':'IQ9',
+  };
 
   deduped.forEach(r => {
     shiftCount++;
@@ -2015,13 +2096,18 @@ function buildOeeStats(rows){
     production += prod;
     scrap += sc;
 
+    // Look up this row's UPH target by area (defaults to 60 if unknown)
+    const areaCode = SHIFT_KEY_TO_AREA[r.src.key] || 'car';
+    const rowTargetUph = areaUph[areaCode] || 60;
+    const rowRunMins = Math.max(0, PLANNED_MINS_PER_SHIFT - dt);
+    theoreticalTotal += (rowRunMins / 60) * rowTargetUph;
+
     const a = byArea[areaMap[r.src.key]];
     if(a){
-      const runMins = Math.max(0, PLANNED_MINS_PER_SHIFT - dt);
-      const avail = PLANNED_MINS_PER_SHIFT > 0 ? runMins / PLANNED_MINS_PER_SHIFT : 0;
+      const avail = PLANNED_MINS_PER_SHIFT > 0 ? rowRunMins / PLANNED_MINS_PER_SHIFT : 0;
       const goodOutput = Math.max(0, prod - sc);
       const qual = prod > 0 ? goodOutput / prod : 1;
-      const theoretical = (runMins / 60) * TARGET_UPH;
+      const theoretical = (rowRunMins / 60) * rowTargetUph;
       const perf = theoretical > 0 ? Math.min(1, prod / theoretical) : 0;
       a.a += avail; a.p += perf; a.q += qual; a.n += 1;
     }
@@ -2031,8 +2117,9 @@ function buildOeeStats(rows){
   const availability = plannedMins > 0 ? runMins / plannedMins : 0;
   const goodOutput = Math.max(0, production - scrap);
   const quality = production > 0 ? goodOutput / production : 1;
-  const theoretical = (runMins / 60) * TARGET_UPH;
-  const performance = theoretical > 0 ? Math.min(1, production / theoretical) : 0;
+  // Overall performance uses the per-area theoretical sum, so a slow day on
+  // Battery doesn't unfairly tank the plant-wide number.
+  const performance = theoreticalTotal > 0 ? Math.min(1, production / theoreticalTotal) : 0;
   const oee = availability * performance * quality;
 
   return {
@@ -2082,6 +2169,18 @@ function renderOee(s){
       </div>`;
   }).filter(x => x).join('');
 
+  // Per-area UPH target editors. Battery/IQ9 default low because the product
+  // is larger/pricier — fewer units/hour is expected, not underperformance.
+  const areaUph = getAreaUphTargets();
+  const AREA_LABELS = {car:'Carousel', pott:'Potting', wav:'Wave-3', bat:'Battery', iq9:'IQ9'};
+  const uphInputs = Object.entries(AREA_LABELS).map(([code, label]) => `
+    <div class="oee-uph-cell">
+      <label class="oee-uph-label" for="uph-${code}">${label}</label>
+      <input type="number" id="uph-${code}" class="oee-uph-input"
+        min="1" step="1" value="${areaUph[code]}"
+        onchange="applyAreaUph('${code}')" onkeydown="if(event.key==='Enter')applyAreaUph('${code}')">
+    </div>`).join('');
+
   return `
     <div class="panel" data-panel-key="oee">
       <div class="panel-head">
@@ -2092,12 +2191,12 @@ function renderOee(s){
         </div>
       </div>
       <div class="panel-body">
-        <div class="oee-target-row">
-          <label class="oee-target-label" for="oeeTargetInput">Ideal Output (UPH)</label>
-          <input type="number" id="oeeTargetInput" class="oee-target-input"
-            min="1" step="1" value="${getTargetUph()}"
-            onchange="applyOeeTarget()" onkeydown="if(event.key==='Enter')applyOeeTarget()">
-          <span class="oee-target-hint">Adjust if production expectations change. Used for the Performance % calculation.</span>
+        <div class="oee-uph-row">
+          <div class="oee-uph-row-label">
+            Ideal Output (UPH) per area
+            <span class="oee-uph-hint">Battery &amp; IQ9 run lower — bigger, costlier product. Edit if expectations change.</span>
+          </div>
+          <div class="oee-uph-grid">${uphInputs}</div>
         </div>
         <div class="oee-strip">
           <div class="oee-card oee-headline">
@@ -2123,12 +2222,26 @@ function renderOee(s){
         </div>
         ${areaCards ? `<div class="oee-area-grid">${areaCards}</div>` : ''}
         <div class="oee-formula-note">
-          <strong>Formula:</strong> Availability = run time ÷ planned time · Performance = actual output ÷ theoretical output (at ${getTargetUph()} UPH) · Quality = good units ÷ total units
+          <strong>Formula:</strong> Availability = run time ÷ planned time · Performance = actual output ÷ theoretical output (per-area UPH target) · Quality = good units ÷ total units
         </div>
       </div>
     </div>`;
 }
 const TARGET_OEE_NOTE = '85%+ world-class';
+
+// Apply an edited per-area UPH target and re-render
+window.applyAreaUph = function(areaCode){
+  const input = document.getElementById('uph-' + areaCode);
+  if(!input) return;
+  const v = parseFloat(input.value);
+  if(isNaN(v) || v < 1){
+    // Revert to stored value on invalid input
+    input.value = getAreaUphTargets()[areaCode];
+    return;
+  }
+  setAreaUphTarget(areaCode, v);
+  render();
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PARETO ANALYSIS — top X causes contributing to Y% of downtime (80/20 rule)
@@ -2152,7 +2265,7 @@ function buildPareto(rows){
       }
       groups[key].mins += mins;
       groups[key].count += 1;
-      const areaMap = {'shift-pott':'Potting','shift-wav':'Wave-3','shift-car':'Carousel'};
+      const areaMap = SHIFT_KEY_TO_LABEL;
       const area = areaMap[r.src.key];
       if(area) groups[key].areas.add(area);
     });
@@ -2835,13 +2948,14 @@ function getShiftEffectiveDays(rowsInView){
 
 function buildShiftStats(rows){
   const deduped = dedupShiftRows(rows);
+  const blankAreas = () => ({Carousel:0, Potting:0, 'Wave-3':0, Battery:0, IQ9:0});
   const out = {
-    A: {total:0, byArea:{Carousel:0, Potting:0, 'Wave-3':0}, lastSubmit:null},
-    B: {total:0, byArea:{Carousel:0, Potting:0, 'Wave-3':0}, lastSubmit:null},
-    C: {total:0, byArea:{Carousel:0, Potting:0, 'Wave-3':0}, lastSubmit:null},
-    Other: {total:0, byArea:{Carousel:0, Potting:0, 'Wave-3':0}, lastSubmit:null},
+    A: {total:0, byArea:blankAreas(), lastSubmit:null},
+    B: {total:0, byArea:blankAreas(), lastSubmit:null},
+    C: {total:0, byArea:blankAreas(), lastSubmit:null},
+    Other: {total:0, byArea:blankAreas(), lastSubmit:null},
   };
-  const areaMap = {'shift-pott':'Potting', 'shift-wav':'Wave-3', 'shift-car':'Carousel'};
+  const areaMap = SHIFT_KEY_TO_LABEL;
   deduped.forEach(r => {
     if(r.src.kind !== 'shift') return;
     const area = areaMap[r.src.key];
@@ -2907,6 +3021,8 @@ function renderShiftParticipation(stats){
           ${s.byArea.Carousel > 0 ? `<span class="shift-area shift-area-car">${s.byArea.Carousel} car</span>` : ''}
           ${s.byArea.Potting  > 0 ? `<span class="shift-area shift-area-pott">${s.byArea.Potting} pott</span>` : ''}
           ${s.byArea['Wave-3']> 0 ? `<span class="shift-area shift-area-wav">${s.byArea['Wave-3']} wav</span>` : ''}
+          ${s.byArea.Battery > 0 ? `<span class="shift-area shift-area-bat">${s.byArea.Battery} bat</span>` : ''}
+          ${s.byArea.IQ9 > 0 ? `<span class="shift-area shift-area-iq9">${s.byArea.IQ9} iq9</span>` : ''}
           ${s.total === 0 ? `<span class="shift-area-empty">${t('shift.part.no_reports')}</span>` : ''}
         </div>
       </div>`;
@@ -3702,6 +3818,8 @@ function renderWipBuckets(wip){
             <button class="wpill ${wipLineFilter==='car'?'active':''}" data-line="car">Carousel</button>
             <button class="wpill ${wipLineFilter==='pott'?'active':''}" data-line="pott">Potting</button>
             <button class="wpill ${wipLineFilter==='wav'?'active':''}" data-line="wav">Wave-3</button>
+            <button class="wpill ${wipLineFilter==='bat'?'active':''}" data-line="bat">Battery</button>
+            <button class="wpill ${wipLineFilter==='iq9'?'active':''}" data-line="iq9">IQ9</button>
           </div>
         </div>
       </div>
@@ -4220,6 +4338,17 @@ document.getElementById('typePills').addEventListener('click', e => {
   typeFilter = btn.dataset.type;
   // Reset secondary filters when type changes so we don't end up in an unreachable state
   if(typeFilter !== 'scout') scoutFilter = 'all';
+  render();
+});
+
+// Area filter — isolate traditional (car/pott/wav) vs commercial (bat/iq9) lines
+document.getElementById('areaPills').addEventListener('click', e => {
+  const btn = e.target.closest('.apill');
+  if(!btn) return;
+  areaFilter = btn.dataset.area;
+  document.querySelectorAll('.apill').forEach(b => {
+    b.classList.toggle('active', b.dataset.area === areaFilter);
+  });
   render();
 });
 
