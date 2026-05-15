@@ -150,7 +150,11 @@ body::before{
   border-radius:9px;
   background:rgba(var(--amb-rgb), .08);
   border:1px solid rgba(var(--amb-rgb), .18);
+  color:var(--amb);
 }
+.kpi-icon svg{display:block;width:19px;height:19px;}
+.kpi-cell:nth-child(2) .kpi-icon{color:#ff8e3c;background:rgba(255,142,60,.08);border-color:rgba(255,142,60,.22);}
+.kpi-cell:nth-child(3) .kpi-icon{color:#9ac6ff;background:rgba(56,139,253,.08);border-color:rgba(56,139,253,.22);}
 .kpi-text{flex:1;min-width:0;}
 .kpi-num{
   font-family:'IBM Plex Mono',monospace;
@@ -181,6 +185,7 @@ body::before{
   .kpi-band{grid-template-columns:repeat(2,1fr);}
   .kpi-cell{padding:12px 14px;gap:10px;}
   .kpi-icon{width:34px;height:34px;font-size:18px;}
+  .kpi-icon svg{width:17px;height:17px;}
   .kpi-num{font-size:20px;}
 }
 
@@ -751,6 +756,7 @@ body::after{
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
   animation:iconFloat 4s ease-in-out infinite alternate;
 }
+.area-btn .area-icon svg{display:block;width:24px;height:24px;}
 .area:nth-child(2) .area-btn .area-icon{animation-delay:1.3s;}
 .area:nth-child(3) .area-btn .area-icon{animation-delay:2.6s;}
 @keyframes iconFloat{
@@ -880,6 +886,7 @@ body::after{
 .resources-icon{
   background:linear-gradient(135deg, rgba(56,139,253,.18), rgba(57,197,207,.10));
   border:1px solid rgba(56,139,253,.25);
+  color:#5fb1ff;
 }
 .analytics-icon{
   position:relative;
@@ -954,13 +961,17 @@ body::after{
   font-size:21px;flex-shrink:0;
   transition:transform .25s;
 }
+.card-icon svg{display:block;width:21px;height:21px;}
+.card-wide .card-icon svg{width:24px;height:24px;}
 .card:hover .card-icon{transform:scale(1.06);}
-.card.amber  .card-icon{background:rgba(var(--amb-rgb), .12);border:1px solid rgba(var(--amb-rgb), .25);}
-.card.green  .card-icon{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.25);}
-.card.blue   .card-icon{background:rgba(56,139,253,.12);border:1px solid rgba(56,139,253,.25);}
-.card.purple .card-icon{background:rgba(163,113,247,.12);border:1px solid rgba(163,113,247,.25);}
-.card.cyan   .card-icon{background:rgba(57,197,207,.12);border:1px solid rgba(57,197,207,.25);}
-.card.red    .card-icon{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.25);}
+.card.amber  .card-icon{background:rgba(var(--amb-rgb), .12);border:1px solid rgba(var(--amb-rgb), .25);color:var(--amb);}
+.card.green  .card-icon{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.25);color:#3fb950;}
+.card.blue   .card-icon{background:rgba(56,139,253,.12);border:1px solid rgba(56,139,253,.25);color:#5fb1ff;}
+.card.purple .card-icon{background:rgba(163,113,247,.12);border:1px solid rgba(163,113,247,.25);color:#c89cff;}
+.card.cyan   .card-icon{background:rgba(57,197,207,.12);border:1px solid rgba(57,197,207,.25);color:var(--cyn);}
+.card.red    .card-icon{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.25);color:#ff7a7a;}
+.card.yellow .card-icon{background:rgba(245,217,55,.12);border:1px solid rgba(245,217,55,.25);color:#f5d937;}
+.card.orange .card-icon{background:rgba(255,140,66,.12);border:1px solid rgba(255,140,66,.25);color:#ff8c42;}
 
 .card-body{flex:1;min-width:0;}
 
@@ -1018,12 +1029,15 @@ body::after{
   .area-cards{grid-template-columns:1fr;gap:10px;}
   .area-btn{padding:18px 20px;gap:14px;}
   .area-btn .area-icon{font-size:26px;}
+  .area-btn .area-icon svg{width:26px;height:26px;}
   .area-btn .area-name{font-size:22px;}
 }
 @media(max-width:480px){
   .hdr h1{font-size:42px;}
   .card{padding:18px 16px 18px 20px;gap:14px;}
   .card-icon{width:42px;height:42px;font-size:18px;}
+  .card-icon svg{width:18px;height:18px;}
+  .card-wide .card-icon svg{width:20px;height:20px;}
   .card-title{font-size:19px;}
   .area-btn .area-name{font-size:19px;}
 }
@@ -1115,7 +1129,7 @@ body::after{
   <!-- ── LIVE KPI BAND ─────────────────────────────────────────── -->
   <div class="kpi-band" id="kpiBand">
     <a class="kpi-cell kpi-clickable" href="Submission_History.html" title="View today's submissions">
-      <div class="kpi-icon">📋</div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 14h6M9 17h4" opacity=".55"/></svg></div>
       <div class="kpi-text">
         <div class="kpi-num" data-target="0" id="kpiToday">0</div>
         <div class="kpi-lbl">reports today</div>
@@ -1123,7 +1137,7 @@ body::after{
       <span class="kpi-arrow">→</span>
     </a>
     <a class="kpi-cell kpi-clickable" href="Scout_Flags.html" title="View pending scout flags">
-      <div class="kpi-icon">⚠</div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.7 20h18.6L12 3.5z"/><path d="M12 10v5"/><circle cx="12" cy="17.6" r=".9" fill="currentColor" stroke="none"/></svg></div>
       <div class="kpi-text">
         <div class="kpi-num kpi-warn" data-target="0" id="kpiFlags">0</div>
         <div class="kpi-lbl">flags pending</div>
@@ -1131,7 +1145,7 @@ body::after{
       <span class="kpi-arrow">→</span>
     </a>
     <a class="kpi-cell kpi-clickable" href="Analytics_Detail.html?subject=techs" title="View tech activity">
-      <div class="kpi-icon">👥</div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8.5" r="3.2"/><path d="M3.5 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M21 18.6c0-2.4-1.8-4.4-4.1-4.5"/></svg></div>
       <div class="kpi-text">
         <div class="kpi-num" data-target="0" id="kpiTechs">0</div>
         <div class="kpi-lbl">active techs</div>
@@ -1152,13 +1166,13 @@ body::after{
     <!-- ─── CAROUSEL ─── -->
     <div class="area">
       <button class="area-btn purple" onclick="toggleArea('carousel')">
-        <span class="area-icon">🎡</span>
+        <span class="area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 4v3.5M20 12h-3.5M12 20v-3.5M4 12h3.5"/><path d="M17.66 6.34l-2.47 2.47M17.66 17.66l-2.47-2.47M6.34 17.66l2.47-2.47M6.34 6.34l2.47 2.47" opacity=".45"/></svg></span>
         <span class="area-status-dot" id="dot-carousel" title="Status"></span><span class="area-name" data-i18n="area.carousel">Carousel</span>
         <span class="area-count" id="cnt-carousel" title="Submissions today"></span><span class="area-toggle" id="toggle-carousel">▾</span>
       </button>
       <div class="area-cards" id="cards-carousel">
         <a class="card purple" href="Carousel_Shift_Report.html">
-          <div class="card-icon">📋</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 14h6M9 17h4" opacity=".55"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.carousel.shift.label">Shift Report</div>
             <div class="card-title" data-i18n="card.carousel.shift.title">Carousel Shift Report</div>
@@ -1167,7 +1181,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card amber" href="Carousel_Scout_Checklist.html">
-          <div class="card-icon">👁</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.carousel.scout.label">Scout Check</div>
             <div class="card-title" data-i18n="card.carousel.scout.title">Carousel Scout Check</div>
@@ -1176,7 +1190,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card red" href="Carousel_PM_Report.html">
-          <div class="card-icon">🔧</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-3.2 3.2-2.4 2.4-5.7 5.7a2 2 0 0 1-2.8-2.8l5.7-5.7 2.4-2.4z"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor" stroke="none" opacity=".5"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.carousel.pm.label">Weekly PM</div>
             <div class="card-title" data-i18n="card.carousel.pm.title">Carousel Weekly PM</div>
@@ -1190,13 +1204,13 @@ body::after{
     <!-- ─── POTTING ─── -->
     <div class="area">
       <button class="area-btn green" onclick="toggleArea('potting')">
-        <span class="area-icon">💧</span>
+        <span class="area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.2c-3 4.4-5.5 7.7-5.5 11A5.5 5.5 0 0 0 12 19.7a5.5 5.5 0 0 0 5.5-5.5c0-3.3-2.5-6.6-5.5-11z"/></svg></span>
         <span class="area-status-dot" id="dot-potting" title="Status"></span><span class="area-name" data-i18n="area.potting">Potting</span>
         <span class="area-count" id="cnt-potting" title="Submissions today"></span><span class="area-toggle" id="toggle-potting">▾</span>
       </button>
       <div class="area-cards" id="cards-potting">
         <a class="card green" href="Potting_Shift_Report.html">
-          <div class="card-icon">📋</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 14h6M9 17h4" opacity=".55"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.potting.shift.label">Shift Report</div>
             <div class="card-title" data-i18n="card.potting.shift.title">Potting Shift Report</div>
@@ -1205,7 +1219,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card amber" href="Potting_Scout_Checklist.html">
-          <div class="card-icon">👁</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.potting.scout.label">Scout Check</div>
             <div class="card-title" data-i18n="card.potting.scout.title">Potting Scout Check</div>
@@ -1214,7 +1228,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card red" href="Potting_PM_Report.html">
-          <div class="card-icon">🔧</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-3.2 3.2-2.4 2.4-5.7 5.7a2 2 0 0 1-2.8-2.8l5.7-5.7 2.4-2.4z"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor" stroke="none" opacity=".5"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.potting.pm.label">Weekly PM</div>
             <div class="card-title" data-i18n="card.potting.pm.title">Potting Weekly PM</div>
@@ -1228,13 +1242,13 @@ body::after{
     <!-- ─── WAVE-3 ─── -->
     <div class="area">
       <button class="area-btn blue" onclick="toggleArea('wave3')">
-        <span class="area-icon">🌊</span>
+        <span class="area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7c2.3 0 2.3-2.5 4.5-2.5S9.8 7 12 7s2.3-2.5 4.5-2.5S18.8 7 21 7"/><path d="M3 12c2.3 0 2.3-2.5 4.5-2.5S9.8 12 12 12s2.3-2.5 4.5-2.5S18.8 12 21 12"/><path d="M3 17c2.3 0 2.3-2.5 4.5-2.5S9.8 17 12 17s2.3-2.5 4.5-2.5S18.8 17 21 17"/></svg></span>
         <span class="area-status-dot" id="dot-wave3" title="Status"></span><span class="area-name" data-i18n="area.wave3">Wave-3</span>
         <span class="area-count" id="cnt-wave3" title="Submissions today"></span><span class="area-toggle" id="toggle-wave3">▾</span>
       </button>
       <div class="area-cards" id="cards-wave3">
         <a class="card blue" href="Wave3_Shift_Report.html">
-          <div class="card-icon">🌊</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8c2.3 0 2.3-2.5 4.5-2.5S9.8 8 12 8s2.3-2.5 4.5-2.5S18.8 8 21 8"/><path d="M3 14c2.3 0 2.3-2.5 4.5-2.5S9.8 14 12 14s2.3-2.5 4.5-2.5S18.8 14 21 14"/><path d="M3 20c2.3 0 2.3-2.5 4.5-2.5S9.8 20 12 20s2.3-2.5 4.5-2.5S18.8 20 21 20"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.wave3.shift.label">Shift Report</div>
             <div class="card-title" data-i18n="card.wave3.shift.title">Wave-3 Shift Report</div>
@@ -1243,7 +1257,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card amber" href="Wave3_Scout_Checklist.html">
-          <div class="card-icon">👁</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.wave3.scout.label">Scout Check</div>
             <div class="card-title" data-i18n="card.wave3.scout.title">Wave-3 Scout Check</div>
@@ -1252,7 +1266,7 @@ body::after{
           <div class="card-arrow">→</div>
         </a>
         <a class="card red" href="Wave3_PM_Report.html">
-          <div class="card-icon">🔧</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-3.2 3.2-2.4 2.4-5.7 5.7a2 2 0 0 1-2.8-2.8l5.7-5.7 2.4-2.4z"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor" stroke="none" opacity=".5"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.wave3.pm.label">Weekly PM</div>
             <div class="card-title" data-i18n="card.wave3.pm.title">Wave-3 Weekly PM</div>
@@ -1266,13 +1280,13 @@ body::after{
     <!-- ─── BATTERY 1/2 ─── -->
     <div class="area">
       <button class="area-btn yellow" onclick="toggleArea('battery')">
-        <span class="area-icon">🔋</span>
+        <span class="area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="16" height="10" rx="1.5"/><path d="M21 10.5v3"/><path d="M6.5 10v4M9.5 10v4M12.5 10v4"/></svg></span>
         <span class="area-status-dot" id="dot-battery" title="Status"></span><span class="area-name" data-i18n="area.battery">Battery</span>
         <span class="area-count" id="cnt-battery" title="Submissions today"></span><span class="area-toggle" id="toggle-battery">▾</span>
       </button>
       <div class="area-cards" id="cards-battery">
         <a class="card yellow" href="Battery_Shift_Report.html">
-          <div class="card-icon">📋</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 14h6M9 17h4" opacity=".55"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.battery.shift.label">Shift Report</div>
             <div class="card-title" data-i18n="card.battery.shift.title">Battery Shift Report</div>
@@ -1286,13 +1300,13 @@ body::after{
     <!-- ─── IQ9 COMMERCIAL ─── -->
     <div class="area">
       <button class="area-btn orange" onclick="toggleArea('iq9')">
-        <span class="area-icon">🔦</span>
+        <span class="area-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="1"/><rect x="9" y="9" width="6" height="6"/><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" opacity=".5"/></svg></span>
         <span class="area-status-dot" id="dot-iq9" title="Status"></span><span class="area-name" data-i18n="area.iq9">IQ9 Commercial</span>
         <span class="area-count" id="cnt-iq9" title="Submissions today"></span><span class="area-toggle" id="toggle-iq9">▾</span>
       </button>
       <div class="area-cards" id="cards-iq9">
         <a class="card orange" href="IQ9_Shift_Report.html">
-          <div class="card-icon">📋</div>
+          <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 11h6M9 14h6M9 17h4" opacity=".55"/></svg></div>
           <div class="card-body">
             <div class="card-label" data-i18n="card.iq9.shift.label">Shift Report</div>
             <div class="card-title" data-i18n="card.iq9.shift.title">IQ9 Commercial Shift Report</div>
@@ -1306,7 +1320,7 @@ body::after{
   </div>
   <div class="analytics-row">
     <a class="card cyan card-wide card-analytics" href="Analytics_Dashboard.html" onclick="onAnalyticsClick(event, this)">
-      <div class="card-icon analytics-icon">📊</div>
+      <div class="card-icon analytics-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V13M10 21V8M16 21V15M22 21V4"/><path d="M3 21h19" opacity=".6"/></svg></div>
       <div class="card-body">
         <div class="card-label" data-i18n="card.analytics.label">Live Data</div>
         <div class="card-title" data-i18n="card.analytics.title">Analytics Dashboard</div>
@@ -1320,7 +1334,7 @@ body::after{
       <div class="card-arrow">→</div>
     </a>
     <a class="card card-wide card-resources" href="Resources.html">
-      <div class="card-icon resources-icon">📚</div>
+      <div class="card-icon resources-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3.5" width="5" height="17" rx=".7"/><rect x="9.5" y="3.5" width="5" height="17" rx=".7"/><path d="M16.5 5.6l4.4 1.2-3.4 13-4.4-1.2"/><path d="M3 8h5M9.5 8h5" opacity=".5"/></svg></div>
       <div class="card-body">
         <div class="card-label" data-i18n="card.resources.label">Document Library</div>
         <div class="card-title" data-i18n="card.resources.title">Resources &amp; Documents</div>
