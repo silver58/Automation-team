@@ -1101,6 +1101,11 @@ li.na::before{content:'— ';color:#666;}
 li.none::before{content:'· ';color:#666;}
 .note{color:#666;font-style:italic;font-size:9pt;}
 .foot{margin-top:24px;padding-top:8px;border-top:1px solid #888;font-size:8pt;color:#666;display:flex;justify-content:space-between;}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:14px;}
+.photo-thumb{display:block;border:1px solid #ddd;border-radius:6px;overflow:hidden;background:#f5f5f5;aspect-ratio:1;text-decoration:none;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-thumb:hover{border-color:#f0a500;}
+@media print { .photo-grid{grid-template-columns:repeat(3,1fr);page-break-inside:avoid;} }
 </style></head><body>
 <div class="print-actions"><button onclick="window.print()">🖨 Print</button></div>
 <div class="hdr">
@@ -1119,6 +1124,7 @@ ${r.notes ? `<h3>General Notes</h3><div>${escape(r.notes)}</div>` : ''}
 </ul>
 <h3>Resolved Flags</h3>
 <div>${r.resolved_count||0} of ${r.pending_count||0} pending scout flags resolved.</div>
+${(Array.isArray(r.photos) && r.photos.length>0) ? `<h3>Attached Photos (${r.photos.length})</h3><div class="photo-grid">${r.photos.map(url => { const u = escape(url); return `<a href="${u}" target="_blank" rel="noopener" class="photo-thumb"><img src="${u}" alt="attachment" loading="lazy"></a>`; }).join('')}</div>` : ''}
 <div class="foot"><span>Salcomp Automation Team</span><span>Generated ${new Date().toLocaleString()}</span></div>
 <script>setTimeout(()=>window.print(),500);</scr`+`ipt></body></html>`;
   win.document.write(html);

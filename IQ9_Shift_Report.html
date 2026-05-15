@@ -1317,6 +1317,14 @@ function printReport(id){
   if(miscKV.length){
     body += `<h3>Other Fields</h3><div class="kv-grid">${miscKV.join('')}</div>`;
   }
+  // Attached photos — clickable thumbnails that open the full image in a new tab.
+  if(Array.isArray(r.photos) && r.photos.length > 0){
+    const thumbs = r.photos.map(url => {
+      const safeUrl = escape(url);
+      return `<a href="${safeUrl}" target="_blank" rel="noopener" class="photo-thumb"><img src="${safeUrl}" alt="attachment" loading="lazy"></a>`;
+    }).join('');
+    body += `<h3>Attached Photos (${r.photos.length})</h3><div class="photo-grid">${thumbs}</div>`;
+  }
 
   win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Shift Report — ${escape(r.tech_name||'Unknown')} · ${escape(r.date||'')}</title><style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap');
@@ -1343,7 +1351,12 @@ table td.total, table th.total{background:var(--amb-light);color:var(--amb-deep)
 .print-actions{position:fixed;top:16px;right:16px;}
 .print-actions button{background:var(--amb);color:#fff;border:none;padding:9px 18px;border-radius:6px;font-size:10pt;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;}
 .print-actions button:hover{background:var(--amb-hover);}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:14px;}
+.photo-thumb{display:block;border:1px solid #ddd;border-radius:6px;overflow:hidden;background:#f5f5f5;aspect-ratio:1;text-decoration:none;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-thumb:hover{border-color:var(--amb);}
 @media print{
+  .photo-grid{grid-template-columns:repeat(3,1fr);page-break-inside:avoid;}
   .print-actions{display:none;}
   body{padding:0.4in;}
   h3{page-break-after:avoid;}
