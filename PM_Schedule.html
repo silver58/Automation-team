@@ -332,6 +332,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .area-pill.area-Carousel{background:rgba(163,113,247,.15);color:#c89cff;}
 .area-pill.area-Potting {background:rgba(63,185,80,.15);color:var(--grn);}
 .area-pill.area-Wave-3  {background:rgba(56,139,253,.15);color:#5fb1ff;}
+.area-pill.area-Battery {background:rgba(245,217,55,.15);color:#f5d937;}
+.area-pill.area-IQ9     {background:rgba(255,140,66,.15);color:#ff8c42;}
 .status-pill{
   font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;
   padding:2px 7px;border-radius:9px;
@@ -530,6 +532,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
     <button class="filter-pill" data-area="Carousel" onclick="setAreaFilter('Carousel')">Carousel</button>
     <button class="filter-pill" data-area="Potting" onclick="setAreaFilter('Potting')">Potting</button>
     <button class="filter-pill" data-area="Wave-3" onclick="setAreaFilter('Wave-3')">Wave-3</button>
+    <button class="filter-pill" data-area="Battery" onclick="setAreaFilter('Battery')">Battery</button>
+    <button class="filter-pill" data-area="IQ9" onclick="setAreaFilter('IQ9')">IQ9</button>
     <span style="flex:1"></span>
     <span class="filter-label">Status:</span>
     <button class="filter-pill active" data-status="upcoming" onclick="setStatusFilter('upcoming')">Upcoming</button>
@@ -555,6 +559,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
             <option value="Carousel">Carousel</option>
             <option value="Potting">Potting</option>
             <option value="Wave-3">Wave-3</option>
+            <option value="Battery">Battery</option>
+            <option value="IQ9">IQ9</option>
           </select>
         </div>
         <div class="field">
@@ -642,6 +648,8 @@ const LINES_BY_AREA = {
   'Carousel': ['1','2','3','6','7'],
   'Potting':  ['1','2','3','6','7','7.5'],
   'Wave-3':   ['1','2','3','6','7'],
+  'Battery':  ['4','5'],
+  'IQ9':      ['7.5'],
 };
 
 // ── STATE ──────────────────────────────────────────────────────────
@@ -892,7 +900,7 @@ function renderList(rows){
 function renderByMachine(rows){
   // Group by area+line
   const groups = {};
-  ['Carousel','Potting','Wave-3'].forEach(area => {
+  ['Carousel','Potting','Wave-3','Battery','IQ9'].forEach(area => {
     (LINES_BY_AREA[area] || []).forEach(line => {
       const key = `${area}__${line}`;
       groups[key] = { area, line, rows: [] };
@@ -1164,6 +1172,8 @@ function parseExcelRow(row){
   if(al.includes('carousel')) area = 'Carousel';
   else if(al.includes('pott')) area = 'Potting';
   else if(al.includes('wave')) area = 'Wave-3';
+  else if(al.includes('bat')) area = 'Battery';
+  else if(al.includes('iq9') || al.includes('iq 9') || al.includes('commercial')) area = 'IQ9';
   // else leave whatever the user typed; row will be flagged invalid below
   let line = pick('line','machine','machine_id','machine #','line #');
   if(line != null) line = String(line).replace(/^line\s*/i, '').trim();
@@ -1182,7 +1192,7 @@ function parseExcelRow(row){
   const notes = String(pick('notes','note','comments','remarks','description') || '').trim();
   // Validity check
   const valid = !!area && !!line && !!scheduled_date
-             && ['Carousel','Potting','Wave-3'].includes(area)
+             && ['Carousel','Potting','Wave-3','Battery','IQ9'].includes(area)
              && (LINES_BY_AREA[area] || []).includes(line);
   return {
     area, line, scheduled_date,

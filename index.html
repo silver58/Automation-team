@@ -928,6 +928,135 @@ body::after{
 }
 @keyframes expandIn{from{opacity:0;transform:translateY(-12px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 
+/* PM QUICK-VIEW STRIP — appears between KPI band and area buttons.
+   Glance-able list of upcoming PMs. Optionally filtered to "just mine". */
+.pm-strip{
+  background:linear-gradient(135deg, rgba(var(--amb-rgb),.07) 0%, rgba(var(--amb-rgb),.02) 60%, var(--sur) 100%);
+  border:1px solid rgba(var(--amb-rgb),.28);
+  border-radius:11px;
+  padding:14px 18px;
+  margin-bottom:24px;
+  box-shadow:0 4px 18px rgba(var(--amb-rgb),.06);
+  animation:fadeUp .6s .25s ease both;
+}
+.pm-strip-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-wrap:wrap;
+  margin-bottom:10px;
+  padding-bottom:9px;
+  border-bottom:1px solid rgba(var(--amb-rgb),.18);
+}
+.pm-strip-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--amb);
+  display:flex;align-items:center;gap:8px;
+}
+.pm-strip-title svg{width:15px;height:15px;}
+.pm-strip-actions{display:flex;align-items:center;gap:8px;}
+.pm-mine-pill{
+  background:transparent;border:1px solid var(--bdr2);
+  color:var(--mut);
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  padding:4px 11px;border-radius:5px;cursor:pointer;
+  transition:all .15s;display:inline-flex;align-items:center;gap:6px;
+}
+.pm-mine-pill:hover{border-color:var(--amb);color:var(--amb);}
+.pm-mine-pill.active{
+  background:rgba(var(--amb-rgb),.18);border-color:rgba(var(--amb-rgb),.45);color:var(--amb);
+  font-weight:600;
+}
+.pm-mine-clear{
+  background:rgba(255,255,255,.1);color:var(--amb);
+  border:none;border-radius:50%;
+  width:16px;height:16px;
+  font-size:11px;line-height:1;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-left:2px;
+  transition:background .15s;
+}
+.pm-mine-clear:hover{background:rgba(255,255,255,.25);}
+.pm-strip-list{display:flex;flex-direction:column;gap:5px;}
+.pm-strip-row{
+  display:grid;
+  grid-template-columns:62px 1fr auto;
+  gap:10px;align-items:center;
+  padding:7px 10px;
+  background:var(--bg);
+  border-radius:6px;
+  border-left:3px solid var(--amb);
+  font-size:11.5px;
+  cursor:pointer;
+  transition:all .15s;
+  text-decoration:none;
+  color:inherit;
+}
+.pm-strip-row:hover{background:rgba(var(--amb-rgb),.06);transform:translateX(2px);}
+.pm-strip-row.today{border-left-color:var(--amb);background:rgba(var(--amb-rgb),.08);}
+.pm-strip-row.overdue{border-left-color:var(--red);background:rgba(248,81,73,.06);}
+.pm-strip-row.overdue .pm-strip-date{color:var(--red);}
+.pm-strip-row.in_progress{border-left-color:#5fb1ff;}
+.pm-strip-date{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;color:var(--mut);
+  white-space:nowrap;line-height:1.25;
+}
+.pm-strip-date strong{display:block;font-size:11.5px;color:var(--txt);}
+.pm-strip-body{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+.pm-strip-machine{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;font-weight:600;color:var(--txt);
+}
+.pm-strip-tech{font-size:10.5px;color:var(--mut2);}
+.pm-strip-tech::before{content:"·";margin-right:6px;color:var(--bdr2);}
+.pm-strip-tech.unassigned{color:var(--red);font-style:italic;}
+.pm-strip-tech.mine{
+  background:rgba(var(--amb-rgb),.22);
+  color:var(--amb);font-weight:700;
+  padding:1px 7px;border-radius:9px;
+}
+.pm-strip-tech.mine::before{content:none;}
+.pm-strip-status{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:8.5px;font-weight:600;
+  padding:2px 6px;border-radius:8px;
+  text-transform:uppercase;letter-spacing:.04em;
+  white-space:nowrap;
+}
+.pm-strip-status.s-planned    {background:rgba(var(--amb-rgb),.15);color:var(--amb);}
+.pm-strip-status.s-in_progress{background:rgba(56,139,253,.15);color:#5fb1ff;}
+.pm-strip-area-pill{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.04em;
+  padding:1px 6px;border-radius:8px;
+}
+.pm-strip-area-Carousel{background:rgba(163,113,247,.18);color:#c89cff;}
+.pm-strip-area-Potting {background:rgba(63,185,80,.18);color:var(--grn);}
+.pm-strip-area-Wave-3  {background:rgba(56,139,253,.18);color:#5fb1ff;}
+.pm-strip-area-Battery {background:rgba(245,217,55,.18);color:#f5d937;}
+.pm-strip-area-IQ9     {background:rgba(255,140,66,.18);color:#ff8c42;}
+.pm-strip-empty{
+  text-align:center;
+  padding:14px 12px;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  color:var(--mut2);font-style:italic;
+}
+.pm-strip-more{
+  display:block;text-align:center;
+  margin-top:8px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--mut2);
+  text-decoration:none;padding:5px;
+  border-radius:5px;transition:color .15s;
+}
+.pm-strip-more:hover{color:var(--amb);}
+@media(max-width:600px){
+  .pm-strip-row{grid-template-columns:48px 1fr;gap:8px;}
+  .pm-strip-status{grid-column:1 / -1;justify-self:start;}
+}
+
 /* BASE CARD */
 .card{
   text-decoration:none;
@@ -1174,6 +1303,9 @@ body::after{
       <span class="kpi-arrow">→</span>
     </a>
   </div>
+
+  <!-- PM QUICK VIEW STRIP — shows upcoming PMs at a glance. Filterable to "just mine". -->
+  <div id="pmStrip" style="display:none;"></div>
 
   <div class="areas">
 
@@ -1962,6 +2094,187 @@ document.addEventListener('DOMContentLoaded', () => {
   const cur = getCurrentColorAmb();
   document.querySelectorAll('.cp-swatch').forEach(s => s.style.background = cur);
 });
+
+// ──────────────────────────────────────────────────────────────────
+// PM SCHEDULE QUICK-VIEW STRIP
+// Loads upcoming PMs from the pm_schedule table and renders them in a strip
+// between the KPI band and the area buttons. Glance-able view of who's
+// assigned what. Honors a "show only mine" filter (tech name) saved locally.
+// Fails silently if the pm_schedule table doesn't exist yet — degrades to
+// the strip being hidden, so this is safe to deploy before the SQL migration.
+// ──────────────────────────────────────────────────────────────────
+const PM_STRIP_MAX_ROWS = 5;
+const PM_MINE_KEY = 'salcomp_my_tech_name';
+
+function getMyTechName(){
+  try { return (localStorage.getItem(PM_MINE_KEY) || '').trim(); } catch(e){ return ''; }
+}
+function setMyTechName(name){
+  try { localStorage.setItem(PM_MINE_KEY, name.trim()); } catch(e){}
+}
+function clearMyTechName(){
+  try { localStorage.removeItem(PM_MINE_KEY); } catch(e){}
+}
+// Loose match: case-insensitive substring either way (so "Jason" matches
+// "Jason Howard" and "Jason H." matches "Jason"). Helps when an Excel import
+// has a slightly different name spelling than what the tech typed.
+function techMatches(rowTech, myName){
+  if(!rowTech || !myName) return false;
+  const a = String(rowTech).toLowerCase().trim();
+  const b = myName.toLowerCase().trim();
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+(async function loadPmStrip(){
+  const slot = document.getElementById('pmStrip');
+  if(!slot) return;
+  let rows = [];
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/pm_schedule?order=scheduled_date.asc&limit=200`, {headers: sbHeaders()});
+    if(res.status === 404 || res.status === 400){
+      // Table not migrated yet — keep strip hidden
+      return;
+    }
+    if(!res.ok) return;
+    rows = await res.json();
+  } catch(e){
+    return;  // Network/other error — quiet fail
+  }
+  if(!Array.isArray(rows) || rows.length === 0){
+    return;  // No data → don't render an empty strip
+  }
+  renderPmStrip(rows);
+  slot.style.display = 'block';
+})();
+
+function renderPmStrip(allRows){
+  const todayStr = new Date().toISOString().slice(0,10);
+  const horizon = (() => {
+    // Show PMs within the next 14 days, plus any overdue still-active ones
+    const d = new Date(); d.setDate(d.getDate() + 14);
+    return d.toISOString().slice(0,10);
+  })();
+  const myName = getMyTechName();
+  const mineActive = !!myName;
+
+  // Filter to "currently relevant" — not completed/skipped, within window
+  let active = allRows.filter(r => {
+    if(r.status === 'completed' || r.status === 'skipped') return false;
+    return r.scheduled_date <= horizon;
+  });
+  // If user wants only theirs, narrow further
+  if(mineActive){
+    active = active.filter(r => techMatches(r.assigned_tech, myName));
+  }
+  active.sort((a,b) => a.scheduled_date.localeCompare(b.scheduled_date));
+
+  const visible = active.slice(0, PM_STRIP_MAX_ROWS);
+  const hidden = Math.max(0, active.length - visible.length);
+
+  const mineButton = mineActive
+    ? `<button class="pm-mine-pill active" onclick="togglePmMineFilter()" title="Currently showing only your PMs — click name to clear">
+         👤 ${escapeIndexHtml(myName)}
+         <span class="pm-mine-clear" onclick="event.stopPropagation();clearPmMineFilter()" title="Show everyone">✕</span>
+       </button>`
+    : `<button class="pm-mine-pill" onclick="togglePmMineFilter()" title="Filter to just your PMs">👤 Show only mine</button>`;
+
+  let listHtml;
+  if(active.length === 0){
+    listHtml = mineActive
+      ? `<div class="pm-strip-empty">No upcoming PMs assigned to <strong>${escapeIndexHtml(myName)}</strong> in the next 2 weeks. ✓</div>`
+      : `<div class="pm-strip-empty">No upcoming PMs in the next 2 weeks. ✓</div>`;
+  } else {
+    listHtml = `<div class="pm-strip-list">${visible.map(r => renderPmStripRow(r, myName, todayStr)).join('')}</div>`;
+    if(hidden > 0){
+      listHtml += `<a class="pm-strip-more" href="PM_Schedule.html">+ ${hidden} more · View full schedule →</a>`;
+    } else {
+      listHtml += `<a class="pm-strip-more" href="PM_Schedule.html">View full schedule →</a>`;
+    }
+  }
+
+  document.getElementById('pmStrip').innerHTML = `
+    <div class="pm-strip">
+      <div class="pm-strip-head">
+        <span class="pm-strip-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="5" width="17" height="15" rx="1.5"/>
+            <path d="M3.5 9.5h17"/>
+            <path d="M8 3v4M16 3v4"/>
+          </svg>
+          Upcoming PMs
+        </span>
+        <div class="pm-strip-actions">${mineButton}</div>
+      </div>
+      ${listHtml}
+    </div>`;
+}
+
+function renderPmStripRow(r, myName, todayStr){
+  const isOverdue = r.scheduled_date < todayStr;
+  const isToday = r.scheduled_date === todayStr;
+  const cls = isOverdue ? 'overdue' : isToday ? 'today' : r.status === 'in_progress' ? 'in_progress' : '';
+  const dt = new Date(r.scheduled_date + 'T00:00:00');
+  const dow = dt.toLocaleDateString('en-US', {weekday:'short'}).toUpperCase();
+  const dnum = dt.getDate();
+  const dmonth = dt.toLocaleDateString('en-US', {month:'short'}).toUpperCase();
+  const dateLabel = isToday ? '<strong>TODAY</strong>' : isOverdue
+    ? `OVERDUE<strong>${dmonth} ${dnum}</strong>`
+    : `${dow}<strong>${dmonth} ${dnum}</strong>`;
+  const techIsMine = myName && techMatches(r.assigned_tech, myName);
+  const techDisplay = r.assigned_tech
+    ? `<span class="pm-strip-tech ${techIsMine ? 'mine' : ''}">${techIsMine ? '👤 ' : ''}${escapeIndexHtml(r.assigned_tech)}</span>`
+    : `<span class="pm-strip-tech unassigned">unassigned</span>`;
+  const areaCls = 'pm-strip-area-' + String(r.area || '').replace(/\s+/g, '');
+  return `
+    <a class="pm-strip-row ${cls}" href="PM_Schedule.html">
+      <div class="pm-strip-date">${dateLabel}</div>
+      <div class="pm-strip-body">
+        <span class="pm-strip-area-pill ${areaCls}">${escapeIndexHtml(r.area || '')}</span>
+        <span class="pm-strip-machine">L${escapeIndexHtml(r.line || '')}</span>
+        ${r.shift ? `<span class="pm-strip-tech">Shift ${escapeIndexHtml(r.shift)}</span>` : ''}
+        ${techDisplay}
+      </div>
+      <span class="pm-strip-status s-${escapeIndexHtml(r.status)}">${escapeIndexHtml(r.status.replace('_',' '))}</span>
+    </a>`;
+}
+
+function escapeIndexHtml(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Toggle "show only mine" — prompts for name on first use
+window.togglePmMineFilter = function(){
+  const current = getMyTechName();
+  if(current){
+    // Already filtered to "mine" — open a prompt to change the name
+    const next = (prompt('Your name on the schedule:', current) || '').trim();
+    if(next){ setMyTechName(next); }
+    else { clearMyTechName(); }
+  } else {
+    const name = (prompt('What name is on your PM assignments?\n(Saved in this browser only.)') || '').trim();
+    if(!name) return;
+    setMyTechName(name);
+  }
+  // Re-fetch and re-render. Easier than tracking state — and the data is small.
+  reloadPmStrip();
+};
+window.clearPmMineFilter = function(){
+  clearMyTechName();
+  reloadPmStrip();
+};
+async function reloadPmStrip(){
+  const slot = document.getElementById('pmStrip');
+  if(!slot) return;
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/pm_schedule?order=scheduled_date.asc&limit=200`, {headers: sbHeaders()});
+    if(!res.ok) return;
+    const rows = await res.json();
+    if(rows.length === 0){ slot.style.display = 'none'; return; }
+    renderPmStrip(rows);
+    slot.style.display = 'block';
+  } catch(e){ /* ignore */ }
+}
 </script>
 <script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
