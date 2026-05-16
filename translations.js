@@ -15,6 +15,7 @@ window.SALCOMP_I18N = {
   'area.wave3':            { en: 'Wave-3',           es: 'Wave-3',       vi: 'Wave-3' },
   'area.battery':          { en: 'Battery',           es: 'Batería',      vi: 'Pin' },
   'area.iq9':              { en: 'IQ9 Commercial',    es: 'IQ9 Comercial',vi: 'IQ9 Thương Mại' },
+  'area.analytics_resources':{ en: 'Analytics & Resources', es: 'Analítica y Recursos', vi: 'Phân Tích & Tài Nguyên' },
   'app.col.pm':            { en: 'Weekly PM',       es: 'MP Semanal',    vi: 'Bảo Trì Hàng Tuần' },
   'app.col.shift':         { en: 'Shift Reports',  es: 'Reportes de Turno', vi: 'Báo Cáo Ca' },
 
@@ -85,6 +86,11 @@ window.SALCOMP_I18N = {
   'card.resources.desc':        { en: 'SOPs · Changeover guides · Safety docs · Training materials',
                                   es: 'SOPs · Guías de cambio · Documentos de seguridad · Materiales de capacitación',
                                   vi: 'SOP · Hướng dẫn chuyển đổi · Tài liệu an toàn · Tài liệu đào tạo' },
+  'card.pmsched.label':         { en: 'Maintenance', es: 'Mantenimiento', vi: 'Bảo Trì' },
+  'card.pmsched.title':         { en: 'PM Schedule',  es: 'Programa de PM', vi: 'Lịch Bảo Trì' },
+  'card.pmsched.desc':          { en: 'Current preventive maintenance schedule for all 16 machines',
+                                  es: 'Programa actual de mantenimiento preventivo para las 16 máquinas',
+                                  vi: 'Lịch bảo trì phòng ngừa hiện tại cho tất cả 16 máy' },
 
   // ── COMMON UI ──────────────────────────────────────────────────────────
   'common.back':           { en: '← Back', es: '← Atrás', vi: '← Quay lại' },

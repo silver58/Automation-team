@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function(){
+  try {
+    const saved = localStorage.getItem('salcomp_amb_color');
+    if(saved){
+      const c = JSON.parse(saved);
+      const r = document.documentElement;
+      r.style.setProperty('--amb', c.amb);
+      r.style.setProperty('--amb-rgb', c.rgb);
+      r.style.setProperty('--amb-hover', c.hover);
+      r.style.setProperty('--amb-deep', c.deep);
+      r.style.setProperty('--amb-light', c.light);
+      r.style.setProperty('--amb2', c.amb2);
+    }
+  } catch(e){}
+})();
+</script>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="salcomp-logo.png">
+<link rel="apple-touch-icon" href="salcomp-logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#d90f27">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salcomp — PM Schedule</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--sur:#161b22;--sur2:#1c2128;--bdr:#21262d;--bdr2:#30363d;
+  --amb:#f0a500;--amb-rgb:240,165,0;--amb-hover:#d59300;--amb-deep:#b07000;--amb-light:#fff5dc;--amb2:#ffd166;
+  --grn:#3fb950;--red:#f85149;--blu:#388bfd;--pur:#a371f7;--cyn:#39c5cf;
+  --txt:#e6edf3;--mut:#d0d7de;--mut2:#b1bac4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+button{touch-action:manipulation;}
+input,select,textarea{font-size:16px !important;}
+@media(min-width:861px){input,select,textarea{font-size:13px !important;}}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;padding-bottom:80px;}
+
+.site-header{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.site-header a.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--bdr2);color:var(--mut);font-size:11px;font-family:'IBM Plex Mono',monospace;padding:5px 11px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;flex-shrink:0;}
+.site-header a.back:hover{border-color:var(--amb);color:var(--amb);}
+.logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--amb);letter-spacing:.08em;text-transform:uppercase;}
+
+.main{max-width:1200px;margin:0 auto;padding:24px 28px;}
+.page-title{font-size:22px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+.page-sub{font-size:13px;color:var(--mut);margin-bottom:22px;}
+
+/* CURRENT SCHEDULE PREVIEW — shown above the toolbar */
+.preview-card{
+  background:linear-gradient(135deg, rgba(var(--amb-rgb),.07) 0%, rgba(var(--amb-rgb),.02) 60%, var(--sur) 100%);
+  border:1px solid rgba(var(--amb-rgb),.28);
+  border-radius:11px;
+  padding:18px 20px;
+  margin-bottom:20px;
+  box-shadow:0 4px 18px rgba(var(--amb-rgb),.06);
+}
+.preview-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+  margin-bottom:14px;
+  padding-bottom:11px;
+  border-bottom:1px solid rgba(var(--amb-rgb),.18);
+}
+.preview-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--amb);
+  display:flex;align-items:center;gap:8px;
+}
+.preview-stats{
+  display:flex;gap:14px;flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  color:var(--mut2);
+}
+.preview-stat{display:inline-flex;align-items:baseline;gap:5px;}
+.preview-stat-num{
+  font-size:13px;font-weight:600;color:var(--txt);
+}
+.preview-stat-num.warn{color:var(--red);}
+.preview-stat-num.ok{color:var(--grn);}
+.preview-stat-num.upcoming{color:var(--amb);}
+.preview-list{display:flex;flex-direction:column;gap:6px;}
+.preview-row{
+  display:grid;
+  grid-template-columns:80px 1fr auto;
+  gap:12px;align-items:center;
+  padding:8px 10px;
+  background:var(--bg);
+  border-radius:6px;
+  border-left:3px solid var(--amb);
+  font-size:12px;
+  transition:all .15s;
+  cursor:pointer;
+}
+.preview-row:hover{background:rgba(var(--amb-rgb),.05);}
+.preview-row.today{border-left-color:var(--amb);background:rgba(var(--amb-rgb),.08);}
+.preview-row.overdue{border-left-color:var(--red);background:rgba(248,81,73,.06);}
+.preview-row.overdue .preview-date{color:var(--red);}
+.preview-row.in_progress{border-left-color:#5fb1ff;}
+.preview-date{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10.5px;color:var(--mut);
+  white-space:nowrap;
+}
+.preview-date strong{display:block;font-size:12px;color:var(--txt);}
+.preview-body-text{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  min-width:0;
+}
+.preview-machine{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;font-weight:600;color:var(--txt);
+}
+.preview-tech{
+  font-size:11px;color:var(--mut2);
+}
+.preview-tech::before{content:"·";margin-right:6px;color:var(--bdr2);}
+.preview-tech.unassigned{color:var(--red);font-style:italic;}
+.preview-row-status{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9.5px;font-weight:600;
+  padding:2px 7px;border-radius:9px;
+  text-transform:uppercase;letter-spacing:.04em;
+  white-space:nowrap;
+}
+.preview-empty{
+  text-align:center;
+  padding:18px 14px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--mut2);
+  font-style:italic;
+}
+.preview-toggle{
+  background:transparent;border:1px solid var(--bdr2);
+  color:var(--mut2);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:4px 10px;border-radius:5px;
+  cursor:pointer;transition:all .15s;
+}
+.preview-toggle:hover{border-color:var(--amb);color:var(--amb);}
+@media(max-width:600px){
+  .preview-row{grid-template-columns:60px 1fr;gap:8px;}
+  .preview-row-status{grid-column:1 / -1;justify-self:start;}
+  .preview-body-text{font-size:11px;}
+}
+
+/* Toolbar — view switcher + actions */
+.toolbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.view-pills{
+  display:inline-flex;
+  background:var(--sur);border:1px solid var(--bdr);
+  border-radius:7px;padding:3px;gap:2px;
+}
+.view-pill{
+  background:transparent;border:none;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;
+  color:var(--mut2);
+  padding:6px 14px;border-radius:5px;cursor:pointer;
+  transition:all .15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.view-pill:hover{color:var(--txt);}
+.view-pill.active{
+  background:rgba(var(--amb-rgb),.15);color:var(--amb);font-weight:600;
+}
+.toolbar-spacer{flex:1;}
+.btn{
+  background:var(--amb);color:#000;border:none;
+  padding:8px 14px;border-radius:6px;font-weight:600;
+  font-size:12.5px;cursor:pointer;font-family:inherit;
+  transition:all .15s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{background:var(--amb-hover);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--mut);}
+.btn-ghost:hover{border-color:var(--amb);color:var(--amb);background:transparent;}
+
+/* Filter row */
+.filter-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-bottom:14px;
+  padding:10px 14px;
+  background:var(--sur);
+  border:1px solid var(--bdr);
+  border-radius:7px;
+}
+.filter-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;
+  margin-right:4px;
+}
+.filter-pill{
+  background:var(--bg);border:1px solid var(--bdr2);
+  color:var(--mut2);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  padding:4px 10px;border-radius:5px;cursor:pointer;
+  transition:all .15s;
+}
+.filter-pill:hover{color:var(--txt);}
+.filter-pill.active{
+  background:rgba(var(--amb-rgb),.15);color:var(--amb);
+  border-color:rgba(var(--amb-rgb),.3);font-weight:600;
+}
+
+/* CALENDAR (week-by-week) view */
+.cal-week{
+  background:var(--sur);
+  border:1px solid var(--bdr);
+  border-radius:10px;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.cal-week-head{
+  padding:11px 16px;
+  background:var(--bg);
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:baseline;justify-content:space-between;
+}
+.cal-week-title{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  font-weight:600;color:var(--amb);
+  text-transform:uppercase;letter-spacing:.08em;
+}
+.cal-week-count{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  color:var(--mut2);
+}
+.cal-week-body{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:1px;
+  background:var(--bdr);
+}
+.cal-day{
+  background:var(--sur);
+  min-height:90px;
+  padding:8px 9px;
+  display:flex;flex-direction:column;gap:5px;
+}
+.cal-day-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:3px;
+}
+.cal-day-dow{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;
+  color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;
+}
+.cal-day-num{
+  font-family:'IBM Plex Mono',monospace;font-size:14px;
+  color:var(--txt);font-weight:600;
+}
+.cal-day.today{
+  background:rgba(var(--amb-rgb),.06);
+  box-shadow:inset 0 0 0 1px var(--amb);
+}
+.cal-day.today .cal-day-num{color:var(--amb);}
+.cal-day.past{opacity:.55;}
+.cal-day.empty{background:var(--bg);}
+.cal-event{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:3px 6px;border-radius:4px;
+  background:rgba(var(--amb-rgb),.13);
+  color:var(--amb);
+  border-left:2px solid var(--amb);
+  cursor:pointer;
+  transition:all .15s;
+  line-height:1.3;
+  word-break:break-word;
+}
+.cal-event:hover{background:rgba(var(--amb-rgb),.22);}
+.cal-event.evt-completed{
+  background:rgba(63,185,80,.13);color:var(--grn);border-left-color:var(--grn);
+  text-decoration:line-through;opacity:.65;
+}
+.cal-event.evt-skipped{
+  background:rgba(110,118,129,.13);color:var(--mut2);border-left-color:var(--mut2);
+  text-decoration:line-through;
+}
+.cal-event.evt-in_progress{
+  background:rgba(56,139,253,.13);color:#5fb1ff;border-left-color:#5fb1ff;
+}
+@media(max-width:760px){
+  .cal-week-body{grid-template-columns:1fr;}
+  .cal-day{min-height:auto;border-bottom:1px solid var(--bdr);}
+  .cal-day.empty{display:none;}
+}
+
+/* LIST view */
+.list-table{
+  width:100%;border-collapse:collapse;
+  background:var(--sur);border:1px solid var(--bdr);
+  border-radius:10px;overflow:hidden;
+}
+.list-table th{
+  text-align:left;
+  padding:11px 14px;
+  background:var(--bg);
+  border-bottom:1px solid var(--bdr);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;font-weight:600;
+}
+.list-table td{
+  padding:11px 14px;
+  border-bottom:1px solid var(--bdr);
+  font-size:12.5px;
+  color:var(--txt);
+  vertical-align:middle;
+}
+.list-table tr:last-child td{border-bottom:none;}
+.list-table tr:hover td{background:rgba(255,255,255,.02);}
+.list-table td.date-col{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--mut);white-space:nowrap;}
+.list-table td.actions-col{text-align:right;white-space:nowrap;}
+.area-pill{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.05em;
+  padding:2px 7px;border-radius:9px;
+}
+.area-pill.area-Carousel{background:rgba(163,113,247,.15);color:#c89cff;}
+.area-pill.area-Potting {background:rgba(63,185,80,.15);color:var(--grn);}
+.area-pill.area-Wave-3  {background:rgba(56,139,253,.15);color:#5fb1ff;}
+.status-pill{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;
+  padding:2px 7px;border-radius:9px;
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.status-planned    {background:rgba(var(--amb-rgb),.15);color:var(--amb);}
+.status-in_progress{background:rgba(56,139,253,.15);color:#5fb1ff;}
+.status-completed  {background:rgba(63,185,80,.15);color:var(--grn);}
+.status-skipped    {background:rgba(110,118,129,.15);color:var(--mut2);}
+.row-btn{
+  background:transparent;border:1px solid var(--bdr2);
+  color:var(--mut2);
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:3px 8px;border-radius:4px;cursor:pointer;
+  transition:all .15s;
+  margin-left:4px;
+}
+.row-btn:hover{border-color:var(--amb);color:var(--amb);}
+.row-btn-del:hover{border-color:var(--red);color:var(--red);}
+
+/* BY MACHINE view */
+.machine-grid{
+  display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+  gap:12px;
+}
+.machine-card{
+  background:var(--sur);
+  border:1px solid var(--bdr);
+  border-radius:10px;
+  padding:14px 16px;
+}
+.machine-card-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--bdr);
+}
+.machine-card-title{
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;
+  color:var(--txt);text-transform:uppercase;letter-spacing:.04em;
+}
+.machine-card-count{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);
+}
+.machine-pm-list{display:flex;flex-direction:column;gap:6px;}
+.machine-pm-item{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  padding:6px 9px;
+  background:var(--bg);
+  border-radius:5px;border-left:2px solid var(--amb);
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+.machine-pm-item.pm-completed{border-left-color:var(--grn);opacity:.65;}
+.machine-pm-item.pm-skipped{border-left-color:var(--mut2);opacity:.65;text-decoration:line-through;}
+.machine-pm-item.pm-in_progress{border-left-color:#5fb1ff;}
+.machine-pm-date{color:var(--mut);font-weight:500;}
+.machine-pm-tech{color:var(--mut2);font-size:10px;}
+.machine-pm-none{font-size:10.5px;color:var(--mut2);font-style:italic;padding:8px 0;text-align:center;}
+
+/* EMPTY STATE */
+.empty{
+  text-align:center;padding:50px 20px;
+  background:var(--sur);border:2px dashed var(--bdr2);
+  border-radius:12px;
+  color:var(--mut2);
+}
+.empty-icon{font-size:42px;margin-bottom:12px;opacity:.6;}
+.empty h2{font-size:16px;font-weight:600;color:var(--txt);margin-bottom:6px;}
+.empty p{font-size:13px;max-width:420px;margin:0 auto 18px;line-height:1.5;}
+
+.loading{text-align:center;padding:60px 20px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:12px;}
+
+/* MODAL — add / edit a row */
+.modal-bg{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;align-items:center;justify-content:center;
+  z-index:200;
+  padding:16px;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:var(--sur);border:1px solid var(--bdr2);
+  border-radius:11px;
+  max-width:520px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 16px 50px rgba(0,0,0,.6);
+}
+.modal-head{
+  padding:16px 20px;border-bottom:1px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{font-size:15px;font-weight:600;}
+.modal-close{
+  background:transparent;border:none;color:var(--mut2);
+  font-size:20px;cursor:pointer;line-height:1;padding:4px;
+}
+.modal-body{padding:18px 20px;}
+.modal-foot{
+  padding:14px 20px;border-top:1px solid var(--bdr);
+  display:flex;gap:10px;justify-content:flex-end;
+}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px;}
+.field label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--mut2);
+}
+.field input, .field select, .field textarea{
+  background:var(--bg);border:1px solid var(--bdr2);
+  border-radius:6px;padding:8px 11px;
+  color:var(--txt);font-family:'IBM Plex Sans',sans-serif;
+  outline:none;transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--amb);}
+.field textarea{resize:vertical;min-height:60px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.field-row{grid-template-columns:1fr;}}
+
+/* UPLOAD MODAL — preview table */
+.upload-preview{
+  margin-top:14px;
+  max-height:280px;overflow-y:auto;
+  border:1px solid var(--bdr);
+  border-radius:7px;
+}
+.upload-preview table{width:100%;border-collapse:collapse;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.upload-preview th, .upload-preview td{
+  text-align:left;padding:6px 9px;border-bottom:1px solid var(--bdr);
+}
+.upload-preview th{
+  background:var(--bg);color:var(--mut2);
+  text-transform:uppercase;font-size:9.5px;letter-spacing:.06em;
+  position:sticky;top:0;
+}
+.upload-preview td{color:var(--mut);}
+.upload-preview tr.invalid td{color:var(--red);background:rgba(248,81,73,.05);}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--sur);border:1px solid var(--bdr2);padding:11px 20px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);z-index:9999;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.t-ok{border-color:var(--grn);color:var(--grn);}
+.toast.t-err{border-color:var(--red);color:var(--red);}
+
+.notice{
+  background:rgba(var(--amb-rgb),.08);border:1px solid rgba(var(--amb-rgb),.25);
+  border-radius:8px;padding:11px 14px;margin-bottom:18px;font-size:12px;color:var(--mut);
+  line-height:1.5;
+}
+.notice strong{color:var(--amb);}
+
+@media(max-width:600px){
+  .main{padding:16px;}
+  .list-table th, .list-table td{padding:8px 10px;font-size:11.5px;}
+  .list-table td.actions-col{padding:6px;}
+  .list-table td.date-col{font-size:10.5px;}
+}
+</style>
+<script src="theme.js?v=3"></script>
+<script src="translations.js?v=2"></script>
+<!-- SheetJS for parsing Excel uploads. Pinned to a known-good version. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="back" href="index.html">← Home</a>
+  <div class="logo">SALCOMP — PM SCHEDULE</div>
+  <div></div>
+</header>
+
+<main class="main">
+  <div class="page-title">🗓️ PM Schedule</div>
+  <div class="page-sub">Upcoming preventive maintenance across all 16 machines. Engineers manage rows; everyone can view.</div>
+
+  <div class="notice" id="storageNotice" style="display:none;">
+    <strong>⚠ Database table not found.</strong> The PM schedule needs the <code>pm_schedule</code> table in Supabase.
+    Run <code>supabase_migration_pm_schedule.sql</code> in the SQL Editor to set it up.
+  </div>
+
+  <!-- Current Schedule Preview — quick "what's coming up" summary at the top -->
+  <div id="previewSlot"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="view-pills">
+      <button class="view-pill active" data-view="calendar" onclick="setView('calendar')">📅 Calendar</button>
+      <button class="view-pill" data-view="list" onclick="setView('list')">☰ List</button>
+      <button class="view-pill" data-view="machine" onclick="setView('machine')">🔧 By Machine</button>
+    </div>
+    <div class="toolbar-spacer"></div>
+    <button class="btn btn-ghost" onclick="openUploadModal()" id="uploadBtn">⬆ Upload Excel</button>
+    <button class="btn" onclick="openAddModal()" id="addBtn">+ Add PM</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <span class="filter-label">Area:</span>
+    <button class="filter-pill active" data-area="all" onclick="setAreaFilter('all')">All</button>
+    <button class="filter-pill" data-area="Carousel" onclick="setAreaFilter('Carousel')">Carousel</button>
+    <button class="filter-pill" data-area="Potting" onclick="setAreaFilter('Potting')">Potting</button>
+    <button class="filter-pill" data-area="Wave-3" onclick="setAreaFilter('Wave-3')">Wave-3</button>
+    <span style="flex:1"></span>
+    <span class="filter-label">Status:</span>
+    <button class="filter-pill active" data-status="upcoming" onclick="setStatusFilter('upcoming')">Upcoming</button>
+    <button class="filter-pill" data-status="all" onclick="setStatusFilter('all')">All</button>
+    <button class="filter-pill" data-status="completed" onclick="setStatusFilter('completed')">Completed</button>
+  </div>
+
+  <div id="content"><div class="loading">Loading schedule…</div></div>
+</main>
+
+<!-- Add / Edit modal -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="editModalTitle">Add PM</div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label for="rowArea">Area</label>
+          <select id="rowArea">
+            <option value="Carousel">Carousel</option>
+            <option value="Potting">Potting</option>
+            <option value="Wave-3">Wave-3</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rowLine">Line</label>
+          <select id="rowLine"></select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="rowDate">Scheduled Date</label>
+          <input type="date" id="rowDate">
+        </div>
+        <div class="field">
+          <label for="rowShift">Shift (optional)</label>
+          <select id="rowShift">
+            <option value="">— Any —</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="rowTech">Assigned Tech (optional)</label>
+        <input type="text" id="rowTech" placeholder="e.g. Jason Howard">
+      </div>
+      <div class="field">
+        <label for="rowStatus">Status</label>
+        <select id="rowStatus">
+          <option value="planned">Planned</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="skipped">Skipped</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rowNotes">Notes (optional)</label>
+        <textarea id="rowNotes" placeholder="Parts needed, special prep, etc."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+      <button class="btn" onclick="saveRow()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload modal -->
+<div class="modal-bg" id="uploadModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Upload Excel Schedule</div>
+      <button class="modal-close" onclick="closeUploadModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice" style="margin-bottom:14px;">
+        <strong>Expected columns:</strong> <code>area</code>, <code>line</code>, <code>scheduled_date</code> (required) ·
+        <code>shift</code>, <code>assigned_tech</code>, <code>notes</code> (optional).
+        Header names are case-insensitive and flexible (e.g. "Date" works for "scheduled_date").
+      </div>
+      <input type="file" id="xlsxFile" accept=".xlsx,.xls" style="margin-bottom:12px;">
+      <div id="uploadPreview"></div>
+      <div id="uploadSummary" style="font-size:12px;color:var(--mut);margin-top:10px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeUploadModal()">Cancel</button>
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--mut2);margin-right:auto;">
+        <input type="checkbox" id="replaceAll" style="margin:0;">
+        Replace all existing rows
+      </label>
+      <button class="btn" id="confirmImportBtn" onclick="confirmImport()" disabled>Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpneGtsd3F0bmp1aHdtaWdiZGtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NTcwMjUsImV4cCI6MjA5MjIzMzAyNX0.EHTVKXKr0PRoutgLnpHMAFHElvjkiBlDH1ZNXdyoxIM';
+const sbHeaders = () => ({'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY});
+
+const TABLE = 'pm_schedule';
+const LINES_BY_AREA = {
+  'Carousel': ['1','2','3','6','7'],
+  'Potting':  ['1','2','3','6','7','7.5'],
+  'Wave-3':   ['1','2','3','6','7'],
+};
+
+// ── STATE ──────────────────────────────────────────────────────────
+let allRows = [];
+let view = 'calendar';
+let areaFilter = 'all';
+let statusFilter = 'upcoming';
+let editingId = null;
+let parsedRows = [];     // Excel-parsed rows pending import
+
+// ── HELPERS ────────────────────────────────────────────────────────
+function escapeHtml(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function formatDate(d){
+  if(!d) return '—';
+  const dt = (d instanceof Date) ? d : new Date(d + 'T00:00:00');
+  if(isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+function todayKey(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+function getWeekStart(dateStr){
+  // Return YYYY-MM-DD of the Monday of the week containing dateStr
+  const d = new Date(dateStr + 'T00:00:00');
+  const day = d.getDay() || 7;
+  d.setDate(d.getDate() - (day - 1));
+  return d.toISOString().slice(0,10);
+}
+function getUploaderName(){
+  let name = '';
+  try { name = localStorage.getItem('salcomp_uploader_name') || ''; } catch(e){}
+  if(!name){
+    name = (prompt('Your name (will be recorded as the creator):') || '').trim() || 'Unknown';
+    try { localStorage.setItem('salcomp_uploader_name', name); } catch(e){}
+  }
+  return name;
+}
+
+// ── LOAD ───────────────────────────────────────────────────────────
+async function loadRows(){
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/${TABLE}?order=scheduled_date.asc&limit=1000`, {headers: sbHeaders()});
+    if(res.status === 404 || res.status === 400){
+      document.getElementById('storageNotice').style.display = 'block';
+      document.getElementById('addBtn').disabled = true;
+      document.getElementById('uploadBtn').disabled = true;
+      allRows = [];
+      render();
+      return;
+    }
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    allRows = await res.json();
+    render();
+  } catch(e){
+    document.getElementById('content').innerHTML =
+      `<div class="empty"><div class="empty-icon">⚠</div><h2>Could not load schedule</h2><p>${escapeHtml(e.message)}</p></div>`;
+  }
+}
+
+// ── FILTER ─────────────────────────────────────────────────────────
+function getFilteredRows(){
+  const today = todayKey();
+  return allRows.filter(r => {
+    if(areaFilter !== 'all' && r.area !== areaFilter) return false;
+    if(statusFilter === 'upcoming'){
+      // Future-dated AND not completed/skipped
+      if(r.scheduled_date < today) return false;
+      if(r.status === 'completed' || r.status === 'skipped') return false;
+    } else if(statusFilter === 'completed'){
+      if(r.status !== 'completed') return false;
+    }
+    return true;
+  });
+}
+
+function setView(v){
+  view = v;
+  document.querySelectorAll('.view-pill').forEach(p => p.classList.toggle('active', p.dataset.view === v));
+  render();
+}
+function setAreaFilter(a){
+  areaFilter = a;
+  document.querySelectorAll('.filter-pill[data-area]').forEach(p => p.classList.toggle('active', p.dataset.area === a));
+  render();
+}
+function setStatusFilter(s){
+  statusFilter = s;
+  document.querySelectorAll('.filter-pill[data-status]').forEach(p => p.classList.toggle('active', p.dataset.status === s));
+  render();
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────
+// ── PREVIEW (always shown at top) ──────────────────────────────────
+// Quick "what's coming up" summary that ignores the user's filters.
+// Goal: a tech opens the page → sees what's due in the next 7 days without scrolling.
+const PREVIEW_DEFAULT_COUNT = 5;
+let previewExpanded = false;
+
+function renderPreview(){
+  const slot = document.getElementById('previewSlot');
+  if(!slot) return;
+  if(allRows.length === 0){
+    slot.innerHTML = '';   // empty-state hero already covers this
+    return;
+  }
+  const today = todayKey();
+  // Pull rows that are "currently relevant": overdue (planned/in_progress and past date)
+  // OR upcoming in the next 14 days OR currently in progress.
+  const twoWeeksOut = (() => {
+    const d = new Date(today + 'T00:00:00');
+    d.setDate(d.getDate() + 14);
+    return d.toISOString().slice(0,10);
+  })();
+  const active = allRows.filter(r => {
+    if(r.status === 'completed' || r.status === 'skipped') return false;
+    if(r.scheduled_date <= twoWeeksOut) return true;
+    return false;
+  });
+  active.sort((a,b) => a.scheduled_date.localeCompare(b.scheduled_date));
+
+  // Stat counts
+  const overdue = active.filter(r => r.scheduled_date < today).length;
+  const dueToday = active.filter(r => r.scheduled_date === today).length;
+  const upcoming = active.filter(r => r.scheduled_date > today).length;
+  const unassigned = active.filter(r => !r.assigned_tech).length;
+  const completedThisWeek = allRows.filter(r => {
+    if(r.status !== 'completed') return false;
+    const weekStart = getWeekStart(today);
+    return r.scheduled_date >= weekStart && r.scheduled_date <= today;
+  }).length;
+
+  const visibleCount = previewExpanded ? active.length : PREVIEW_DEFAULT_COUNT;
+  const visible = active.slice(0, visibleCount);
+  const hidden = Math.max(0, active.length - visibleCount);
+
+  let body = '';
+  if(active.length === 0){
+    body = `<div class="preview-empty">✓ Nothing overdue or due in the next two weeks. The team is caught up.</div>`;
+  } else {
+    body = `<div class="preview-list">${visible.map(renderPreviewRow).join('')}</div>`;
+    if(hidden > 0){
+      body += `<div style="text-align:center;margin-top:10px;">
+        <button class="preview-toggle" onclick="togglePreviewExpand()">Show ${hidden} more →</button>
+      </div>`;
+    } else if(previewExpanded && active.length > PREVIEW_DEFAULT_COUNT){
+      body += `<div style="text-align:center;margin-top:10px;">
+        <button class="preview-toggle" onclick="togglePreviewExpand()">Show less ↑</button>
+      </div>`;
+    }
+  }
+
+  slot.innerHTML = `
+    <div class="preview-card">
+      <div class="preview-head">
+        <span class="preview-title">📋 Current Schedule</span>
+        <div class="preview-stats">
+          ${overdue > 0 ? `<span class="preview-stat"><span class="preview-stat-num warn">${overdue}</span> overdue</span>` : ''}
+          ${dueToday > 0 ? `<span class="preview-stat"><span class="preview-stat-num upcoming">${dueToday}</span> today</span>` : ''}
+          <span class="preview-stat"><span class="preview-stat-num">${upcoming}</span> next 2 weeks</span>
+          ${unassigned > 0 ? `<span class="preview-stat"><span class="preview-stat-num">${unassigned}</span> unassigned</span>` : ''}
+          ${completedThisWeek > 0 ? `<span class="preview-stat"><span class="preview-stat-num ok">${completedThisWeek}</span> done this week</span>` : ''}
+        </div>
+      </div>
+      ${body}
+    </div>`;
+}
+
+function renderPreviewRow(r){
+  const today = todayKey();
+  const isOverdue = r.scheduled_date < today;
+  const isToday = r.scheduled_date === today;
+  const cls = isOverdue ? 'overdue' : isToday ? 'today' : r.status === 'in_progress' ? 'in_progress' : '';
+  const dt = new Date(r.scheduled_date + 'T00:00:00');
+  const dow = dt.toLocaleDateString('en-US', {weekday:'short'}).toUpperCase();
+  const dnum = dt.getDate();
+  const dmonth = dt.toLocaleDateString('en-US', {month:'short'}).toUpperCase();
+  const dateLabel = isToday ? 'TODAY' : isOverdue
+    ? `OVERDUE<strong>${dmonth} ${dnum}</strong>`
+    : `${dow}<strong>${dmonth} ${dnum}</strong>`;
+  return `
+    <div class="preview-row ${cls}" onclick="openEditModal(${r.id})">
+      <div class="preview-date">${dateLabel}</div>
+      <div class="preview-body-text">
+        <span class="area-pill area-${escapeHtml(r.area)}">${escapeHtml(r.area)}</span>
+        <span class="preview-machine">Line ${escapeHtml(r.line)}</span>
+        ${r.shift ? `<span class="preview-tech">Shift ${escapeHtml(r.shift)}</span>` : ''}
+        <span class="preview-tech ${r.assigned_tech ? '' : 'unassigned'}">${escapeHtml(r.assigned_tech || 'unassigned')}</span>
+      </div>
+      <span class="preview-row-status status-${escapeHtml(r.status)}">${escapeHtml(r.status.replace('_',' '))}</span>
+    </div>`;
+}
+
+window.togglePreviewExpand = function(){
+  previewExpanded = !previewExpanded;
+  renderPreview();
+};
+
+function render(){
+  renderPreview();  // always renders, regardless of filters/view
+  const rows = getFilteredRows();
+  const content = document.getElementById('content');
+
+  if(rows.length === 0){
+    const msg = allRows.length === 0
+      ? 'No PMs scheduled yet. Tap "+ Add PM" to add one manually, or "⬆ Upload Excel" to import a list.'
+      : 'No PMs match the current filters. Try adjusting the area or status pills above.';
+    content.innerHTML = `<div class="empty"><div class="empty-icon">🗓️</div><h2>${allRows.length === 0 ? 'PM schedule is empty' : 'No matches'}</h2><p>${msg}</p></div>`;
+    return;
+  }
+
+  if(view === 'list') renderList(rows);
+  else if(view === 'machine') renderByMachine(rows);
+  else renderCalendar(rows);
+}
+
+function renderList(rows){
+  const sorted = rows.slice().sort((a,b) => a.scheduled_date.localeCompare(b.scheduled_date));
+  const html = `
+    <table class="list-table">
+      <thead><tr>
+        <th>Date</th><th>Area</th><th>Line</th><th>Shift</th>
+        <th>Tech</th><th>Notes</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map(r => `
+          <tr>
+            <td class="date-col">${formatDate(r.scheduled_date)}</td>
+            <td><span class="area-pill area-${escapeHtml(r.area)}">${escapeHtml(r.area)}</span></td>
+            <td>${escapeHtml(r.line)}</td>
+            <td>${escapeHtml(r.shift || '—')}</td>
+            <td>${escapeHtml(r.assigned_tech || '—')}</td>
+            <td style="color:var(--mut2);font-size:11.5px;">${escapeHtml((r.notes || '').slice(0,60))}${(r.notes||'').length>60?'…':''}</td>
+            <td><span class="status-pill status-${escapeHtml(r.status)}">${escapeHtml(r.status.replace('_',' '))}</span></td>
+            <td class="actions-col">
+              <button class="row-btn" onclick="openEditModal(${r.id})">edit</button>
+              <button class="row-btn row-btn-del" onclick="deleteRow(${r.id})">✕</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function renderByMachine(rows){
+  // Group by area+line
+  const groups = {};
+  ['Carousel','Potting','Wave-3'].forEach(area => {
+    (LINES_BY_AREA[area] || []).forEach(line => {
+      const key = `${area}__${line}`;
+      groups[key] = { area, line, rows: [] };
+    });
+  });
+  rows.forEach(r => {
+    const key = `${r.area}__${r.line}`;
+    if(!groups[key]) groups[key] = { area:r.area, line:r.line, rows: [] };
+    groups[key].rows.push(r);
+  });
+  // Sort each group's PMs by date asc
+  Object.values(groups).forEach(g => g.rows.sort((a,b) => a.scheduled_date.localeCompare(b.scheduled_date)));
+
+  const html = `<div class="machine-grid">${
+    Object.values(groups).map(g => `
+      <div class="machine-card">
+        <div class="machine-card-head">
+          <span class="machine-card-title">
+            <span class="area-pill area-${escapeHtml(g.area)}">${escapeHtml(g.area)}</span>
+            Line ${escapeHtml(g.line)}
+          </span>
+          <span class="machine-card-count">${g.rows.length} PM${g.rows.length===1?'':'s'}</span>
+        </div>
+        <div class="machine-pm-list">
+          ${g.rows.length === 0
+            ? '<div class="machine-pm-none">No upcoming PMs scheduled</div>'
+            : g.rows.map(r => `
+              <div class="machine-pm-item pm-${escapeHtml(r.status)}" onclick="openEditModal(${r.id})" style="cursor:pointer;">
+                <span class="machine-pm-date">${formatDate(r.scheduled_date)}</span>
+                <span class="machine-pm-tech">${escapeHtml(r.assigned_tech || (r.shift ? 'Shift '+r.shift : 'unassigned'))}</span>
+              </div>`).join('')
+          }
+        </div>
+      </div>`).join('')
+  }</div>`;
+  document.getElementById('content').innerHTML = html;
+}
+
+function renderCalendar(rows){
+  // Group rows by week (Monday-start). Show 6 weeks starting from "this week".
+  const today = todayKey();
+  const thisWeekStart = getWeekStart(today);
+  // Build a map of weekStart → array of rows
+  const byWeek = {};
+  rows.forEach(r => {
+    const wk = getWeekStart(r.scheduled_date);
+    if(!byWeek[wk]) byWeek[wk] = [];
+    byWeek[wk].push(r);
+  });
+  // Determine the range to render: from this week to the furthest week with rows,
+  // but show at least 4 weeks.
+  const weeks = [];
+  let cursor = new Date(thisWeekStart + 'T00:00:00');
+  const allWeekKeys = Object.keys(byWeek).filter(k => k >= thisWeekStart).sort();
+  const lastWk = allWeekKeys.length > 0 ? allWeekKeys[allWeekKeys.length-1] : thisWeekStart;
+  const maxWeeks = 12;
+  for(let i = 0; i < maxWeeks; i++){
+    const wk = cursor.toISOString().slice(0,10);
+    weeks.push(wk);
+    if(i >= 3 && wk >= lastWk) break;
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  // Render
+  const html = weeks.map(wk => renderWeek(wk, byWeek[wk] || [])).join('');
+  document.getElementById('content').innerHTML = html || '<div class="empty"><div class="empty-icon">📅</div><h2>Nothing on the calendar yet</h2><p>Add upcoming PMs or upload an Excel sheet to populate the calendar.</p></div>';
+}
+
+function renderWeek(weekStart, weekRows){
+  const start = new Date(weekStart + 'T00:00:00');
+  const days = [];
+  for(let i = 0; i < 7; i++){
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+  const weekEnd = days[6];
+  const titleStr = `Week of ${start.toLocaleDateString('en-US',{month:'short', day:'numeric'})}`
+                + ` – ${weekEnd.toLocaleDateString('en-US',{month:'short', day:'numeric', year:'numeric'})}`;
+  const today = todayKey();
+  const dowNames = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+  const dayCells = days.map((d, i) => {
+    const dkey = d.toISOString().slice(0,10);
+    const dayEvents = weekRows.filter(r => r.scheduled_date === dkey);
+    const isToday = dkey === today;
+    const isPast = dkey < today;
+    const cls = `cal-day${isToday ? ' today' : ''}${isPast ? ' past' : ''}${dayEvents.length===0?' empty':''}`;
+    const eventsHtml = dayEvents.map(r => `
+      <div class="cal-event evt-${escapeHtml(r.status)}" onclick="openEditModal(${r.id})"
+        title="${escapeHtml(r.area)} L${escapeHtml(r.line)} · ${escapeHtml(r.assigned_tech || 'unassigned')}${r.notes?' · '+escapeHtml(r.notes):''}">
+        <strong>${escapeHtml(r.area)} L${escapeHtml(r.line)}</strong>
+        ${r.shift ? ` · ${escapeHtml(r.shift)}` : ''}
+        ${r.assigned_tech ? `<br>${escapeHtml(r.assigned_tech)}` : ''}
+      </div>`).join('');
+    return `
+      <div class="${cls}">
+        <div class="cal-day-head">
+          <span class="cal-day-dow">${dowNames[i]}</span>
+          <span class="cal-day-num">${d.getDate()}</span>
+        </div>
+        ${eventsHtml}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="cal-week">
+      <div class="cal-week-head">
+        <span class="cal-week-title">${titleStr}</span>
+        <span class="cal-week-count">${weekRows.length} PM${weekRows.length===1?'':'s'} this week</span>
+      </div>
+      <div class="cal-week-body">${dayCells}</div>
+    </div>`;
+}
+
+// ── ADD / EDIT MODAL ───────────────────────────────────────────────
+function populateLineOptions(area){
+  const sel = document.getElementById('rowLine');
+  sel.innerHTML = (LINES_BY_AREA[area] || []).map(l => `<option value="${l}">${l}</option>`).join('');
+}
+document.getElementById('rowArea').addEventListener('change', e => populateLineOptions(e.target.value));
+
+function openAddModal(){
+  editingId = null;
+  document.getElementById('editModalTitle').textContent = 'Add PM';
+  document.getElementById('rowArea').value = 'Carousel';
+  populateLineOptions('Carousel');
+  document.getElementById('rowLine').value = '1';
+  document.getElementById('rowDate').value = todayKey();
+  document.getElementById('rowShift').value = '';
+  document.getElementById('rowTech').value = '';
+  document.getElementById('rowStatus').value = 'planned';
+  document.getElementById('rowNotes').value = '';
+  document.getElementById('editModal').classList.add('show');
+}
+function openEditModal(id){
+  const r = allRows.find(x => x.id === id);
+  if(!r) return;
+  editingId = id;
+  document.getElementById('editModalTitle').textContent = 'Edit PM';
+  document.getElementById('rowArea').value = r.area || 'Carousel';
+  populateLineOptions(r.area || 'Carousel');
+  document.getElementById('rowLine').value = r.line || '1';
+  document.getElementById('rowDate').value = r.scheduled_date || todayKey();
+  document.getElementById('rowShift').value = r.shift || '';
+  document.getElementById('rowTech').value = r.assigned_tech || '';
+  document.getElementById('rowStatus').value = r.status || 'planned';
+  document.getElementById('rowNotes').value = r.notes || '';
+  document.getElementById('editModal').classList.add('show');
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('show');
+  editingId = null;
+}
+
+async function saveRow(){
+  const payload = {
+    area: document.getElementById('rowArea').value,
+    line: document.getElementById('rowLine').value,
+    scheduled_date: document.getElementById('rowDate').value,
+    shift: document.getElementById('rowShift').value || null,
+    assigned_tech: document.getElementById('rowTech').value.trim() || null,
+    status: document.getElementById('rowStatus').value,
+    notes: document.getElementById('rowNotes').value.trim() || null,
+  };
+  if(!payload.area || !payload.line || !payload.scheduled_date){
+    showToast('Area, Line, and Date are required.', 't-err');
+    return;
+  }
+  const who = getUploaderName();
+  payload.last_edited_by = who;
+  payload.updated_at = new Date().toISOString();
+  if(payload.status === 'completed' && !allRows.find(x => x.id === editingId && x.status === 'completed')){
+    payload.completed_at = new Date().toISOString();
+    payload.completed_by = who;
+  }
+
+  try {
+    let res;
+    if(editingId){
+      res = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${editingId}`, {
+        method: 'PATCH',
+        headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'return=minimal'},
+        body: JSON.stringify(payload),
+      });
+    } else {
+      payload.created_by = who;
+      res = await fetch(`${SB_URL}/rest/v1/${TABLE}`, {
+        method: 'POST',
+        headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'return=minimal'},
+        body: JSON.stringify(payload),
+      });
+    }
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error('HTTP ' + res.status + ' ' + txt.slice(0,120));
+    }
+    showToast(editingId ? '✓ PM updated' : '✓ PM added', 't-ok');
+    closeEditModal();
+    loadRows();
+  } catch(e){
+    showToast(e.message, 't-err');
+  }
+}
+
+async function deleteRow(id){
+  const r = allRows.find(x => x.id === id);
+  if(!r) return;
+  if(!confirm(`Delete the PM for ${r.area} Line ${r.line} on ${formatDate(r.scheduled_date)}?`)) return;
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=eq.${id}`, {method:'DELETE', headers: sbHeaders()});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('PM deleted', 't-ok');
+    loadRows();
+  } catch(e){
+    showToast('Delete failed: ' + e.message, 't-err');
+  }
+}
+
+// ── EXCEL UPLOAD ───────────────────────────────────────────────────
+function openUploadModal(){
+  parsedRows = [];
+  document.getElementById('xlsxFile').value = '';
+  document.getElementById('uploadPreview').innerHTML = '';
+  document.getElementById('uploadSummary').textContent = '';
+  document.getElementById('confirmImportBtn').disabled = true;
+  document.getElementById('replaceAll').checked = false;
+  document.getElementById('uploadModal').classList.add('show');
+}
+function closeUploadModal(){
+  document.getElementById('uploadModal').classList.remove('show');
+}
+document.getElementById('xlsxFile').addEventListener('change', handleXlsxFile);
+
+async function handleXlsxFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!['xlsx','xls'].includes(ext)){
+    showToast('Excel files only (.xlsx or .xls).', 't-err');
+    return;
+  }
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array', cellDates:true});
+    const sheetName = wb.SheetNames[0];
+    if(!sheetName) throw new Error('No sheets in workbook');
+    const sheet = wb.Sheets[sheetName];
+    const raw = XLSX.utils.sheet_to_json(sheet, {defval:'', raw:false});
+    parsedRows = raw.map(parseExcelRow);
+    renderUploadPreview();
+  } catch(err){
+    showToast('Parse failed: ' + err.message, 't-err');
+  }
+}
+
+// Flexible header mapping — try multiple synonyms
+function parseExcelRow(row){
+  const lc = {};
+  Object.keys(row).forEach(k => { lc[String(k).toLowerCase().trim()] = row[k]; });
+  const pick = (...keys) => {
+    for(const k of keys){
+      if(lc[k] != null && lc[k] !== '') return lc[k];
+    }
+    return null;
+  };
+  let area = String(pick('area','section','department') || '').trim();
+  // Normalize area: "carousel" / "Carousel " → "Carousel"; "wave 3" or "wave-3" → "Wave-3"
+  const al = area.toLowerCase();
+  if(al.includes('carousel')) area = 'Carousel';
+  else if(al.includes('pott')) area = 'Potting';
+  else if(al.includes('wave')) area = 'Wave-3';
+  // else leave whatever the user typed; row will be flagged invalid below
+  let line = pick('line','machine','machine_id','machine #','line #');
+  if(line != null) line = String(line).replace(/^line\s*/i, '').trim();
+  let dateRaw = pick('scheduled_date','date','pm_date','due_date','due','planned_date','when');
+  let scheduled_date = null;
+  if(dateRaw){
+    if(dateRaw instanceof Date && !isNaN(dateRaw.getTime())){
+      scheduled_date = dateRaw.toISOString().slice(0,10);
+    } else {
+      const d = new Date(String(dateRaw));
+      if(!isNaN(d.getTime())) scheduled_date = d.toISOString().slice(0,10);
+    }
+  }
+  const shift = String(pick('shift','crew') || '').trim().toUpperCase().slice(0,1);
+  const tech = String(pick('assigned_tech','tech','technician','assignee','assigned to','assigned') || '').trim();
+  const notes = String(pick('notes','note','comments','remarks','description') || '').trim();
+  // Validity check
+  const valid = !!area && !!line && !!scheduled_date
+             && ['Carousel','Potting','Wave-3'].includes(area)
+             && (LINES_BY_AREA[area] || []).includes(line);
+  return {
+    area, line, scheduled_date,
+    shift: ['A','B','C'].includes(shift) ? shift : null,
+    assigned_tech: tech || null,
+    notes: notes || null,
+    status: 'planned',
+    _valid: valid,
+    _raw: row,
+  };
+}
+
+function renderUploadPreview(){
+  const valid = parsedRows.filter(r => r._valid);
+  const invalid = parsedRows.filter(r => !r._valid);
+  const preview = document.getElementById('uploadPreview');
+  if(parsedRows.length === 0){
+    preview.innerHTML = '<div style="font-size:12px;color:var(--mut2);font-style:italic;">No rows found in the sheet.</div>';
+    document.getElementById('uploadSummary').textContent = '';
+    document.getElementById('confirmImportBtn').disabled = true;
+    return;
+  }
+  const rows = parsedRows.slice(0, 30).map(r => `
+    <tr class="${r._valid ? '' : 'invalid'}">
+      <td>${r._valid ? '✓' : '✗'}</td>
+      <td>${escapeHtml(r.area || '—')}</td>
+      <td>${escapeHtml(r.line || '—')}</td>
+      <td>${escapeHtml(r.scheduled_date || '—')}</td>
+      <td>${escapeHtml(r.shift || '')}</td>
+      <td>${escapeHtml(r.assigned_tech || '')}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(r.notes || '')}</td>
+    </tr>`).join('');
+  preview.innerHTML = `
+    <div class="upload-preview">
+      <table>
+        <thead><tr><th></th><th>Area</th><th>Line</th><th>Date</th><th>Shift</th><th>Tech</th><th>Notes</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${parsedRows.length > 30 ? `<div style="font-size:11px;color:var(--mut2);margin-top:6px;">Showing first 30 of ${parsedRows.length} rows</div>` : ''}
+  `;
+  document.getElementById('uploadSummary').textContent =
+    `${valid.length} valid row${valid.length===1?'':'s'} ready to import` +
+    (invalid.length ? ` · ${invalid.length} skipped (missing area/line/date or invalid area-line combo)` : '');
+  document.getElementById('confirmImportBtn').disabled = valid.length === 0;
+}
+
+async function confirmImport(){
+  const valid = parsedRows.filter(r => r._valid).map(r => ({
+    area: r.area, line: r.line, scheduled_date: r.scheduled_date,
+    shift: r.shift, assigned_tech: r.assigned_tech,
+    notes: r.notes, status: 'planned',
+    created_by: getUploaderName(),
+  }));
+  if(valid.length === 0){
+    showToast('Nothing to import.', 't-err');
+    return;
+  }
+  const replaceAll = document.getElementById('replaceAll').checked;
+  if(replaceAll && !confirm(`Replace ALL existing rows (${allRows.length}) with the ${valid.length} new ones?\n\nThis cannot be undone.`)) return;
+
+  const btn = document.getElementById('confirmImportBtn');
+  btn.disabled = true;
+  btn.textContent = 'Importing…';
+
+  try {
+    if(replaceAll && allRows.length > 0){
+      // Delete every existing row first
+      const delRes = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=not.is.null`, {method:'DELETE', headers: sbHeaders()});
+      if(!delRes.ok) throw new Error('Delete failed: ' + delRes.status);
+    }
+    // Bulk insert — Supabase REST accepts an array body
+    const res = await fetch(`${SB_URL}/rest/v1/${TABLE}`, {
+      method: 'POST',
+      headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'return=minimal'},
+      body: JSON.stringify(valid),
+    });
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error('Import failed: ' + res.status + ' ' + txt.slice(0,200));
+    }
+    showToast(`✓ Imported ${valid.length} PM${valid.length===1?'':'s'}`, 't-ok');
+    closeUploadModal();
+    loadRows();
+  } catch(e){
+    showToast(e.message, 't-err');
+    btn.disabled = false;
+    btn.textContent = 'Import';
+  }
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+let _toastTimer = null;
+function showToast(msg, cls){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (cls || '');
+  if(_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = 'toast ' + (cls||''); }, 3500);
+}
+
+// Close modals on Escape + outside click
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape'){
+    closeEditModal(); closeUploadModal();
+  }
+});
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if(e.target === bg) bg.classList.remove('show'); });
+});
+
+// Init the line dropdown for the default area
+populateLineOptions('Carousel');
+loadRows();
+</script>
+
+</body>
+</html>
