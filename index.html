@@ -928,6 +928,54 @@ body::after{
 }
 @keyframes expandIn{from{opacity:0;transform:translateY(-12px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
 
+/* MISSED REPORTS BANNER — only shown when techs missed reports today/yesterday */
+.missed-banner{
+  background:linear-gradient(135deg, rgba(248,81,73,.10) 0%, rgba(248,81,73,.03) 60%, var(--sur) 100%);
+  border:1px solid rgba(248,81,73,.35);
+  border-radius:11px;
+  padding:13px 18px;
+  margin-bottom:18px;
+  box-shadow:0 4px 18px rgba(248,81,73,.08);
+  animation:fadeUp .6s .15s ease both;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+}
+.missed-banner-icon{
+  font-size:22px;flex-shrink:0;
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(248,81,73,.18);
+  color:#ffa3a3;
+  border-radius:9px;
+}
+.missed-banner-body{flex:1;min-width:200px;}
+.missed-banner-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;
+  color:#ffa3a3;
+  margin-bottom:3px;
+}
+.missed-banner-detail{
+  font-size:12.5px;color:var(--mut);
+  line-height:1.4;
+}
+.missed-banner-detail strong{color:var(--txt);}
+.missed-banner-action{
+  flex-shrink:0;
+  background:rgba(248,81,73,.18);
+  border:1px solid rgba(248,81,73,.3);
+  color:#ffa3a3;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:600;
+  padding:7px 14px;border-radius:6px;cursor:pointer;
+  text-decoration:none;
+  transition:all .15s;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.missed-banner-action:hover{background:rgba(248,81,73,.28);border-color:rgba(248,81,73,.45);}
+
+/* MISSED REPORTS BANNER end */
+
 /* PM QUICK-VIEW STRIP — appears between KPI band and area buttons.
    Glance-able list of upcoming PMs. Optionally filtered to "just mine". */
 .pm-strip{
@@ -1303,6 +1351,9 @@ body::after{
       <span class="kpi-arrow">→</span>
     </a>
   </div>
+
+  <!-- MISSED REPORTS BANNER — pops up when techs didn't submit today/yesterday -->
+  <div id="missedBanner" style="display:none;"></div>
 
   <!-- PM QUICK VIEW STRIP — shows upcoming PMs at a glance. Filterable to "just mine". -->
   <div id="pmStrip" style="display:none;"></div>
@@ -2275,8 +2326,184 @@ async function reloadPmStrip(){
     slot.style.display = 'block';
   } catch(e){ /* ignore */ }
 }
+
+// ──────────────────────────────────────────────────────────────────
+// MISSED REPORTS BANNER
+// Mirrors the dashboard's audit logic but only renders a banner if there
+// are actual misses. Uses shift end times + 2-hour grace, so it stays quiet
+// until each shift has had a fair chance to finish reporting.
+// ──────────────────────────────────────────────────────────────────
+const SHIFT_GRACE_HOURS_HOME = 2;
+const SHIFT_WINDOWS_HOME = {
+  A: { startH:  6, endH: 14 },
+  B: { startH: 14, endH: 22 },
+  C: { startH: 22, endH:  6 },
+};
+const AREA_LABELS_HOME = ['Carousel', 'Potting', 'Wave-3', 'Battery', 'IQ9'];
+
+function getElapsedShiftWindowsHome(now){
+  const result = { A: null, B: null, C: null };
+  Object.entries(SHIFT_WINDOWS_HOME).forEach(([shift, w]) => {
+    const candidates = [];
+    for(let offsetDays = 0; offsetDays >= -1; offsetDays--){
+      const ref = new Date(now); ref.setDate(ref.getDate() + offsetDays); ref.setHours(0,0,0,0);
+      const end = new Date(ref); end.setHours(w.endH, 0, 0, 0);
+      const start = new Date(end);
+      if(shift === 'C') start.setHours(start.getHours() - 8);
+      else start.setHours(w.startH, 0, 0, 0);
+      const graceEnd = new Date(end); graceEnd.setHours(graceEnd.getHours() + SHIFT_GRACE_HOURS_HOME);
+      candidates.push({ start, end, graceEnd });
+    }
+    const elapsed = candidates
+      .filter(c => c.graceEnd.getTime() <= now.getTime())
+      .sort((a,b) => b.end.getTime() - a.end.getTime())[0];
+    if(elapsed){
+      result[shift] = { startMs: elapsed.start.getTime(), endMs: elapsed.end.getTime() };
+    }
+  });
+  return result;
+}
+
+// Maps area key (carousel/potting/wave3/battery/iq9 from TABLES) → label
+const AREA_KEY_TO_LABEL_HOME = {
+  carousel: 'Carousel', potting: 'Potting', wave3: 'Wave-3',
+  battery: 'Battery', iq9: 'IQ9',
+};
+
+(async function loadMissedBanner(){
+  const slot = document.getElementById('missedBanner');
+  if(!slot) return;
+  // Wait briefly for techs.js to load (it's at the bottom)
+  for(let i = 0; i < 40 && !window.SALCOMP_TECHS; i++){
+    await new Promise(r => setTimeout(r, 25));
+  }
+  if(!window.SALCOMP_TECHS) return;
+
+  // Fetch the SHIFT report tables only (Carousel/Potting/Wave-3/Battery/IQ9).
+  // These have a `submitted_at` timestamp and a `shift` field — what we need.
+  const shiftTables = [
+    {area: 'Carousel', table: 'carousel_reports'},
+    {area: 'Potting',  table: 'shift_reports'},
+    {area: 'Wave-3',   table: 'wave3_reports'},
+    {area: 'Battery',  table: 'battery_reports'},
+    {area: 'IQ9',      table: 'iq9_reports'},
+  ];
+  // Pull the last 48 hours of shift reports — covers any audited window
+  const sinceIso = new Date(Date.now() - 48*60*60*1000).toISOString();
+  let allRows = [];
+  try {
+    const results = await Promise.all(shiftTables.map(({area, table}) =>
+      fetch(`${SB_URL}/rest/v1/${table}?submitted_at=gte.${encodeURIComponent(sinceIso)}&order=submitted_at.desc&limit=500`, {headers: sbHeaders()})
+        .then(r => r.ok ? r.json() : [])
+        .then(rows => rows.map(row => ({...row, _area: area})))
+    ));
+    allRows = results.flat();
+  } catch(e){ return; }
+  if(allRows.length === 0 && !window.SALCOMP_TECHS) return;
+
+  // Also fetch line_assignments for this week, so we can flag "submitted but
+  // not for assigned line". Quietly skips if table doesn't exist.
+  let weekAssignments = new Map();   // lowercased tech name → {area, line}
+  try {
+    const monday = (() => {
+      const d = new Date(); d.setHours(0,0,0,0);
+      const dow = d.getDay() || 7;
+      d.setDate(d.getDate() - (dow - 1));
+      return d.toISOString().slice(0,10);
+    })();
+    const resA = await fetch(`${SB_URL}/rest/v1/line_assignments?week_start=eq.${monday}&limit=200`, {headers: sbHeaders()});
+    if(resA.ok){
+      const arr = await resA.json();
+      arr.forEach(a => weekAssignments.set((a.tech_name||'').toLowerCase().trim(), a));
+    }
+  } catch(e){ /* assignments are optional */ }
+
+  // Now run the audit
+  const now = new Date();
+  const windows = getElapsedShiftWindowsHome(now);
+  const rosterByShift = { A: [], B: [], C: [] };
+  ['A Shift','B Shift','C Shift'].forEach(shift => {
+    const key = shift.charAt(0);
+    (window.SALCOMP_TECHS[shift] || []).forEach(name => rosterByShift[key].push(name));
+  });
+
+  const auditedShifts = [];  // {shift, missingTechs, missingAreas, missedAssignments}
+  ['A','B','C'].forEach(s => {
+    const w = windows[s];
+    if(!w) return;  // not yet audited (still running or in grace)
+    const submitters = new Set();
+    const areasCovered = new Set();
+    // Track each tech's area+line submissions for assignment checking
+    const techAreaLines = new Map();
+    allRows.forEach(r => {
+      const t = new Date(r.submitted_at).getTime();
+      if(t < w.startMs || t >= w.endMs) return;
+      const techName = (r.tech || r.tech_name || '').toLowerCase().trim();
+      if(techName){
+        submitters.add(techName);
+        const line = r.line != null ? String(r.line).trim() : '';
+        if(line){
+          if(!techAreaLines.has(techName)) techAreaLines.set(techName, new Set());
+          techAreaLines.get(techName).add(r._area + '|' + line);
+        }
+      }
+      const rowShift = String(r.shift || '').trim().toUpperCase().charAt(0);
+      if(rowShift === s) areasCovered.add(r._area);
+    });
+    const missingTechs = [];
+    const missedAssignments = [];
+    rosterByShift[s].forEach(name => {
+      const lower = name.toLowerCase().trim();
+      if(!submitters.has(lower)){ missingTechs.push(name); return; }
+      const asn = weekAssignments.get(lower);
+      if(asn){
+        const required = asn.area + '|' + asn.line;
+        const have = techAreaLines.get(lower);
+        if(!have || !have.has(required)){
+          missedAssignments.push({name, area: asn.area, line: asn.line});
+        }
+      }
+    });
+    const missingAreas = AREA_LABELS_HOME.filter(a => !areasCovered.has(a));
+    if(missingTechs.length > 0 || missingAreas.length > 0 || missedAssignments.length > 0){
+      auditedShifts.push({ shift: s, missingTechs, missingAreas, missedAssignments });
+    }
+  });
+
+  if(auditedShifts.length === 0){
+    slot.style.display = 'none';
+    return;
+  }
+
+  // Build a compact summary line per shift
+  const lines = auditedShifts.map(s => {
+    const parts = [];
+    if(s.missingTechs.length > 0){
+      parts.push(`<strong>${s.missingTechs.length} tech${s.missingTechs.length===1?'':'s'}</strong> missed`);
+    }
+    if(s.missedAssignments.length > 0){
+      parts.push(`<strong>${s.missedAssignments.length}</strong> off-line`);
+    }
+    if(s.missingAreas.length > 0){
+      parts.push(`<strong>${s.missingAreas.join(', ')}</strong> uncovered`);
+    }
+    return `<strong>${s.shift} shift:</strong> ${parts.join(' · ')}`;
+  });
+
+  slot.innerHTML = `
+    <div class="missed-banner">
+      <div class="missed-banner-icon">⚠</div>
+      <div class="missed-banner-body">
+        <div class="missed-banner-title">Missed Reports Detected</div>
+        <div class="missed-banner-detail">${lines.join('<br>')}</div>
+      </div>
+      <a class="missed-banner-action" href="Analytics_Dashboard.html#missed">View details →</a>
+    </div>`;
+  slot.style.display = 'block';
+})();
 </script>
 <script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
+<script src="techs.js?v=3"></script>
 </body>
 </html>

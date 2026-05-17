@@ -199,6 +199,8 @@ svg .bar-clickable:hover{opacity:.7;}
 
 /* ── PANELS ──────────────────────────────────────────────────────────────── */
 .panel{background:var(--sur);border:1px solid var(--bdr);border-radius:10px;margin-bottom:18px;overflow:hidden;}
+.panel.panel-alert{border-color:rgba(248,81,73,.4);box-shadow:0 0 0 1px rgba(248,81,73,.15), 0 4px 18px rgba(248,81,73,.08);}
+.panel.panel-alert .panel-head{background:linear-gradient(90deg, rgba(248,81,73,.06) 0%, transparent 100%);}
 .panel-head{padding:13px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;user-select:none;transition:background .15s;position:relative;}
 .panel-head:hover{background:rgba(255,255,255,.02);}
 .panel-head h2{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);}
@@ -864,6 +866,106 @@ svg .bar-clickable:hover{opacity:.7;}
 .dt-cause-mins{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--red);font-weight:600;white-space:nowrap;}
 .dt-cause-meta{font-size:10px;color:var(--mut2);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
 
+/* ── MISSED REPORTS ──────────────────────────────────────────────────────── */
+.missed-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+@media(max-width:900px){.missed-grid{grid-template-columns:1fr;}}
+.missed-window{background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:14px 15px;}
+.missed-window.missed-clear{border-color:rgba(63,185,80,.25);}
+.missed-window.missed-flag {border-color:rgba(248,81,73,.3);}
+.missed-window.missed-pending{border-color:var(--bdr);background:rgba(255,255,255,.015);opacity:.85;}
+.missed-window-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--bdr);}
+.missed-window-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.missed-window-subtitle{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);}
+.missed-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--red);font-weight:600;}
+.missed-allclear{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--grn);font-weight:600;}
+.missed-pending-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);font-style:italic;}
+.missed-empty{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--mut2);font-style:italic;padding:14px 0;text-align:center;line-height:1.4;}
+.missed-subhead{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 7px;}
+.missed-subhead:first-child{margin-top:0;}
+.missed-shift-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;}
+.missed-shift-label{flex-shrink:0;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:6px;letter-spacing:.04em;}
+.missed-shift-A{background:rgba(163,113,247,.18);color:#c89cff;}
+.missed-shift-B{background:rgba(56,139,253,.18);color:#5fb1ff;}
+.missed-shift-C{background:rgba(63,185,80,.18);color:var(--grn);}
+.missed-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.missed-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:9px;background:rgba(248,81,73,.12);color:#ffa3a3;border:1px solid rgba(248,81,73,.25);}
+.missed-area-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:9px;font-weight:600;}
+.missed-area-Carousel{background:rgba(163,113,247,.15);color:#c89cff;border:1px solid rgba(163,113,247,.3);}
+.missed-area-Potting {background:rgba(63,185,80,.15);color:var(--grn);border:1px solid rgba(63,185,80,.3);}
+.missed-area-Wave-3  {background:rgba(56,139,253,.15);color:#5fb1ff;border:1px solid rgba(56,139,253,.3);}
+.missed-area-Battery {background:rgba(245,217,55,.15);color:#f5d937;border:1px solid rgba(245,217,55,.3);}
+.missed-area-IQ9     {background:rgba(255,140,66,.15);color:#ff8c42;border:1px solid rgba(255,140,66,.3);}
+.missed-foot-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);line-height:1.5;}
+.missed-foot-note code{background:var(--bg);padding:1px 5px;border-radius:3px;font-size:9.5px;}
+.missed-foot-note strong{color:var(--txt);}
+
+/* "Submitted but missed their assigned line" — distinct from "submitted nothing" */
+.missed-subhead-warn{color:#ff9d3c !important;}
+.missed-chip-warn{background:rgba(255,157,60,.15) !important;color:#ffc78a !important;border:1px solid rgba(255,157,60,.32) !important;}
+.missed-assign-list{display:flex;flex-direction:column;gap:5px;}
+.missed-assign-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:10.5px;}
+.missed-assign-arrow{color:var(--mut2);font-size:9.5px;font-style:italic;}
+
+/* ── ASSIGNMENTS PANEL ───────────────────────────────────────────────────── */
+.asn-notice{padding:11px 14px;border-radius:7px;font-size:12px;color:var(--mut);line-height:1.5;}
+.asn-notice strong{color:var(--txt);}
+.asn-notice code{background:var(--bg);padding:1px 6px;border-radius:3px;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.asn-notice-warn{background:rgba(var(--amb-rgb),.08);border:1px solid rgba(var(--amb-rgb),.22);}
+.asn-lock-btn{
+  background:transparent;border:1px solid var(--bdr2);
+  color:var(--mut);
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  padding:4px 11px;border-radius:5px;cursor:pointer;
+  transition:all .15s;
+}
+.asn-lock-btn:hover{border-color:var(--amb);color:var(--amb);}
+.asn-lock-btn.unlocked{background:rgba(63,185,80,.1);border-color:rgba(63,185,80,.35);color:var(--grn);}
+.asn-add-card{
+  background:rgba(var(--amb-rgb),.05);
+  border:1px solid rgba(var(--amb-rgb),.25);
+  border-radius:8px;padding:14px 16px;margin-bottom:14px;
+}
+.asn-add-head{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amb);text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin-bottom:10px;}
+.asn-add-grid{display:grid;grid-template-columns:1.4fr .7fr 1fr .7fr 1fr 1.2fr;gap:10px;align-items:end;}
+@media(max-width:900px){.asn-add-grid{grid-template-columns:1fr 1fr;}}
+.asn-field{display:flex;flex-direction:column;gap:4px;}
+.asn-field label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;}
+.asn-field select, .asn-field input{
+  background:var(--bg);border:1px solid var(--bdr2);border-radius:5px;
+  padding:7px 9px;color:var(--txt);font-family:inherit;font-size:12px;
+  outline:none;transition:border-color .15s;
+}
+.asn-field select:focus, .asn-field input:focus{border-color:var(--amb);}
+.asn-save-btn{
+  background:var(--amb);color:#000;border:none;
+  padding:8px 14px;border-radius:5px;font-weight:600;font-size:12px;
+  cursor:pointer;font-family:inherit;
+}
+.asn-save-btn:hover{background:var(--amb-hover);}
+.asn-weeks{display:flex;flex-direction:column;gap:14px;}
+.asn-section{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;}
+.asn-section.asn-current{border-color:rgba(var(--amb-rgb),.35);}
+.asn-section.asn-past{opacity:.7;}
+.asn-section-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bdr);}
+.asn-section-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--txt);text-transform:uppercase;letter-spacing:.08em;}
+.asn-section.asn-current .asn-section-title{color:var(--amb);}
+.asn-section-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut);}
+.asn-section-count{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);}
+.asn-empty{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut2);font-style:italic;padding:10px 0;text-align:center;}
+.asn-table{width:100%;border-collapse:collapse;}
+.asn-table th, .asn-table td{padding:7px 10px;text-align:left;font-size:11.5px;border-bottom:1px solid var(--bdr);}
+.asn-table th{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--mut2);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.asn-table tr:last-child td{border-bottom:none;}
+.asn-table tr:hover td{background:rgba(255,255,255,.02);}
+.asn-del-btn{
+  background:transparent;border:1px solid var(--bdr2);
+  color:var(--mut2);font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:3px 8px;border-radius:4px;cursor:pointer;transition:all .15s;
+}
+.asn-del-btn:hover{border-color:var(--red);color:var(--red);}
+.asn-foot-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:14px;padding-top:10px;border-top:1px solid var(--bdr);line-height:1.5;}
+.asn-foot-note strong{color:var(--txt);}
+
 /* ── SCOUT FLAGS ─────────────────────────────────────────────────────────── */
 .scout-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:0;}
 .scout-card{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:14px;transition:all .15s;cursor:pointer;text-decoration:none;color:var(--txt);display:block;}
@@ -1219,6 +1321,7 @@ svg .bar-clickable:hover{opacity:.7;}
 
 <script src="theme.js?v=3"></script>
 <script src="translations.js?v=2"></script>
+<script src="techs.js?v=3"></script>
 <script>
 // ── SUPABASE CONFIG ────────────────────────────────────────────────────────────
 const SB_URL = 'https://zgxklwqtnjuhwmigbdkd.supabase.co';
@@ -1401,6 +1504,142 @@ async function fetchTable(src, sinceIso){
 // Track most-recent submitted_at per table for incremental refresh
 let _incrementalCursors = {};
 
+// ─── LINE ASSIGNMENTS ─────────────────────────────────────────────────────
+// Engineers assign techs to area+line for a given week. The missed-reports
+// audit uses this to escalate "missed report" → "missed your line".
+let _assignmentsCache = null;        // null = not loaded yet; [] = empty; [...] = data
+let _assignmentsError = null;        // set to the error msg if the table is missing
+let _assignmentsUnlocked = false;    // session flag — engineer typed the password
+const ASSIGNMENT_PW_PLAINTEXT = '7012';
+let _assignmentPwHash = null;
+async function sha256Local(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+sha256Local(ASSIGNMENT_PW_PLAINTEXT).then(h => { _assignmentPwHash = h; });
+
+// Monday of the week containing the given Date (default: today)
+function weekStartMonday(d){
+  const x = new Date(d || new Date());
+  x.setHours(0,0,0,0);
+  const dow = x.getDay() || 7;   // Sun = 7
+  x.setDate(x.getDate() - (dow - 1));
+  return x;
+}
+function fmtIsoDate(d){ return d.toISOString().slice(0,10); }
+
+async function fetchAssignments(){
+  // Pull ~3 weeks worth (last week, this week, next week) — small payload
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 14);
+  const sinceIso = fmtIsoDate(cutoff);
+  try {
+    const url = `${SB_URL}/rest/v1/line_assignments?week_start=gte.${sinceIso}&order=week_start.desc,shift.asc,tech_name.asc&limit=500`;
+    const res = await fetch(url, {headers: sbHeaders()});
+    if(res.status === 404 || res.status === 400){
+      _assignmentsError = 'table_missing';
+      _assignmentsCache = [];
+      return;
+    }
+    if(!res.ok){
+      _assignmentsError = `http_${res.status}`;
+      _assignmentsCache = [];
+      return;
+    }
+    _assignmentsError = null;
+    _assignmentsCache = await res.json();
+  } catch(e){
+    _assignmentsError = e.message;
+    _assignmentsCache = [];
+  }
+}
+
+// Prompt for password, hash + compare. On success, set session flag and re-render.
+window.unlockAssignments = async function(){
+  if(_assignmentsUnlocked) return;
+  const entered = (prompt('Enter password to manage line assignments:') || '').trim();
+  if(!entered) return;
+  if(!_assignmentPwHash) _assignmentPwHash = await sha256Local(ASSIGNMENT_PW_PLAINTEXT);
+  const enteredHash = await sha256Local(entered);
+  if(enteredHash !== _assignmentPwHash){
+    alert('Wrong password.');
+    return;
+  }
+  _assignmentsUnlocked = true;
+  // Re-render dashboard so the panel switches from locked to editable
+  if(typeof render === 'function') render();
+};
+window.lockAssignments = function(){
+  _assignmentsUnlocked = false;
+  if(typeof render === 'function') render();
+};
+
+// Returns the assignments active for a specific week (Monday ISO date),
+// indexed by lowercased tech name → assignment row.
+function getAssignmentsForWeek(weekIso){
+  const map = new Map();
+  (_assignmentsCache || []).forEach(a => {
+    if(a.week_start === weekIso){
+      map.set((a.tech_name || '').toLowerCase().trim(), a);
+    }
+  });
+  return map;
+}
+
+// CRUD ops — all callable from the UI. They re-fetch on success so the panel
+// reflects the saved state.
+window.addAssignment = async function(){
+  if(!_assignmentsUnlocked) return;
+  const techSel = document.getElementById('asn-tech');
+  const shiftSel = document.getElementById('asn-shift');
+  const areaSel = document.getElementById('asn-area');
+  const lineSel = document.getElementById('asn-line');
+  const weekInp = document.getElementById('asn-week');
+  if(!techSel || !techSel.value){ alert('Pick a tech.'); return; }
+  if(!areaSel.value || !lineSel.value){ alert('Pick an area and line.'); return; }
+  if(!weekInp.value){ alert('Pick a week (Monday).'); return; }
+  const payload = {
+    tech_name: techSel.value,
+    shift: shiftSel.value,
+    area: areaSel.value,
+    line: lineSel.value,
+    week_start: weekInp.value,
+    created_by: 'Engineer',
+    updated_at: new Date().toISOString(),
+  };
+  try {
+    // Upsert via on_conflict so reassigning a tech for the same week just
+    // updates the row instead of erroring out on the unique index
+    const res = await fetch(`${SB_URL}/rest/v1/line_assignments?on_conflict=tech_name,week_start`, {
+      method: 'POST',
+      headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify(payload),
+    });
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error(`HTTP ${res.status} ${txt.slice(0,120)}`);
+    }
+    await fetchAssignments();
+    if(typeof render === 'function') render();
+  } catch(e){
+    alert('Save failed: ' + e.message);
+  }
+};
+
+window.deleteAssignment = async function(id){
+  if(!_assignmentsUnlocked) return;
+  if(!confirm('Delete this assignment?')) return;
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/line_assignments?id=eq.${id}`, {
+      method: 'DELETE', headers: sbHeaders(),
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    await fetchAssignments();
+    if(typeof render === 'function') render();
+  } catch(e){
+    alert('Delete failed: ' + e.message);
+  }
+};
+
 function recomputeCursors(){
   _incrementalCursors = {};
   SOURCES.forEach(s => {
@@ -1433,13 +1672,17 @@ async function loadAll(showToastMsg){
     if(showToastMsg !== false){
       content.innerHTML = '<div class="loading"><span class="spin"></span>Loading data from all sources…</div>';
     }
-    const results = await Promise.all(SOURCES.map(s => fetchTable(s)));
+    const [_, results] = await Promise.all([
+      fetchAssignments(),  // populates _assignmentsCache; safe if table missing
+      Promise.all(SOURCES.map(s => fetchTable(s))),
+    ]);
     allData = {};
     SOURCES.forEach((s,i) => { allData[s.key] = results[i] || []; });
     recomputeCursors();
     _lastFetchTime = Date.now();
     if(showToastMsg === true) showToast('✓ Refreshed — all sources','t-ok');
     render();
+    afterRenderAssignmentForm();
     return;
   }
 
@@ -2977,6 +3220,482 @@ function buildShiftStats(rows){
   return out;
 }
 
+// ─── MISSED REPORTS ─────────────────────────────────────────────────────
+// Audit which techs (and which shift+area combos) didn't submit ANY report
+// in a given time window. Helps engineers chase down the daily gaps without
+// hand-auditing the feed.
+// ── SHIFT WINDOWS ────────────────────────────────────────────────────────
+// Each shift has a start hour, end hour, and an alert grace period. The
+// audit only flags a shift after `end_hour + GRACE_HOURS` has passed, so
+// we don't alarm engineers about a shift that's still wrapping up.
+//
+// A shift: 06:00–14:00 → grace ends 16:00
+// B shift: 14:00–22:00 → grace ends 00:00 (next day)
+// C shift: 22:00–06:00 (crosses midnight) → grace ends 08:00
+const SHIFT_GRACE_HOURS = 2;
+const SHIFT_WINDOWS = {
+  A: { startH:  6, endH: 14 },
+  B: { startH: 14, endH: 22 },
+  C: { startH: 22, endH:  6 },   // wraps over midnight
+};
+
+// Returns the *most recent occurrence* of each shift's window whose grace
+// period has already elapsed. If the most recent occurrence hasn't yet
+// passed grace, the shift returns null and the audit skips it.
+//
+// Returns: { A: {startMs, endMs, label} | null, B: {...} | null, C: {...} | null }
+function getElapsedShiftWindows(now){
+  const result = { A: null, B: null, C: null };
+  Object.entries(SHIFT_WINDOWS).forEach(([shift, w]) => {
+    // Build candidate end times for today and yesterday, pick the most recent
+    // one whose (end + grace) has elapsed.
+    const candidates = [];
+    for(let offsetDays = 0; offsetDays >= -1; offsetDays--){
+      const ref = new Date(now); ref.setDate(ref.getDate() + offsetDays); ref.setHours(0,0,0,0);
+      // End of this shift on this candidate day:
+      const end = new Date(ref);
+      if(shift === 'C'){
+        // C shift ends at 06:00 ON the morning of the candidate day
+        // (its work began at 22:00 the day before)
+        end.setHours(w.endH, 0, 0, 0);
+      } else {
+        end.setHours(w.endH, 0, 0, 0);
+      }
+      const start = new Date(end);
+      if(shift === 'C'){
+        // C started 8h before end (22:00 prev day → 06:00 today)
+        start.setHours(start.getHours() - 8);
+      } else {
+        start.setHours(w.startH, 0, 0, 0);
+      }
+      const graceEnd = new Date(end); graceEnd.setHours(graceEnd.getHours() + SHIFT_GRACE_HOURS);
+      candidates.push({ start, end, graceEnd });
+    }
+    // Pick the most recent candidate whose graceEnd has elapsed
+    const elapsed = candidates
+      .filter(c => c.graceEnd.getTime() <= now.getTime())
+      .sort((a,b) => b.end.getTime() - a.end.getTime())[0];
+    if(elapsed){
+      // Friendly label — "C shift (ended Mon 6am)"
+      const endLabel = elapsed.end.toLocaleDateString('en-US', {weekday:'short'}) + ' ' +
+                       elapsed.end.toLocaleTimeString('en-US', {hour:'numeric', hour12:true}).toLowerCase();
+      result[shift] = {
+        startMs: elapsed.start.getTime(),
+        endMs:   elapsed.end.getTime(),
+        label:   `${shift} shift (ended ${endLabel})`,
+      };
+    }
+  });
+  return result;
+}
+
+function buildMissedReportsStats(allNormRows){
+  const roster = window.SALCOMP_TECHS || {};
+  // Build a per-shift roster — only techs on shift S can miss S's window.
+  const rosterByShift = { A: [], B: [], C: [] };
+  ['A Shift', 'B Shift', 'C Shift'].forEach(shift => {
+    const key = shift.charAt(0);
+    (roster[shift] || []).forEach(name => rosterByShift[key].push(name));
+  });
+
+  // The five areas we expect shift coverage from
+  const EXPECTED_AREAS = ['Carousel', 'Potting', 'Wave-3', 'Battery', 'IQ9'];
+
+  // Find each shift's most recent already-elapsed window
+  const now = new Date();
+  const windows = getElapsedShiftWindows(now);
+
+  // For a single shift window, who from that shift submitted any report,
+  // and which areas got shift-report coverage during the window?
+  function auditShiftWindow(shiftLetter, win){
+    // Build the per-tech submission record for this window. Each entry is:
+    //   { submitted: bool, areaLines: Set<"Carousel|3"> }
+    // areaLines tracks every area+line combo the tech mentioned in any
+    // shift/scout/PM report during the window.
+    const techRecords = new Map();   // lowercased name → {submitted, areaLines}
+    const areasCovered = new Set();
+    function ensureRec(name){
+      if(!techRecords.has(name)) techRecords.set(name, { submitted:false, areaLines:new Set() });
+      return techRecords.get(name);
+    }
+
+    allNormRows.forEach(r => {
+      if(!r.when) return;
+      const t = new Date(r.when).getTime();
+      if(t < win.startMs || t >= win.endMs) return;
+      const techName = (r.row.tech || r.row.tech_name || '').toLowerCase().trim();
+      if(techName){
+        const rec = ensureRec(techName);
+        rec.submitted = true;
+        // Track area+line mentioned in this report. The area comes from the
+        // source key; the line comes from the row's `line` field.
+        const areaLabel = r.src.kind === 'shift' ? SHIFT_KEY_TO_LABEL[r.src.key]
+                       : r.src.kind === 'pm'    ? (r.row.area || null)
+                       : null /* scouts */;
+        // Scouts: derive area from source key (each scout source is area-specific)
+        const scoutAreaMap = {
+          'scout-car': 'Carousel', 'scout-pott': 'Potting', 'scout-wav': 'Wave-3',
+        };
+        const effArea = areaLabel || scoutAreaMap[r.src.key] || null;
+        const line = (r.row.line != null ? String(r.row.line).trim() : '');
+        if(effArea && line) rec.areaLines.add(effArea + '|' + line);
+      }
+      // Area coverage (any shift report with matching shift letter)
+      if(r.src.kind === 'shift'){
+        const rowShift = String(r.row.shift || '').trim().toUpperCase().charAt(0);
+        if(rowShift !== shiftLetter) return;
+        const areaLabel = SHIFT_KEY_TO_LABEL[r.src.key];
+        if(areaLabel) areasCovered.add(areaLabel);
+      }
+    });
+
+    // Pull this week's assignments (key: lowercased tech name → assignment)
+    const thisWeekIso = fmtIsoDate(weekStartMonday(new Date(win.startMs)));
+    const assignments = getAssignmentsForWeek(thisWeekIso);
+
+    // Categorize techs from this shift's roster into three groups:
+    //   1. nothingMissed     — tech submitted something
+    //   2. missingTechs      — tech submitted nothing AT ALL
+    //   3. missedAssignments — tech submitted something, but not for their assigned area+line
+    const missingTechs = [];
+    const missedAssignments = [];   // [{name, assignedArea, assignedLine}]
+    rosterByShift[shiftLetter].forEach(name => {
+      const lowerName = name.toLowerCase().trim();
+      const rec = techRecords.get(lowerName);
+      const submittedSomething = rec && rec.submitted;
+      const assignment = assignments.get(lowerName);
+
+      if(!submittedSomething){
+        // Submitted nothing → "missing" regardless of assignment
+        missingTechs.push(name);
+      } else if(assignment){
+        // Check if any of their submissions matched their assigned area+line
+        const required = (assignment.area || '') + '|' + (assignment.line || '');
+        if(!rec.areaLines.has(required)){
+          missedAssignments.push({
+            name,
+            area: assignment.area,
+            line: assignment.line,
+          });
+        }
+      }
+      // Else: submitted something + no assignment → fine
+    });
+    missingTechs.sort((a,b) => a.localeCompare(b));
+    missedAssignments.sort((a,b) => a.name.localeCompare(b.name));
+
+    const missingAreas = EXPECTED_AREAS.filter(a => !areasCovered.has(a));
+    return {
+      shift: shiftLetter,
+      label: win.label,
+      windowStart: win.startMs,
+      windowEnd:   win.endMs,
+      missingTechs,
+      missedAssignments,
+      missingAreas,
+      totalMissing: missingTechs.length + missingAreas.length + missedAssignments.length,
+    };
+  }
+
+  // Build a result per shift. Shifts whose grace hasn't elapsed get a "pending" entry.
+  const shifts = {};
+  ['A','B','C'].forEach(s => {
+    if(windows[s]){
+      shifts[s] = auditShiftWindow(s, windows[s]);
+      shifts[s].status = 'audited';
+    } else {
+      shifts[s] = {
+        shift: s,
+        status: 'pending',  // shift is still running OR within grace period
+        label:  `${s} shift (in progress or within ${SHIFT_GRACE_HOURS}h grace)`,
+        missingTechs: [],
+        missedAssignments: [],
+        missingAreas: [],
+        totalMissing: 0,
+      };
+    }
+  });
+
+  return { shifts };
+}
+
+function renderMissedReports(stats){
+  if(!stats || !stats.shifts) return '';
+  const shifts = ['A','B','C'].map(s => stats.shifts[s]);
+  const totalAlerts = shifts.reduce((acc, s) => acc + (s.status === 'audited' ? s.totalMissing : 0), 0);
+
+  return `
+    <div class="panel ${totalAlerts > 0 ? 'panel-alert' : ''}" data-panel-key="missed">
+      <div class="panel-head">
+        <h2>📋 Missed Reports — Shift Audit</h2>
+        <span class="panel-meta">
+          ${totalAlerts === 0
+            ? '<span style="color:var(--grn)">✓ All clear</span>'
+            : `<span style="color:var(--red)">${totalAlerts} alert${totalAlerts===1?'':'s'}</span>`}
+        </span>
+      </div>
+      <div class="panel-body">
+        <div class="missed-grid">
+          ${shifts.map(renderMissedShift).join('')}
+        </div>
+        <div class="missed-foot-note">
+          Each shift is audited <strong>2 hours after it ends</strong> — so A shift is checked at 4 PM, B shift at midnight, C shift at 8 AM.
+          Shifts still in progress or within the grace period show "Pending audit". A tech counts as having submitted if they posted any shift, scout, or PM report during the shift window.
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderMissedShift(s){
+  // Pending shifts (still running or within grace) get a soft display
+  if(s.status === 'pending'){
+    return `
+      <div class="missed-window missed-pending">
+        <div class="missed-window-head">
+          <span class="missed-window-title">
+            <span class="missed-shift-label missed-shift-${s.shift}">${s.shift} Shift</span>
+          </span>
+          <span class="missed-pending-note">Pending audit</span>
+        </div>
+        <div class="missed-empty">Shift is still running or within its 2-hour grace period. Audit pending.</div>
+      </div>`;
+  }
+
+  const techsTotal = s.missingTechs.length;
+  const assignTotal = (s.missedAssignments || []).length;
+  const areasTotal = s.missingAreas.length;
+  const allClear = techsTotal === 0 && areasTotal === 0 && assignTotal === 0;
+
+  return `
+    <div class="missed-window ${allClear ? 'missed-clear' : 'missed-flag'}">
+      <div class="missed-window-head">
+        <span class="missed-window-title">
+          <span class="missed-shift-label missed-shift-${s.shift}">${s.shift} Shift</span>
+          <span class="missed-window-subtitle">${escapeHtml(s.label.replace(/^[ABC] shift /, ''))}</span>
+        </span>
+        ${allClear
+          ? '<span class="missed-allclear">✓ All clear</span>'
+          : `<span class="missed-count">${techsTotal + assignTotal} tech${(techsTotal+assignTotal)===1?'':'s'} · ${areasTotal} area${areasTotal===1?'':'s'}</span>`}
+      </div>
+      ${allClear ? `
+        <div class="missed-empty">Every ${s.shift}-shift tech submitted at least one report, and every area was covered.</div>
+      ` : `
+        ${techsTotal > 0 ? `
+          <div class="missed-subhead">Techs with zero submissions</div>
+          <div class="missed-chips">
+            ${s.missingTechs.map(name => `<span class="missed-chip">${escapeHtml(name)}</span>`).join('')}
+          </div>
+        ` : ''}
+        ${assignTotal > 0 ? `
+          <div class="missed-subhead missed-subhead-warn">Submitted but missed assigned line</div>
+          <div class="missed-assign-list">
+            ${s.missedAssignments.map(m => `
+              <div class="missed-assign-row">
+                <span class="missed-chip missed-chip-warn">${escapeHtml(m.name)}</span>
+                <span class="missed-assign-arrow">should report on</span>
+                <span class="missed-area-chip missed-area-${escapeHtml(m.area)}">${escapeHtml(m.area)} L${escapeHtml(m.line)}</span>
+              </div>`).join('')}
+          </div>
+        ` : ''}
+        ${areasTotal > 0 ? `
+          <div class="missed-subhead">Areas with no ${s.shift}-shift report</div>
+          <div class="missed-chips">
+            ${s.missingAreas.map(a => `<span class="missed-area-chip missed-area-${escapeHtml(a)}">${escapeHtml(a)}</span>`).join('')}
+          </div>
+        ` : ''}
+      `}
+    </div>`;
+}
+
+// ─── ASSIGNMENTS PANEL ──────────────────────────────────────────────────
+// Engineers manage line assignments here. Read-only for everyone by default;
+// click "🔓 Unlock" + enter password to add/edit/delete.
+function renderAssignments(){
+  // If the table doesn't exist yet, show a friendly setup notice
+  if(_assignmentsError === 'table_missing'){
+    return `
+      <div class="panel" data-panel-key="assignments">
+        <div class="panel-head"><h2>👥 Line Assignments</h2></div>
+        <div class="panel-body">
+          <div class="asn-notice asn-notice-warn">
+            <strong>Database table not found.</strong> Run <code>supabase_migration_line_assignments.sql</code> in your Supabase SQL Editor to enable this feature.
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const now = new Date();
+  const thisWeek = fmtIsoDate(weekStartMonday(now));
+  const nextWeek = (() => { const d = weekStartMonday(now); d.setDate(d.getDate()+7); return fmtIsoDate(d); })();
+  const lastWeek = (() => { const d = weekStartMonday(now); d.setDate(d.getDate()-7); return fmtIsoDate(d); })();
+
+  // Group assignments into weeks we care about
+  const buckets = { lastWeek: [], thisWeek: [], nextWeek: [] };
+  (_assignmentsCache || []).forEach(a => {
+    if(a.week_start === thisWeek) buckets.thisWeek.push(a);
+    else if(a.week_start === nextWeek) buckets.nextWeek.push(a);
+    else if(a.week_start === lastWeek) buckets.lastWeek.push(a);
+  });
+
+  // Lock state UI
+  const lockBtn = _assignmentsUnlocked
+    ? `<button class="asn-lock-btn unlocked" onclick="lockAssignments()" title="Re-lock">🔓 Unlocked · click to lock</button>`
+    : `<button class="asn-lock-btn"          onclick="unlockAssignments()" title="Password required">🔒 Locked · click to unlock</button>`;
+
+  // Add form (only shown when unlocked)
+  const addForm = _assignmentsUnlocked ? renderAssignmentForm(thisWeek) : '';
+
+  const total = (_assignmentsCache || []).length;
+
+  return `
+    <div class="panel" data-panel-key="assignments">
+      <div class="panel-head">
+        <h2>👥 Line Assignments</h2>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="panel-meta">${total} total · this week / next week shown</span>
+          ${lockBtn}
+        </div>
+      </div>
+      <div class="panel-body">
+        ${addForm}
+        <div class="asn-weeks">
+          ${renderAssignmentWeek('This Week',  thisWeek, buckets.thisWeek, true)}
+          ${renderAssignmentWeek('Next Week',  nextWeek, buckets.nextWeek, false)}
+          ${buckets.lastWeek.length > 0 ? renderAssignmentWeek('Last Week', lastWeek, buckets.lastWeek, false, true) : ''}
+        </div>
+        <div class="asn-foot-note">
+          Assignments cover a full week (Monday → Sunday). The Missed Reports panel checks if each assigned tech submitted any shift, scout, or PM report mentioning their <strong>assigned area + line</strong> during their shift window. Without an assignment, only "did they submit anything" is checked.
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderAssignmentWeek(label, weekIso, rows, isCurrent, isPast){
+  const weekDate = new Date(weekIso + 'T00:00:00');
+  const weekEnd = new Date(weekDate); weekEnd.setDate(weekEnd.getDate()+6);
+  const dateLabel = `${weekDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${weekEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+  const sectionClass = isCurrent ? 'asn-section asn-current' : isPast ? 'asn-section asn-past' : 'asn-section';
+
+  if(rows.length === 0){
+    return `
+      <div class="${sectionClass}">
+        <div class="asn-section-head">
+          <span class="asn-section-title">${escapeHtml(label)}</span>
+          <span class="asn-section-date">${escapeHtml(dateLabel)}</span>
+        </div>
+        <div class="asn-empty">No assignments for this week yet.</div>
+      </div>`;
+  }
+
+  // Sort rows by shift, then by tech name
+  const sorted = rows.slice().sort((a,b) => {
+    if(a.shift !== b.shift) return (a.shift||'').localeCompare(b.shift||'');
+    return (a.tech_name||'').localeCompare(b.tech_name||'');
+  });
+
+  return `
+    <div class="${sectionClass}">
+      <div class="asn-section-head">
+        <span class="asn-section-title">${escapeHtml(label)}</span>
+        <span class="asn-section-date">${escapeHtml(dateLabel)}</span>
+        <span class="asn-section-count">${rows.length} assignment${rows.length===1?'':'s'}</span>
+      </div>
+      <table class="asn-table">
+        <thead><tr><th>Tech</th><th>Shift</th><th>Area</th><th>Line</th>${_assignmentsUnlocked ? '<th></th>' : ''}</tr></thead>
+        <tbody>
+          ${sorted.map(a => `
+            <tr>
+              <td><strong>${escapeHtml(a.tech_name)}</strong></td>
+              <td><span class="missed-shift-label missed-shift-${escapeHtml(a.shift)}">${escapeHtml(a.shift)}</span></td>
+              <td><span class="missed-area-chip missed-area-${escapeHtml(a.area)}">${escapeHtml(a.area)}</span></td>
+              <td><strong>L${escapeHtml(a.line)}</strong></td>
+              ${_assignmentsUnlocked ? `<td><button class="asn-del-btn" onclick="deleteAssignment(${a.id})">✕</button></td>` : ''}
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderAssignmentForm(defaultWeek){
+  const roster = window.SALCOMP_TECHS || {};
+  // Build a tech dropdown grouped by shift
+  const techOptions = ['A Shift','B Shift','C Shift'].map(shift => {
+    const names = roster[shift] || [];
+    if(names.length === 0) return '';
+    return `<optgroup label="${shift}">${names.map(n => `<option value="${escapeHtml(n)}" data-shift="${shift.charAt(0)}">${escapeHtml(n)}</option>`).join('')}</optgroup>`;
+  }).join('');
+  // Lines for every area combined — the line dropdown shows valid options
+  // for the selected area via JS
+  return `
+    <div class="asn-add-card">
+      <div class="asn-add-head">+ Add Assignment</div>
+      <div class="asn-add-grid">
+        <div class="asn-field">
+          <label>Tech</label>
+          <select id="asn-tech" onchange="onAsnTechChange()">
+            <option value="">— Pick a tech —</option>
+            ${techOptions}
+          </select>
+        </div>
+        <div class="asn-field">
+          <label>Shift</label>
+          <select id="asn-shift"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+        </div>
+        <div class="asn-field">
+          <label>Area</label>
+          <select id="asn-area" onchange="onAsnAreaChange()">
+            <option value="Carousel">Carousel</option>
+            <option value="Potting">Potting</option>
+            <option value="Wave-3">Wave-3</option>
+            <option value="Battery">Battery</option>
+            <option value="IQ9">IQ9</option>
+          </select>
+        </div>
+        <div class="asn-field">
+          <label>Line</label>
+          <select id="asn-line"></select>
+        </div>
+        <div class="asn-field">
+          <label>Week (Monday)</label>
+          <input type="date" id="asn-week" value="${defaultWeek}">
+        </div>
+        <div class="asn-field asn-field-action">
+          <button class="asn-save-btn" onclick="addAssignment()">Save Assignment</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// When tech changes, auto-pick their shift; when area changes, refresh lines
+window.onAsnTechChange = function(){
+  const techSel = document.getElementById('asn-tech');
+  const shiftSel = document.getElementById('asn-shift');
+  const opt = techSel.options[techSel.selectedIndex];
+  const shiftFromTech = opt && opt.dataset.shift;
+  if(shiftFromTech) shiftSel.value = shiftFromTech;
+};
+window.onAsnAreaChange = function(){
+  const areaSel = document.getElementById('asn-area');
+  const lineSel = document.getElementById('asn-line');
+  if(!areaSel || !lineSel) return;
+  const linesByArea = {
+    'Carousel': ['1','2','3','6','7'],
+    'Potting':  ['1','2','3','6','7','7.5'],
+    'Wave-3':   ['1','2','3','6','7'],
+    'Battery':  ['4','5'],
+    'IQ9':      ['7.5'],
+  };
+  const lines = linesByArea[areaSel.value] || [];
+  lineSel.innerHTML = lines.map(l => `<option value="${l}">${l}</option>`).join('');
+};
+
+// Called after every render that may have re-mounted the assignment form,
+// to ensure the line dropdown starts populated (otherwise it's empty until
+// the user touches the area dropdown).
+function afterRenderAssignmentForm(){
+  if(document.getElementById('asn-area')) window.onAsnAreaChange();
+}
+
 function renderShiftParticipation(stats){
   const SHIFT_TARGET = stats.__targetPerShift;
   const effectiveDays = stats.__effectiveDays;
@@ -3271,6 +3990,10 @@ function render(){
 
   const panelRegistry = {};
   panelRegistry.kpis = renderKPIs(k, computeKpisPrevPeriod());
+  // Missed reports panel — always computed from FULL row set (today/yesterday
+  // windows are fixed, not affected by the date-range filter)
+  panelRegistry.missed = renderMissedReports(buildMissedReportsStats(normalizedRows()));
+  panelRegistry.assignments = renderAssignments();
   if(showShiftPanels){
     panelRegistry.shifts     = renderShiftParticipation(buildShiftStats(shiftRows));
     panelRegistry.production = renderProduction(prod);
@@ -3292,7 +4015,7 @@ function render(){
 
   // Tier organization. Each entry: [section_label, [panel_keys]]
   const tiers = [
-    ['Health',           ['kpis', 'shifts']],
+    ['Health',           ['kpis', 'missed', 'assignments', 'shifts']],
     ['Performance',      ['oee', 'production', 'uph', 'wip']],
     ['Loss & Quality',   ['pareto', 'downtime', 'changeover', 'scout']],
     ['Forensics',        ['pm', 'techs', 'feed']],
@@ -3357,6 +4080,8 @@ function render(){
       render();
     });
   }
+  // Initialize the assignment form's line dropdown if the panel is unlocked
+  if(typeof afterRenderAssignmentForm === 'function') afterRenderAssignmentForm();
 }
 
 // ── KPI strip ────────────────────────────────────────────────────────────────
