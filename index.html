@@ -2414,7 +2414,12 @@ const AREA_KEY_TO_LABEL_HOME = {
     const resA = await fetch(`${SB_URL}/rest/v1/line_assignments?week_start=eq.${monday}&limit=200`, {headers: sbHeaders()});
     if(resA.ok){
       const arr = await resA.json();
-      arr.forEach(a => weekAssignments.set((a.tech_name||'').toLowerCase().trim(), a));
+      // weekAssignments: lowercased tech name → array of assignments
+      arr.forEach(a => {
+        const k = (a.tech_name||'').toLowerCase().trim();
+        if(!weekAssignments.has(k)) weekAssignments.set(k, []);
+        weekAssignments.get(k).push(a);
+      });
     }
   } catch(e){ /* assignments are optional */ }
 
@@ -2430,10 +2435,9 @@ const AREA_KEY_TO_LABEL_HOME = {
   const auditedShifts = [];  // {shift, missingTechs, missingAreas, missedAssignments}
   ['A','B','C'].forEach(s => {
     const w = windows[s];
-    if(!w) return;  // not yet audited (still running or in grace)
+    if(!w) return;
     const submitters = new Set();
     const areasCovered = new Set();
-    // Track each tech's area+line submissions for assignment checking
     const techAreaLines = new Map();
     allRows.forEach(r => {
       const t = new Date(r.submitted_at).getTime();
@@ -2455,14 +2459,15 @@ const AREA_KEY_TO_LABEL_HOME = {
     rosterByShift[s].forEach(name => {
       const lower = name.toLowerCase().trim();
       if(!submitters.has(lower)){ missingTechs.push(name); return; }
-      const asn = weekAssignments.get(lower);
-      if(asn){
+      // A tech can have multiple assignments — check each one independently
+      const techAsns = weekAssignments.get(lower) || [];
+      const have = techAreaLines.get(lower);
+      techAsns.forEach(asn => {
         const required = asn.area + '|' + asn.line;
-        const have = techAreaLines.get(lower);
         if(!have || !have.has(required)){
           missedAssignments.push({name, area: asn.area, line: asn.line});
         }
-      }
+      });
     });
     const missingAreas = AREA_LABELS_HOME.filter(a => !areasCovered.has(a));
     if(missingTechs.length > 0 || missingAreas.length > 0 || missedAssignments.length > 0){

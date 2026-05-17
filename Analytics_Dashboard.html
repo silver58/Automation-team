@@ -898,6 +898,16 @@ svg .bar-clickable:hover{opacity:.7;}
 .missed-foot-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--mut2);margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr);line-height:1.5;}
 .missed-foot-note code{background:var(--bg);padding:1px 5px;border-radius:3px;font-size:9.5px;}
 .missed-foot-note strong{color:var(--txt);}
+.missed-locked-msg{
+  padding:30px 22px;
+  text-align:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--mut);
+  line-height:1.5;
+  background:repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.02) 10px, rgba(255,255,255,.02) 20px);
+  border-radius:6px;
+}
 
 /* "Submitted but missed their assigned line" — distinct from "submitted nothing" */
 .missed-subhead-warn{color:#ff9d3c !important;}
@@ -1574,12 +1584,15 @@ window.lockAssignments = function(){
 };
 
 // Returns the assignments active for a specific week (Monday ISO date),
-// indexed by lowercased tech name → assignment row.
+// indexed by lowercased tech name → array of assignments. One tech can have
+// multiple area+line assignments per week.
 function getAssignmentsForWeek(weekIso){
   const map = new Map();
   (_assignmentsCache || []).forEach(a => {
     if(a.week_start === weekIso){
-      map.set((a.tech_name || '').toLowerCase().trim(), a);
+      const key = (a.tech_name || '').toLowerCase().trim();
+      if(!map.has(key)) map.set(key, []);
+      map.get(key).push(a);
     }
   });
   return map;
@@ -1595,21 +1608,26 @@ window.addAssignment = async function(){
   const lineSel = document.getElementById('asn-line');
   const weekInp = document.getElementById('asn-week');
   if(!techSel || !techSel.value){ alert('Pick a tech.'); return; }
-  if(!areaSel.value || !lineSel.value){ alert('Pick an area and line.'); return; }
+  if(!areaSel.value){ alert('Pick an area.'); return; }
+  // lineSel is now a multi-select — gather all picked options
+  const selectedLines = Array.from(lineSel.selectedOptions).map(o => o.value).filter(Boolean);
+  if(selectedLines.length === 0){ alert('Pick at least one line.'); return; }
   if(!weekInp.value){ alert('Pick a week (Monday).'); return; }
-  const payload = {
+
+  // Build one row per selected line. PostgREST accepts an array body for
+  // bulk insert, and upsert handles the case where some rows already exist.
+  const nowIso = new Date().toISOString();
+  const payload = selectedLines.map(line => ({
     tech_name: techSel.value,
     shift: shiftSel.value,
     area: areaSel.value,
-    line: lineSel.value,
+    line: line,
     week_start: weekInp.value,
     created_by: 'Engineer',
-    updated_at: new Date().toISOString(),
-  };
+    updated_at: nowIso,
+  }));
   try {
-    // Upsert via on_conflict so reassigning a tech for the same week just
-    // updates the row instead of erroring out on the unique index
-    const res = await fetch(`${SB_URL}/rest/v1/line_assignments?on_conflict=tech_name,week_start`, {
+    const res = await fetch(`${SB_URL}/rest/v1/line_assignments?on_conflict=tech_name,area,line,week_start`, {
       method: 'POST',
       headers: {...sbHeaders(), 'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal'},
       body: JSON.stringify(payload),
@@ -3349,37 +3367,41 @@ function buildMissedReportsStats(allNormRows){
       }
     });
 
-    // Pull this week's assignments (key: lowercased tech name → assignment)
+    // Pull this week's assignments (key: lowercased tech name → array)
     const thisWeekIso = fmtIsoDate(weekStartMonday(new Date(win.startMs)));
     const assignments = getAssignmentsForWeek(thisWeekIso);
 
-    // Categorize techs from this shift's roster into three groups:
-    //   1. nothingMissed     — tech submitted something
-    //   2. missingTechs      — tech submitted nothing AT ALL
-    //   3. missedAssignments — tech submitted something, but not for their assigned area+line
+    // Categorize techs from this shift's roster:
+    //   1. submitted something + no assignment       → ok
+    //   2. submitted nothing                          → missingTechs
+    //   3. has assignment(s) but missed some/all     → missedAssignments
+    //
+    // A tech with multiple assignments can fail any subset of them. Each
+    // unmet assignment becomes its own entry in missedAssignments, so
+    // engineers see exactly which lines went uncovered.
     const missingTechs = [];
-    const missedAssignments = [];   // [{name, assignedArea, assignedLine}]
+    const missedAssignments = [];
     rosterByShift[shiftLetter].forEach(name => {
       const lowerName = name.toLowerCase().trim();
       const rec = techRecords.get(lowerName);
       const submittedSomething = rec && rec.submitted;
-      const assignment = assignments.get(lowerName);
+      const techAssignments = assignments.get(lowerName) || [];
 
       if(!submittedSomething){
-        // Submitted nothing → "missing" regardless of assignment
         missingTechs.push(name);
-      } else if(assignment){
-        // Check if any of their submissions matched their assigned area+line
-        const required = (assignment.area || '') + '|' + (assignment.line || '');
+        return;
+      }
+      // Has at least one submission. Check each assignment individually.
+      techAssignments.forEach(asn => {
+        const required = (asn.area || '') + '|' + (asn.line || '');
         if(!rec.areaLines.has(required)){
           missedAssignments.push({
             name,
-            area: assignment.area,
-            line: assignment.line,
+            area: asn.area,
+            line: asn.line,
           });
         }
-      }
-      // Else: submitted something + no assignment → fine
+      });
     });
     missingTechs.sort((a,b) => a.localeCompare(b));
     missedAssignments.sort((a,b) => a.name.localeCompare(b.name));
@@ -3421,6 +3443,27 @@ function buildMissedReportsStats(allNormRows){
 
 function renderMissedReports(stats){
   if(!stats || !stats.shifts) return '';
+
+  // Locked state — anyone without the password sees an opaque panel with
+  // just an Unlock button. Misses include sensitive info (specific tech
+  // names who missed reports) so we don't want to leak them.
+  if(!_assignmentsUnlocked){
+    return `
+      <div class="panel" data-panel-key="missed">
+        <div class="panel-head">
+          <h2>📋 Missed Reports — Shift Audit</h2>
+          <span class="panel-meta">
+            <button class="asn-lock-btn" onclick="unlockAssignments()" title="Password required">🔒 Locked · click to unlock</button>
+          </span>
+        </div>
+        <div class="panel-body">
+          <div class="missed-locked-msg">
+            This audit lists which technicians missed submitting reports during their shift window. Visible to engineers only — enter the password to view.
+          </div>
+        </div>
+      </div>`;
+  }
+
   const shifts = ['A','B','C'].map(s => stats.shifts[s]);
   const totalAlerts = shifts.reduce((acc, s) => acc + (s.status === 'audited' ? s.totalMissing : 0), 0);
 
@@ -3428,11 +3471,14 @@ function renderMissedReports(stats){
     <div class="panel ${totalAlerts > 0 ? 'panel-alert' : ''}" data-panel-key="missed">
       <div class="panel-head">
         <h2>📋 Missed Reports — Shift Audit</h2>
-        <span class="panel-meta">
-          ${totalAlerts === 0
-            ? '<span style="color:var(--grn)">✓ All clear</span>'
-            : `<span style="color:var(--red)">${totalAlerts} alert${totalAlerts===1?'':'s'}</span>`}
-        </span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="panel-meta">
+            ${totalAlerts === 0
+              ? '<span style="color:var(--grn)">✓ All clear</span>'
+              : `<span style="color:var(--red)">${totalAlerts} alert${totalAlerts===1?'':'s'}</span>`}
+          </span>
+          <button class="asn-lock-btn unlocked" onclick="lockAssignments()" title="Re-lock">🔓 Unlocked · click to lock</button>
+        </div>
       </div>
       <div class="panel-body">
         <div class="missed-grid">
@@ -3587,10 +3633,14 @@ function renderAssignmentWeek(label, weekIso, rows, isCurrent, isPast){
       </div>`;
   }
 
-  // Sort rows by shift, then by tech name
+  // Sort by shift → tech → area → line so multi-line assignments cluster
   const sorted = rows.slice().sort((a,b) => {
     if(a.shift !== b.shift) return (a.shift||'').localeCompare(b.shift||'');
-    return (a.tech_name||'').localeCompare(b.tech_name||'');
+    if(a.tech_name !== b.tech_name) return (a.tech_name||'').localeCompare(b.tech_name||'');
+    if(a.area !== b.area) return (a.area||'').localeCompare(b.area||'');
+    // numeric line sort (so "7.5" comes after "7" not before)
+    const la = parseFloat(a.line) || 0, lb = parseFloat(b.line) || 0;
+    return la - lb;
   });
 
   return `
@@ -3652,8 +3702,8 @@ function renderAssignmentForm(defaultWeek){
           </select>
         </div>
         <div class="asn-field">
-          <label>Line</label>
-          <select id="asn-line"></select>
+          <label>Line(s) — hold Ctrl/⌘ to pick multiple</label>
+          <select id="asn-line" multiple size="4"></select>
         </div>
         <div class="asn-field">
           <label>Week (Monday)</label>
@@ -4015,10 +4065,14 @@ function render(){
 
   // Tier organization. Each entry: [section_label, [panel_keys]]
   const tiers = [
-    ['Health',           ['kpis', 'missed', 'assignments', 'shifts']],
+    ['Health',           ['kpis', 'shifts']],
     ['Performance',      ['oee', 'production', 'uph', 'wip']],
     ['Loss & Quality',   ['pareto', 'downtime', 'changeover', 'scout']],
     ['Forensics',        ['pm', 'techs', 'feed']],
+    // Admin tier — password-gated audit + assignment management. Sits at the
+    // bottom because it's an operational tool for engineers, not daily-glance
+    // info. Both panels are locked until the password is entered.
+    ['Admin (Locked)',   ['missed', 'assignments']],
   ];
 
   // Pull pinned panels to a top "Pinned" section (skipping tier section if empty)
